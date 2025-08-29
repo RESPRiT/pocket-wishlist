@@ -1,5 +1,13 @@
+import ItemList from "./ItemList";
+import ListControlMenu from "./ListControlMenu";
+
 function ListView() {
-  return <div>ListView</div>;
+  return (
+    <div>
+      <ListControlMenu />
+      <ItemList />
+    </div>
+  );
 }
 
 export default ListView;
