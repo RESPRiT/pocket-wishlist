@@ -1,1 +1,1 @@
-**pocket wishlist** is a web app that helps your IOTM wishlist.
+**pocket wishlist** is a web app that helps you manage your IOTM wishlist.
