@@ -1,9 +1,11 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "@fontsource-variable/inter";
+@import "@fontsource-variable/roboto-mono";
 
 @theme {
   --font-sans: "Inter Variable", sans-serif;
+  --font-roboto-mono: "Roboto Mono Variable", monospace;
 }
 
 @custom-variant dark (&:is(.dark *));

@@ -11,6 +11,9 @@ importers:
       '@fontsource-variable/inter':
         specifier: ^5.2.6
         version: 5.2.6
+      '@fontsource-variable/roboto-mono':
+        specifier: ^5.2.6
+        version: 5.2.6
       '@fortawesome/fontawesome-svg-core':
         specifier: ^7.0.0
         version: 7.0.0
@@ -366,6 +369,9 @@ packages:
 
   '@fontsource-variable/inter@5.2.6':
     resolution: {integrity: sha512-jks/bficUPQ9nn7GvXvHtlQIPudW7Wx8CrlZoY8bhxgeobNxlQan8DclUJuYF2loYRrGpfrhCIZZspXYysiVGg==}
+
+  '@fontsource-variable/roboto-mono@5.2.6':
+    resolution: {integrity: sha512-U9iAWyACe0BkE8CpzBvvQnGSoFKXwuVmwC2zT3u66xe5EXfGsWmKtem+4xQHgvXazC6wq/m3hPJ5jjqgIkkTUQ==}
 
   '@fortawesome/fontawesome-common-types@7.0.0':
     resolution: {integrity: sha512-PGMrIYXLGA5K8RWy8zwBkd4vFi4z7ubxtet6Yn13Plf6krRTwPbdlCwlcfmoX0R7B4Z643QvrtHmdQ5fNtfFCg==}
@@ -1585,6 +1591,8 @@ snapshots:
       levn: 0.4.1
 
   '@fontsource-variable/inter@5.2.6': {}
+
+  '@fontsource-variable/roboto-mono@5.2.6': {}
 
   '@fortawesome/fontawesome-common-types@7.0.0': {}
 
