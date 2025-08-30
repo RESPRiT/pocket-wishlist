@@ -1,11 +1,11 @@
-import IOTMList from "./IOTMList";
+import List from "./List";
 import ListControlMenu from "./ListControlMenu";
 
 function ListView() {
   return (
     <div>
       <ListControlMenu />
-      <IOTMList />
+      <List />
     </div>
   );
 }
