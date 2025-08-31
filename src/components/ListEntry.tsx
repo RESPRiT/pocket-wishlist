@@ -65,7 +65,7 @@ function ListEntry({ img, name, year, speed, farm, mall }: ListEntryProps) {
             className="w-6 h-6"
           />
           <span className="text-primary-foreground">{`${mall}m`}</span>
-          <span className="text-muted-foreground">/</span>
+          <span className="text-muted-foreground select-none">/</span>
           <ThemedImg
             src="src/assets/mracc.gif"
             alt="Mr. Accesories"
