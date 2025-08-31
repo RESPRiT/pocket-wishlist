@@ -5,7 +5,7 @@ import ListView from "./components/ListView";
 function App() {
   return (
     <main className="flex justify-center">
-      <div className="mx-10 w-full max-w-5xl">
+      <div className="flex flex-col px-4 md:px-10 w-full max-w-md md:max-w-5xl h-screen">
         <Header />
         <Menu />
         <ListView />

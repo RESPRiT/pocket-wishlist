@@ -15,7 +15,7 @@ type ListEntryProps = {
 
 function ListEntry({ img, name, year, speed, farm, mall }: ListEntryProps) {
   return (
-    <div className="flex items-center gap-7 bg-primary px-7 py-3 rounded-md">
+    <div className="flex items-center gap-7 bg-primary w-full px-7 py-3 rounded-md">
       <EntrySection>
         <a href="https://www.google.com">
           <ThemedImg
