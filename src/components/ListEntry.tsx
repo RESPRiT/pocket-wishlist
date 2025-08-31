@@ -17,13 +17,16 @@ function ListEntry({ img, name, year, speed, farm, mall }: ListEntryProps) {
   return (
     <div className="flex items-center gap-7 bg-primary w-full px-7 py-3 rounded-md">
       <EntrySection>
-        <a href="https://www.google.com">
+        <a
+          href="https://www.google.com"
+          className="rounded-sm overflow-hidden hover:outline-2 outline-foreground"
+        >
           <ThemedImg
-            src={img}
+            src={`itemimages/${img}`}
             alt="TODO"
             reColor="bg-foreground"
             bgColor="bg-background"
-            className="w-9 h-9 rounded-sm overflow-hidden hover:outline-2 outline-foreground"
+            className="w-7 h-7 m-2"
           />
         </a>
         <EntryItem label="item">
@@ -59,7 +62,7 @@ function ListEntry({ img, name, year, speed, farm, mall }: ListEntryProps) {
       <EntryItem label="est. mall price">
         <div className="flex justify-center items-center gap-1.5 font-roboto-mono font-normal text-lg">
           <ThemedImg
-            src="src/assets/meat.gif"
+            src="itemimages/meat.gif"
             alt="meat"
             reColor="bg-foreground"
             className="w-6 h-6"
@@ -67,7 +70,7 @@ function ListEntry({ img, name, year, speed, farm, mall }: ListEntryProps) {
           <span className="text-primary-foreground">{`${mall}m`}</span>
           <span className="text-muted-foreground select-none">/</span>
           <ThemedImg
-            src="src/assets/mracc.gif"
+            src="itemimages/mracc.gif"
             alt="Mr. Accesories"
             reColor="bg-accent"
             className="w-7 h-7 -mx-0.5"

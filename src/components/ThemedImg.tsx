@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 
 function ThemedImg({
   className,
@@ -14,23 +14,53 @@ function ThemedImg({
   reColor: string;
   bgColor?: string;
 }) {
+  const [imgSrc, setImgSrc] = useState("placeholder");
+  const url = `https://s3.amazonaws.com/images.kingdomofloathing.com/${src}`;
+
+  useEffect(() => {
+    const cached = localStorage.getItem(src);
+    if (cached) {
+      setImgSrc(cached);
+      return;
+    }
+
+    async function storeImage() {
+      try {
+        const image = await fetch(url);
+        const blob = await image.blob();
+        const base64 = await new Promise<string>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(reader.result as string);
+          reader.onerror = reject;
+          reader.readAsDataURL(blob);
+        });
+
+        localStorage.setItem(src, base64);
+      } catch (error) {
+        console.warn("Invalid image", url);
+      }
+    }
+
+    storeImage();
+  }, [src, url]);
+
   return (
-    <div className={`relative ${className}`} {...props}>
-      <div
-        className={`absolute z-20 inset-0 ${reColor} mix-blend-lighten flex items-center justify-center`}
-      ></div>
-      <img
-        src={src}
-        alt={alt}
-        className={`absolute z-10 inset-0 w-full h-full object-cover mix-blend-multiply`}
-      />
+    <div className="grid" {...props}>
       {bgColor !== undefined ? (
-        <div
-          className={`absolute z-0 inset-0 ${bgColor} flex items-center justify-center`}
-        ></div>
+        <div className={`col-start-1 row-start-1 ${bgColor}`}></div>
       ) : (
         <></>
       )}
+      <div className={`${className} col-start-1 row-start-1`}>
+        <img
+          src={imgSrc}
+          alt={alt}
+          className={`w-full h-full object-cover mix-blend-multiply`}
+        />
+      </div>
+      <div
+        className={`col-start-1 row-start-1 ${reColor} mix-blend-lighten`}
+      ></div>
     </div>
   );
 }
