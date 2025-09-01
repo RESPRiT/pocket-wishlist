@@ -14,7 +14,11 @@ type Price = {
 
 // TODO: Move/hoist pricing logic elsewhere (and probably rework data schema)
 function getUnboxedName(item: IOTM): string {
-  if (item.opened_names && !Array.isArray(item.opened_names)) {
+  if (
+    item.type !== "skill" &&
+    item.opened_names &&
+    !Array.isArray(item.opened_names)
+  ) {
     return item.opened_names;
   } else if (item.familiar_names && !Array.isArray(item.familiar_names)) {
     return item.familiar_names;

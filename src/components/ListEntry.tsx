@@ -24,7 +24,7 @@ function ListEntry({
   mrAs,
 }: ListEntryProps) {
   return (
-    <div className="flex items-center gap-7 bg-primary w-full px-7 py-3 rounded-md">
+    <div className="flex items-center justify-center gap-7 bg-primary w-full px-7 py-3 rounded-md">
       <EntrySection>
         <a
           href="https://www.google.com"
@@ -39,12 +39,12 @@ function ListEntry({
           />
         </a>
         <EntryItem label="item">
-          <div className="font-normal text-primary-foreground text-lg text-center w-3xs -mt-0.5">
+          <div className="font-normal text-primary-foreground text-base text-center w-3xs -mt-0.5">
             {name}
           </div>
         </EntryItem>
         <EntryItem label="year">
-          <Badge className="text-base bg-secondary text-background">
+          <Badge className="w-14 text-base bg-secondary text-background">
             {year}
           </Badge>
         </EntryItem>
@@ -61,15 +61,17 @@ function ListEntry({
             {farm ? farm : "?"}
           </Badge>
         </EntryItem>
+        {/*
         <EntryItem label="avg.">
           <Badge className="text-base bg-secondary text-background">
             {speed && farm ? (speed + farm) / 2 : "?"}
           </Badge>
         </EntryItem>
+        */}
       </EntrySection>
       <EntrySpacer />
       <EntryItem label="est. mall price">
-        <div className="flex justify-center items-center gap-1.5 font-roboto-mono font-normal text-lg">
+        <div className="flex justify-center items-center gap-1.5 w-42 font-roboto-mono font-normal text-lg">
           <ThemedImg
             src="itemimages/meat.gif"
             alt="meat"
