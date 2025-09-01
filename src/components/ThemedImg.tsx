@@ -36,8 +36,9 @@ function ThemedImg({
         });
 
         localStorage.setItem(src, base64);
+        setImgSrc(base64);
       } catch (error) {
-        console.warn("Invalid image", url);
+        console.warn("Couldn't store image", url, error);
       }
     }
 

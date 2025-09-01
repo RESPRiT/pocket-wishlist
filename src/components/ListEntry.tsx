@@ -10,10 +10,19 @@ type ListEntryProps = {
   year: number;
   speed: number;
   farm: number;
-  mall: number;
+  mall: number | null;
+  mrAs: number | null;
 };
 
-function ListEntry({ img, name, year, speed, farm, mall }: ListEntryProps) {
+function ListEntry({
+  img,
+  name,
+  year,
+  speed,
+  farm,
+  mall,
+  mrAs,
+}: ListEntryProps) {
   return (
     <div className="flex items-center gap-7 bg-primary w-full px-7 py-3 rounded-md">
       <EntrySection>
@@ -44,17 +53,17 @@ function ListEntry({ img, name, year, speed, farm, mall }: ListEntryProps) {
       <EntrySection>
         <EntryItem label="speed">
           <Badge className="text-base bg-secondary text-background">
-            {speed}
+            {speed ? speed : "?"}
           </Badge>
         </EntryItem>
         <EntryItem label="farm">
           <Badge className="text-base bg-secondary text-background">
-            {farm}
+            {farm ? farm : "?"}
           </Badge>
         </EntryItem>
         <EntryItem label="avg.">
           <Badge className="text-base bg-secondary text-background">
-            {(speed + farm) / 2}
+            {speed && farm ? (speed + farm) / 2 : "?"}
           </Badge>
         </EntryItem>
       </EntrySection>
@@ -67,7 +76,9 @@ function ListEntry({ img, name, year, speed, farm, mall }: ListEntryProps) {
             reColor="bg-foreground"
             className="w-6 h-6"
           />
-          <span className="text-primary-foreground">{`${mall}m`}</span>
+          <span className="text-primary-foreground">
+            {mall ? `${Math.round(mall / 1000000)}m` : "∞"}
+          </span>
           <span className="text-muted-foreground select-none">/</span>
           <ThemedImg
             src="itemimages/mracc.gif"
@@ -76,7 +87,7 @@ function ListEntry({ img, name, year, speed, farm, mall }: ListEntryProps) {
             className="w-7 h-7 -mx-0.5"
           />
           <span className="text-accent-foreground">
-            {Math.round(mall / 80)}
+            {mall && mrAs ? (mall / mrAs).toFixed(1) : "∞"}
           </span>
         </div>
       </EntryItem>
