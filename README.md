@@ -9,7 +9,7 @@
 - [x] Get and cache images from KOL.com
   - [ ] Add familiar images to `iotm.json`
 - [ ] Generate wiki links
-- [ ] Get and cache pricegun data
+- [x] Get and cache pricegun data
 - [ ] Un-hardcore Mr. A cost calculation
 - [ ] Improve layout of List and derivatives
   - [ ] Add responsiveness
