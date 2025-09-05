@@ -1,3 +1,4 @@
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import EntryItem from "./EntryItem";
 import EntrySection from "./EntrySection";
 import EntrySpacer from "./EntrySpacer";
@@ -37,6 +38,15 @@ function ListEntry({
             bgColor="bg-background"
             className="w-7 h-7 m-2"
           />
+          <div className="col-start-1 row-start-1 w-full h-full relative opacity-0 hover:opacity-100">
+            <div className="absolute right-0.5">
+              <FontAwesomeIcon
+                icon={["fas", "up-right-from-square"]}
+                color="primary-foreground"
+                size="xs"
+              />
+            </div>
+          </div>
         </a>
         <EntryItem label="item">
           <div className="font-normal text-primary-foreground text-base text-center w-3xs -mt-0.5">
@@ -56,18 +66,16 @@ function ListEntry({
             {speed ? speed : "?"}
           </Badge>
         </EntryItem>
-        <EntryItem label="farm">
+        <EntryItem label="freed">
           <Badge className="text-base bg-secondary text-background">
             {farm ? farm : "?"}
           </Badge>
         </EntryItem>
-        {/*
         <EntryItem label="avg.">
-          <Badge className="text-base bg-secondary text-background">
+          <Badge className="w-9 text-base bg-secondary text-background">
             {speed && farm ? (speed + farm) / 2 : "?"}
           </Badge>
         </EntryItem>
-        */}
       </EntrySection>
       <EntrySpacer />
       <EntryItem label="est. mall price">
