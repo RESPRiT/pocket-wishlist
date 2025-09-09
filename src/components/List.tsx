@@ -101,6 +101,12 @@ function List() {
     () =>
       iotms
         .filter((item) => item.type !== "vip")
+        .sort(
+          (a, b) =>
+            (a.month ? a.year - a.month * (1 / 12) : a.year) -
+            (b.month ? b.year + b.month * (1 / 12) : b.year)
+        )
+        .reverse()
         .map((item) => ({
           img: item.img,
           name: getUnboxedName(item),

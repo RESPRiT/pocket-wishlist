@@ -16,7 +16,9 @@
   --color-foreground: oklch(26.7% 0.048517 219.8);
   --color-secondary: oklch(64.4% 0.101908 187.4);
   --color-accent: oklch(64.4% 0.15074 118.6);
+  --color-select: oklch(61.5% 0.139389 244.9);
 
+  --select: var(--color-select);
   --radius: 0.625rem;
   --background: var(--color-background);
   --foreground: var(--color-foreground);
@@ -90,6 +92,7 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
+  --color-select: var(--select);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
