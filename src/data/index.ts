@@ -11,8 +11,8 @@ export type IOTM = {
   skill_names?: string | string[];
   year: number;
   month: number;
-  speed_tier: number;
-  aftercore_tier: number;
+  speed_tier?: number;
+  aftercore_tier?: number;
   tradeable: boolean;
   type: string;
   equipment_slot?: string;

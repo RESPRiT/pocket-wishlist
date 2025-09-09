@@ -29,7 +29,7 @@ function getUnboxedName(item: IOTM): string {
 
 function List() {
   const [prices, setPrices] = useState([] as Price[]);
-  // memoize prevents useEffect from activating more than once
+  // memoize prevents useEffect from activating more than once;
   // no dependencies, so url is only calculated on the first render
   const url = useMemo(
     () =>
@@ -83,7 +83,8 @@ function List() {
   const getPrice = useCallback(
     (itemId: number): number | null => {
       // this isn't strict equality because it's actually an evil lie:
-      // JSON.parse() results in all object fields being strings
+      // JSON.parse() results in all object fields being strings,
+      // so, fields that should be e.g. numbers are actually strings
       // (Zod would help fix this)
       const priceEntry = prices.find((price) => price.itemId == itemId);
 

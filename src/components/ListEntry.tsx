@@ -1,15 +1,28 @@
+import { useMemo } from "react";
 import EntryItem from "./EntryItem";
 import EntrySection from "./EntrySection";
 import EntrySpacer from "./EntrySpacer";
 import ThemedImg from "./ThemedImg";
 import { Badge } from "./ui/badge";
 
+type BackgroundStyle = {
+  backgroundColor: string;
+};
+
+function interpolateColorScale(percent: number): BackgroundStyle {
+  return {
+    backgroundColor: `color-mix(in srgb, var(--destructive) ${
+      100 * percent
+    }%, var(--secondary))`,
+  };
+}
+
 type ListEntryProps = {
   img: string;
   name: string;
   year: number;
-  speed: number;
-  farm: number;
+  speed?: number;
+  farm?: number;
   mall: number | null;
   mrAs: number | null;
 };
@@ -23,6 +36,11 @@ function ListEntry({
   mall,
   mrAs,
 }: ListEntryProps) {
+  const yearPercent = useMemo(() => {
+    const currentYear = new Date().getFullYear();
+    return Math.min(5 / 6, (currentYear - year) / (currentYear - 2004));
+  }, [year]);
+
   return (
     <div className="flex items-center justify-center gap-7 bg-primary w-full px-7 py-3 rounded-md">
       <EntrySection>
@@ -44,7 +62,10 @@ function ListEntry({
           </div>
         </EntryItem>
         <EntryItem label="year">
-          <Badge className="w-14 text-base bg-secondary text-background">
+          <Badge
+            className="w-14 text-base text-background"
+            style={interpolateColorScale(yearPercent)}
+          >
             {year}
           </Badge>
         </EntryItem>
@@ -52,18 +73,37 @@ function ListEntry({
       <EntrySpacer />
       <EntrySection>
         <EntryItem label="speed">
-          <Badge className="text-base bg-secondary text-background">
-            {speed ? speed : "?"}
+          <Badge
+            className="text-base text-background"
+            style={interpolateColorScale(
+              speed !== undefined ? Math.max(0, (speed - 1) / 6) : 1
+            )}
+          >
+            {speed !== undefined ? speed : "?"}
           </Badge>
         </EntryItem>
         <EntryItem label="freed">
-          <Badge className="text-base bg-secondary text-background">
-            {farm ? farm : "?"}
+          <Badge
+            className="text-base text-background"
+            style={interpolateColorScale(
+              farm !== undefined ? Math.max(0, (farm - 1) / 6) : 1
+            )}
+          >
+            {farm !== undefined ? farm : "?"}
           </Badge>
         </EntryItem>
         <EntryItem label="avg.">
-          <Badge className="w-9 text-base bg-secondary text-background">
-            {speed && farm ? (speed + farm) / 2 : "?"}
+          <Badge
+            className="w-9 text-base text-background"
+            style={interpolateColorScale(
+              speed !== undefined && farm !== undefined
+                ? Math.max(0, ((speed + farm) / 2 - 1) / 6)
+                : 1
+            )}
+          >
+            {speed !== undefined && farm !== undefined
+              ? (speed + farm) / 2
+              : "?"}
           </Badge>
         </EntryItem>
       </EntrySection>
