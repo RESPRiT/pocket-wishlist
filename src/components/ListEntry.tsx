@@ -20,6 +20,7 @@ function interpolateColorScale(percent: number): BackgroundStyle {
 type ListEntryProps = {
   img: string;
   name: string;
+  packaged_name: string;
   year: number;
   speed?: number;
   farm?: number;
@@ -30,6 +31,7 @@ type ListEntryProps = {
 function ListEntry({
   img,
   name,
+  packaged_name,
   year,
   speed,
   farm,
@@ -41,11 +43,22 @@ function ListEntry({
     return Math.min(5 / 6, (currentYear - year) / (currentYear - 2004));
   }, [year]);
 
+  const wikiUrl = useMemo(
+    () =>
+      `https://wiki.kingdomofloathing.com/${encodeURIComponent(
+        packaged_name
+          .charAt(0)
+          .toUpperCase()
+          .concat(packaged_name.slice(1).replace(/ /g, "_"))
+      )}`,
+    [packaged_name]
+  );
+
   return (
     <div className="flex items-center justify-center gap-7 bg-primary w-full px-7 py-3 rounded-md">
       <EntrySection>
         <a
-          href="https://www.google.com"
+          href={wikiUrl}
           className="rounded-sm overflow-hidden hover:outline-2 outline-foreground"
         >
           <ThemedImg

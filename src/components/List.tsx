@@ -111,6 +111,7 @@ function List() {
         .map((item) => ({
           img: item.img,
           name: getUnboxedName(item),
+          packaged_name: item.packaged_name,
           year: item.year,
           speed: item.speed_tier,
           farm: item.aftercore_tier,

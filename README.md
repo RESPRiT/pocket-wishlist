@@ -8,7 +8,7 @@
 - [x] Color scale for tier badge
 - [x] Get and cache images from KOL.com
   - [ ] Add familiar images to `iotm.json`
-- [ ] Generate wiki links
+- [x] Generate wiki links
 - [x] Get and cache pricegun data
 - [x] Un-hardcore Mr. A cost calculation
 - [ ] Improve layout of List and derivatives
