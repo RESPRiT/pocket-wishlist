@@ -14,6 +14,14 @@
 - [ ] Improve layout of List and derivatives
   - [ ] Add responsiveness
 - [ ] (stub) Implement ListControlMenu
+  - [ ] Sorting options
+  - [ ] Tier weights
+  - [ ] Toggle display name/icon
+  - [ ] Total cost of wishlist
+  - [ ] Historical price trends
+  - [ ] Toggle compact/label-less rows
+  - [ ] Search for entry
+    - [ ] Ctrl-K for search
 - [ ] (stub) Design UI for:
   - [ ] Con indicator
   - [ ] IOTY indicator
@@ -21,6 +29,14 @@
   - [ ] Slot indicator
   - [ ] Derivatives
   - [ ] Price last updated indicator
+  - [ ] Price trends indicator
+  - [ ] Sales volume indicator
 - [ ] (stub) Get data for:
   - [ ] Summary descriptions
   - [o] Lowest mall price
+    - [ ] Special mall handling for foldables
+- [ ] Loading indicator
+- [ ] Detect/mark ownership
+- [ ] Wishlist feature
+- [ ] Custom/opinionated sections
+- [ ] Grid view

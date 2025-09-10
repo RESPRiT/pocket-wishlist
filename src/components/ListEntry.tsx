@@ -131,9 +131,9 @@ function ListEntry({
           />
           <span className="text-primary-foreground">
             {mall
-              ? mall < 1000000000
+              ? Math.round(mall / 1000000) < 1000
                 ? `${Math.round(mall / 1000000)}m`
-                : `${Math.round(mall / 1000000000)}b`
+                : `${Math.min(Math.round(mall / 100000000) / 10, 999)}b`
               : "∞"}
           </span>
           <span className="text-muted-foreground select-none">/</span>
@@ -145,9 +145,11 @@ function ListEntry({
           />
           <span className="text-accent-foreground">
             {mall && mrAs
-              ? mall < 100000000000
+              ? mall < mrAs * 100
                 ? (mall / mrAs).toFixed(1)
-                : Math.round(mall / mrAs)
+                : mall / mrAs < 1000
+                ? Math.round(mall / mrAs)
+                : `${Math.round(mall / mrAs / 1000)}k`
               : "∞"}
           </span>
         </div>

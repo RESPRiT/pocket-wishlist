@@ -91,10 +91,11 @@ function List() {
 
       if (priceEntry === undefined) {
         if (mallEntry === undefined) return null;
-        //if (mallEntry.lowestMall >= 9500000000) return -1;
         if (mallEntry.lowestMall > 0) return mallEntry.lowestMall;
         return null;
       }
+      if (mallEntry !== undefined && mallEntry.lowestMall < priceEntry.value)
+        return mallEntry.lowestMall;
       return priceEntry.value;
     },
     [prices]
