@@ -20,6 +20,7 @@
   - [ ] Standard indicator
   - [ ] Slot indicator
   - [ ] Derivatives
+  - [ ] Price last updated indicator
 - [ ] (stub) Get data for:
   - [ ] Summary descriptions
-  - [ ] Lowest mall price
+  - [o] Lowest mall price

@@ -1,6 +1,6 @@
 import ListEntry from "./ListEntry";
 
-import { iotms } from "@/data";
+import { iotms, mall } from "@/data";
 import type { IOTM } from "@/data";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
@@ -87,10 +87,14 @@ function List() {
       // so, fields that should be e.g. numbers are actually strings
       // (Zod would help fix this)
       const priceEntry = prices.find((price) => price.itemId == itemId);
+      const mallEntry = mall.find((price) => price.id == itemId);
 
-      // TO-DO: Probably need to scrape the Marketplace for IOTMs (most)
-      // that haven't had a sale in the past 2 weeks
-      if (priceEntry === undefined) return null;
+      if (priceEntry === undefined) {
+        if (mallEntry === undefined) return null;
+        //if (mallEntry.lowestMall >= 9500000000) return -1;
+        if (mallEntry.lowestMall > 0) return mallEntry.lowestMall;
+        return null;
+      }
       return priceEntry.value;
     },
     [prices]

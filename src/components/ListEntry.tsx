@@ -130,7 +130,11 @@ function ListEntry({
             className="w-6 h-6"
           />
           <span className="text-primary-foreground">
-            {mall ? `${Math.round(mall / 1000000)}m` : "∞"}
+            {mall
+              ? mall < 1000000000
+                ? `${Math.round(mall / 1000000)}m`
+                : `${Math.round(mall / 1000000000)}b`
+              : "∞"}
           </span>
           <span className="text-muted-foreground select-none">/</span>
           <ThemedImg
@@ -140,7 +144,11 @@ function ListEntry({
             className="w-7 h-7 -mx-0.5"
           />
           <span className="text-accent-foreground">
-            {mall && mrAs ? (mall / mrAs).toFixed(1) : "∞"}
+            {mall && mrAs
+              ? mall < 100000000000
+                ? (mall / mrAs).toFixed(1)
+                : Math.round(mall / mrAs)
+              : "∞"}
           </span>
         </div>
       </EntryItem>
