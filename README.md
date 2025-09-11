@@ -13,7 +13,8 @@
 - [x] Un-hardcore Mr. A cost calculation
 - [ ] Improve layout of List and derivatives
   - [ ] Add responsiveness
-- [ ] Darken at the bottom of year; lighten at the top of tier; darken at price
+- [x] Darken at price
+- [ ] Darken at the bottom of year; lighten at the top of tier;
 - [ ] (stub) Implement ListControlMenu
   - [ ] Sorting options
   - [ ] Tier weights

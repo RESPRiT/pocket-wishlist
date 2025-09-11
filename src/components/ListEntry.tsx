@@ -17,6 +17,58 @@ function interpolateColorScale(percent: number): BackgroundStyle {
   };
 }
 
+function adjustLightness(
+  colorVariable: string,
+  percent: number
+): BackgroundStyle {
+  return {
+    backgroundColor: `color-mix(in oklch, var(${colorVariable}) ${
+      100 - Math.abs(percent)
+    }%, ${percent < 0 ? "var(--destructive)" : "white"})`,
+  };
+}
+
+function logBracketScale(
+  x: number,
+  brackets = [
+    [1, 2],
+    [2, 3],
+    [3, 5],
+    [5, 10],
+    [10, 50],
+    [50, 12_500],
+  ],
+  range = [0, -30]
+) {
+  const bracketNum = brackets.findIndex(
+    (bracket) =>
+      Math.ceil(x - 0.8) >= bracket[0] && Math.ceil(x - 0.8) < bracket[1]
+  );
+
+  if (bracketNum === -1) return range[1];
+
+  const from = brackets[bracketNum];
+  const to = [
+    range[0] + ((range[1] - range[0]) * bracketNum) / brackets.length,
+    range[0] + ((range[1] - range[0]) * (bracketNum + 0.5)) / brackets.length,
+  ];
+
+  if (x <= 2) {
+    console.log(x, bracketNum, from, to);
+    console.log(
+      to[0] +
+        ((Math.log(x) - Math.log(from[0])) * (to[1] - to[0])) /
+          (Math.log(from[1]) - Math.log(from[0]))
+    );
+  }
+
+  return (
+    to[0] +
+    ((Math.log(x) - Math.log(from[0])) * (to[1] - to[0])) /
+      (Math.log(from[1]) - Math.log(from[0]))
+  );
+}
+
 type ListEntryProps = {
   img: string;
   name: string;
@@ -55,7 +107,13 @@ function ListEntry({
   );
 
   return (
-    <div className="flex items-center justify-center gap-7 bg-primary w-full px-7 py-3 rounded-md hover:outline-foreground-muted hover:outline-2">
+    <div
+      className="flex items-center justify-center gap-7 bg-primary w-full px-7 py-3 rounded-md hover:outline-foreground-muted hover:outline-2"
+      style={adjustLightness(
+        "--primary",
+        mall && mrAs ? logBracketScale(mall / mrAs) : logBracketScale(-1)
+      )}
+    >
       <EntrySection>
         <a
           href={wikiUrl}
@@ -131,10 +189,8 @@ function ListEntry({
           />
           <span
             className={`text-primary-foreground ${
-              mall && mall >= 1000000000 ? "text-xl" : ""
-            } ${mall && mall >= 10000000000 ? "font-bold" : ""} ${
-              mall === null ? "font-bold text-2xl" : ""
-            }`}
+              mall && Math.round(mall / 1_000_000) >= 1000 ? "text-xl" : ""
+            } ${mall === null ? "font-bold text-2xl" : ""}`}
           >
             {mall
               ? Math.round(mall / 1000000) < 1000
@@ -151,10 +207,8 @@ function ListEntry({
           />
           <span
             className={`text-accent-foreground ${
-              mall && mall >= 1000000000 ? "text-xl" : ""
-            } ${mall && mall >= 10000000000 ? "font-bold" : ""} ${
-              mall === null ? "font-bold text-2xl" : ""
-            }`}
+              mall && Math.round(mall / 1_000_000) >= 1000 ? "text-xl" : ""
+            } ${mall === null ? "font-bold text-2xl" : ""}`}
           >
             {mall && mrAs
               ? mall < mrAs * 100
