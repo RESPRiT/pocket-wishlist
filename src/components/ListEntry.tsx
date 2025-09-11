@@ -55,7 +55,7 @@ function ListEntry({
   );
 
   return (
-    <div className="flex items-center justify-center gap-7 bg-primary w-full px-7 py-3 rounded-md">
+    <div className="flex items-center justify-center gap-7 bg-primary w-full px-7 py-3 rounded-md hover:outline-foreground-muted hover:outline-2">
       <EntrySection>
         <a
           href={wikiUrl}
@@ -70,7 +70,7 @@ function ListEntry({
           />
         </a>
         <EntryItem label="item">
-          <div className="font-normal text-primary-foreground text-base text-center w-3xs -mt-0.5">
+          <div className="font-normal text-primary-foreground text-base text-center text-balance w-3xs -mt-0.5">
             {name}
           </div>
         </EntryItem>
@@ -129,7 +129,13 @@ function ListEntry({
             reColor="bg-foreground"
             className="w-6 h-6"
           />
-          <span className="text-primary-foreground">
+          <span
+            className={`text-primary-foreground ${
+              mall && mall >= 1000000000 ? "text-xl" : ""
+            } ${mall && mall >= 10000000000 ? "font-bold" : ""} ${
+              mall === null ? "font-bold text-2xl" : ""
+            }`}
+          >
             {mall
               ? Math.round(mall / 1000000) < 1000
                 ? `${Math.round(mall / 1000000)}m`
@@ -143,7 +149,13 @@ function ListEntry({
             reColor="bg-accent"
             className="w-7 h-7 -mx-0.5"
           />
-          <span className="text-accent-foreground">
+          <span
+            className={`text-accent-foreground ${
+              mall && mall >= 1000000000 ? "text-xl" : ""
+            } ${mall && mall >= 10000000000 ? "font-bold" : ""} ${
+              mall === null ? "font-bold text-2xl" : ""
+            }`}
+          >
             {mall && mrAs
               ? mall < mrAs * 100
                 ? (mall / mrAs).toFixed(1)
