@@ -27,7 +27,8 @@
 - [ ] (stub) Design UI for:
   - [ ] Con indicator
   - [ ] IOTY indicator
-  - [ ] Standard indicator
+  - [x] Standard indicator
+    - [ ] Double-encoded indicator
   - [ ] Slot indicator
   - [ ] Derivatives
   - [ ] Price last updated indicator

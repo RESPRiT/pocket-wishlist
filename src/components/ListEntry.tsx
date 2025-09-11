@@ -5,10 +5,12 @@ import EntrySpacer from "./EntrySpacer";
 import ThemedImg from "./ThemedImg";
 import { Badge } from "./ui/badge";
 
+// Probably shouldn't strictly return a backgroundColor
 type BackgroundStyle = {
   backgroundColor: string;
 };
 
+// TODO: this is basically the same function as the one below
 function interpolateColorScale(percent: number): BackgroundStyle {
   return {
     backgroundColor: `color-mix(in srgb, var(--destructive) ${
@@ -18,13 +20,14 @@ function interpolateColorScale(percent: number): BackgroundStyle {
 }
 
 function adjustLightness(
-  colorVariable: string,
+  startColor: string,
+  endColor = "black",
   percent: number
 ): BackgroundStyle {
   return {
-    backgroundColor: `color-mix(in oklch, var(${colorVariable}) ${
+    backgroundColor: `color-mix(in oklch, ${startColor} ${
       100 - Math.abs(percent)
-    }%, ${percent < 0 ? "var(--destructive)" : "white"})`,
+    }%, ${percent < 0 ? endColor : "white"})`,
   };
 }
 
@@ -52,15 +55,6 @@ function logBracketScale(
     range[0] + ((range[1] - range[0]) * bracketNum) / brackets.length,
     range[0] + ((range[1] - range[0]) * (bracketNum + 0.5)) / brackets.length,
   ];
-
-  if (x <= 2) {
-    console.log(x, bracketNum, from, to);
-    console.log(
-      to[0] +
-        ((Math.log(x) - Math.log(from[0])) * (to[1] - to[0])) /
-          (Math.log(from[1]) - Math.log(from[0]))
-    );
-  }
 
   return (
     to[0] +
@@ -106,11 +100,25 @@ function ListEntry({
     [packaged_name]
   );
 
+  const standardYear = useMemo(() => {
+    const currentYear = new Date().getFullYear();
+    if (packaged_name === "Clan VIP Lounge invitation") return 0;
+
+    return currentYear - year;
+  }, [year, packaged_name]);
+
   return (
     <div
-      className="flex items-center justify-center gap-7 bg-primary w-full px-7 py-3 rounded-md hover:outline-foreground-muted hover:outline-2"
+      className={`flex items-center justify-center gap-7 bg-primary w-full px-7 py-3 rounded-md hover:outline-foreground-muted hover:outline-2 ${
+        standardYear < 3 ? "outline-secondary" : ""
+      }`}
       style={adjustLightness(
-        "--primary",
+        standardYear < 3
+          ? `color-mix(in oklch, var(--secondary-light) ${
+              25 + 75 * (1 - standardYear / 3)
+            }%, var(--primary))`
+          : "var(--primary)",
+        standardYear < 3 ? "black" : "var(--destructive)",
         mall && mrAs ? logBracketScale(mall / mrAs) : logBracketScale(-1)
       )}
     >
