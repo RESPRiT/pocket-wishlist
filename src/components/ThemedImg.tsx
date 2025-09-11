@@ -2,13 +2,13 @@ import React, { useEffect, useState } from "react";
 
 function ThemedImg({
   className,
+  style,
   src,
   alt,
   reColor,
   bgColor,
   ...props
 }: React.HTMLAttributes<HTMLDivElement> & {
-  className: string;
   src: string;
   alt: string;
   reColor: string;
@@ -56,6 +56,7 @@ function ThemedImg({
         <img
           src={imgSrc}
           alt={alt}
+          style={style}
           className={`w-full h-full object-cover mix-blend-multiply`}
         />
       </div>

@@ -1,8 +1,9 @@
-import { useMemo } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import EntryItem from "./EntryItem";
 import EntrySection from "./EntrySection";
 import EntrySpacer from "./EntrySpacer";
 import ThemedImg from "./ThemedImg";
+import Sparkle from "./Sparkle";
 import { Badge } from "./ui/badge";
 
 type BackgroundStyle = {
@@ -38,6 +39,28 @@ function ListEntry({
   mall,
   mrAs,
 }: ListEntryProps) {
+  const ref = useRef<HTMLDivElement | null>(null);
+  const [size, setSize] = useState({ width: 0, height: 0 });
+
+  useEffect(() => {
+    if (!ref.current) return;
+
+    setSize({
+      width: ref.current.offsetWidth,
+      height: ref.current.offsetHeight,
+    });
+
+    const observer = new ResizeObserver(([entry]) => {
+      const width = entry.contentRect.width;
+      const height = entry.contentRect.height;
+
+      setSize({ width, height });
+    });
+
+    observer.observe(ref.current);
+    return () => observer.disconnect();
+  }, []);
+
   const yearPercent = useMemo(() => {
     const currentYear = new Date().getFullYear();
     return Math.min(5 / 6, (currentYear - year) / (currentYear - 2004));
@@ -54,8 +77,27 @@ function ListEntry({
     [packaged_name]
   );
 
+  const renderedStars = useMemo(() => {
+    const mrAsToStars = (num: number) => {
+      if (num < 2) return 0;
+      if (num < 3) return 1;
+      if (num < 5) return 2;
+      if (num < 10) return 3;
+      if (num < 20) return 4;
+      return 5;
+    };
+
+    const stars = Array.from({
+      length: mall && mrAs ? mrAsToStars(mall / mrAs) : 6,
+    });
+
+    return stars.map(() => {
+      return <Sparkle widthBounds={size.width} heightBounds={size.height} />;
+    });
+  }, [mall, mrAs, size]);
+
   return (
-    <div className="flex items-center justify-center gap-7 bg-primary w-full px-7 py-3 rounded-md">
+    <div className="flex items-center justify-center gap-7 bg-primary w-full px-7 py-3 rounded-md hover:outline-foreground-muted hover:outline-2">
       <EntrySection>
         <a
           href={wikiUrl}
@@ -70,8 +112,8 @@ function ListEntry({
           />
         </a>
         <EntryItem label="item">
-          <div className="font-normal text-primary-foreground text-base text-center w-3xs -mt-0.5">
-            {name}
+          <div className="font-normal text-primary-foreground text-base text-center text-balance w-3xs -mt-0.5">
+            <span className="relative z-10">{name}</span>
           </div>
         </EntryItem>
         <EntryItem label="year">
@@ -121,39 +163,42 @@ function ListEntry({
         </EntryItem>
       </EntrySection>
       <EntrySpacer />
-      <EntryItem label="est. mall price">
-        <div className="flex justify-center items-center gap-1.5 w-42 font-roboto-mono font-normal text-lg">
-          <ThemedImg
-            src="itemimages/meat.gif"
-            alt="meat"
-            reColor="bg-foreground"
-            className="w-6 h-6"
-          />
-          <span className="text-primary-foreground">
-            {mall
-              ? Math.round(mall / 1000000) < 1000
-                ? `${Math.round(mall / 1000000)}m`
-                : `${Math.min(Math.round(mall / 100000000) / 10, 999)}b`
-              : "∞"}
-          </span>
-          <span className="text-muted-foreground select-none">/</span>
-          <ThemedImg
-            src="itemimages/mracc.gif"
-            alt="Mr. Accesories"
-            reColor="bg-accent"
-            className="w-7 h-7 -mx-0.5"
-          />
-          <span className="text-accent-foreground">
-            {mall && mrAs
-              ? mall < mrAs * 100
-                ? (mall / mrAs).toFixed(1)
-                : mall / mrAs < 1000
-                ? Math.round(mall / mrAs)
-                : `${Math.round(mall / mrAs / 1000)}k`
-              : "∞"}
-          </span>
-        </div>
-      </EntryItem>
+      <div ref={ref} className="relative">
+        {renderedStars}
+        <EntryItem label="est. mall price">
+          <div className="flex justify-center items-center gap-1.5 w-42 font-roboto-mono font-normal text-lg">
+            <ThemedImg
+              src="itemimages/meat.gif"
+              alt="meat"
+              reColor="bg-foreground"
+              className="w-6 h-6"
+            />
+            <span className="relative z-10 text-primary-foreground">
+              {mall
+                ? Math.round(mall / 1000000) < 1000
+                  ? `${Math.round(mall / 1000000)}m`
+                  : `${Math.min(Math.round(mall / 100000000) / 10, 999)}b`
+                : "∞"}
+            </span>
+            <span className="text-muted-foreground select-none">/</span>
+            <ThemedImg
+              src="itemimages/mracc.gif"
+              alt="Mr. Accesories"
+              reColor="bg-accent"
+              className="w-7 h-7 -mx-0.5"
+            />
+            <span className="text-accent-foreground">
+              {mall && mrAs
+                ? mall < mrAs * 100
+                  ? (mall / mrAs).toFixed(1)
+                  : mall / mrAs < 1000
+                  ? Math.round(mall / mrAs)
+                  : `${Math.round(mall / mrAs / 1000)}k`
+                : "∞"}
+            </span>
+          </div>
+        </EntryItem>
+      </div>
     </div>
   );
 }

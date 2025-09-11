@@ -22,6 +22,8 @@
   - [ ] Toggle compact/label-less rows
   - [ ] Search for entry
     - [ ] Ctrl-K for search
+  - [ ] Highlight sort/mute -sort
+    - [ ] Small down arrow on hover
 - [ ] (stub) Design UI for:
   - [ ] Con indicator
   - [ ] IOTY indicator
@@ -31,6 +33,7 @@
   - [ ] Price last updated indicator
   - [ ] Price trends indicator
   - [ ] Sales volume indicator
+  - [ ] Sparkles for price indicator
 - [ ] (stub) Get data for:
   - [ ] Summary descriptions
   - [o] Lowest mall price
@@ -40,3 +43,4 @@
 - [ ] Wishlist feature
 - [ ] Custom/opinionated sections
 - [ ] Grid view
+- [ ] Spending pyramid
