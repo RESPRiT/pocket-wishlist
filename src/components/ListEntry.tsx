@@ -115,7 +115,7 @@ function ListEntry({
       style={adjustLightness(
         standardYear < 3
           ? `color-mix(in oklch, var(--secondary-light) ${
-              25 + 75 * (1 - standardYear / 3)
+              35 + 65 * (1 - standardYear / 3)
             }%, var(--primary))`
           : "var(--primary)",
         standardYear < 3 ? "black" : "var(--destructive)",
