@@ -131,7 +131,9 @@ function ListEntry({
     return currentYear - year;
   }, [year, packaged_name]);
 
-  const renderedStars = useMemo(() => {
+  const renderedStars = useMemo(
+    () => {
+      /*
     const mrAsToStars = (num: number) => {
       if (num < 2) return 0;
       if (num < 3) return 1;
@@ -144,11 +146,18 @@ function ListEntry({
     const stars = Array.from({
       length: mall && mrAs ? mrAsToStars(mall / mrAs) : 6,
     });
+    */
 
-    return stars.map(() => {
-      return <Sparkle widthBounds={size.width} heightBounds={size.height} />;
-    });
-  }, [mall, mrAs, size]);
+      const stars = Array.from({
+        length: standardYear < 3 ? (3 - standardYear) * 2 : 0,
+      });
+
+      return stars.map(() => {
+        return <Sparkle widthBounds={size.width} heightBounds={size.height} />;
+      });
+    },
+    /*[mall, mrAs, size]*/ [standardYear, size]
+  );
 
   return (
     <div
@@ -165,33 +174,36 @@ function ListEntry({
         mall && mrAs ? logBracketScale(mall / mrAs) : logBracketScale(-1)
       )}
     >
-      <EntrySection>
-        <a
-          href={wikiUrl}
-          className="rounded-sm overflow-hidden hover:outline-2 outline-foreground"
-        >
-          <ThemedImg
-            src={`itemimages/${img}`}
-            alt="TODO"
-            reColor="bg-foreground"
-            bgColor="bg-background"
-            className="w-7 h-7 m-2"
-          />
-        </a>
-        <EntryItem label="item">
-          <div className="font-normal text-primary-foreground text-base text-center text-balance w-3xs -mt-0.5">
-            <span className="relative z-10">{name}</span>
-          </div>
-        </EntryItem>
-        <EntryItem label="year">
-          <Badge
-            className="w-14 text-base text-background"
-            style={interpolateColorScale(yearPercent)}
+      <div ref={ref} className="relative">
+        {renderedStars}
+        <EntrySection>
+          <a
+            href={wikiUrl}
+            className="rounded-sm overflow-hidden hover:outline-2 outline-foreground"
           >
-            {year}
-          </Badge>
-        </EntryItem>
-      </EntrySection>
+            <ThemedImg
+              src={`itemimages/${img}`}
+              alt="TODO"
+              reColor="bg-foreground"
+              bgColor="bg-background"
+              className="w-7 h-7 m-2"
+            />
+          </a>
+          <EntryItem label="item">
+            <div className="font-normal text-primary-foreground text-base text-center text-balance w-3xs -mt-0.5">
+              <span className="relative z-10">{name}</span>
+            </div>
+          </EntryItem>
+          <EntryItem label="year">
+            <Badge
+              className="w-14 text-base text-background"
+              style={interpolateColorScale(yearPercent)}
+            >
+              {year}
+            </Badge>
+          </EntryItem>
+        </EntrySection>
+      </div>
       <EntrySpacer />
       <EntrySection>
         <EntryItem label="speed">

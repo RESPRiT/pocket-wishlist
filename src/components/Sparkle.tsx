@@ -10,15 +10,15 @@ function randomOffset(
   height: number,
   overshootX = 2,
   overshootY = 1,
-  shift = 8
+  shift = -8
 ) {
   const x =
     starDistribution(Math.random()) * (width + overshootX * 2) -
-    overshootX -
+    overshootX +
     shift;
   const y =
     starDistribution(Math.random()) * (height + overshootY * 2) -
-    overshootY -
+    overshootY +
     shift;
 
   return { x, y };
@@ -56,7 +56,7 @@ function Sparkle({
         waitTimer.current = setTimeout(() => {
           waitTimer.current = null;
           setWait(false);
-        }, 100 + Math.random() * 2900);
+        }, 100 + Math.random() * 2400);
       }
 
       lastSizeRef.current = {
@@ -88,20 +88,20 @@ function Sparkle({
         {`
           @keyframes fade {
             0%, 100% { opacity: 0; }
-            50%      { opacity: 0.3; }
+            50%      { opacity: 1; }
           }
         `}
       </style>
       <ThemedImg
         src={"otherimages/goldstart.png"}
         alt="star"
-        reColor="bg-accent"
+        reColor="bg-secondary"
         className={`w-4 h-4 ${
           widthBounds === 0 && heightBounds === 0 ? "hidden" : ""
         }`}
         style={{
           opacity: 0,
-          animation: wait ? "" : "fade 1.5s ease-in-out",
+          animation: wait ? "" : "fade 1.25s ease-in-out",
         }}
         onAnimationEnd={() => {
           if (waitTimer.current === null) {
