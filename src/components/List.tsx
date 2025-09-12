@@ -117,9 +117,12 @@ function List() {
           img: item.img,
           name: getUnboxedName(item),
           packaged_name: item.packaged_name,
+          type: item.type,
           year: item.year,
           speed: item.speed_tier,
           farm: item.aftercore_tier,
+          isIOTY: item.is_ioty || false,
+          isCon: item.is_con || false,
           mall: getPrice(item.packaged_id),
           mrAs, // don't love this here
         })),

@@ -26,8 +26,8 @@
   - [ ] Search for entry
     - [ ] Ctrl-K for search
 - [ ] (stub) Design UI for:
-  - [ ] Con indicator
-  - [ ] IOTY indicator
+  - [x] Con indicator
+  - [x] IOTY indicator
   - [x] Standard indicator
     - [ ] Double-encoded indicator
   - [ ] Slot indicator

@@ -67,9 +67,12 @@ type ListEntryProps = {
   img: string;
   name: string;
   packaged_name: string;
+  type: string;
   year: number;
   speed?: number;
   farm?: number;
+  isIOTY: boolean;
+  isCon: boolean;
   mall: number | null;
   mrAs: number | null;
 };
@@ -79,9 +82,12 @@ function ListEntry({
   img,
   name,
   packaged_name,
+  type,
   year,
   speed,
   farm,
+  isIOTY,
+  isCon,
   mall,
   mrAs,
 }: ListEntryProps) {
@@ -110,9 +116,9 @@ function ListEntry({
 
   return (
     <div
-      className={`flex flex-wrap lg:flex-nowrap items-center justify-center
+      className={`relative flex flex-wrap lg:flex-nowrap items-center justify-center
         gap-x-4 md:gap-x-7 gap-y-2 flex-grow-1
-        bg-primary px-3 lg:px-7 py-3  lg:w-full
+        bg-primary px-6 py-3 lg:w-full
         rounded-md hover:outline-foreground-muted hover:outline-2 ${
           standardYear < 3 ? "outline-secondary" : ""
         }`}
@@ -126,6 +132,20 @@ function ListEntry({
         mall && mrAs ? logBracketScale(mall / mrAs) : logBracketScale(-1)
       )}
     >
+      {isIOTY || isCon ? (
+        <div
+          className={`absolute flex justify-center items-center h-full left-0 rounded-l-md ${
+            isIOTY ? "bg-accent/70" : "bg-secondary/70"
+          }`}
+          style={{ writingMode: "sideways-lr" }}
+        >
+          <span className="ml-0.25 text-xs md:text-sm text-muted-foreground select-none">
+            {isIOTY ? "IOTY" : "Con"}
+          </span>
+        </div>
+      ) : (
+        <></>
+      )}
       <EntrySection className="gap-5 w-0 lg:w-auto basis-full lg:basis-auto">
         <a
           href={wikiUrl}
@@ -139,7 +159,7 @@ function ListEntry({
             className="w-7 h-7 m-2"
           />
         </a>
-        <EntryItem label="item" className="w-50 md:w-56 lg:w-3xs -mt-0.5">
+        <EntryItem label={type} className="w-50 md:w-56 lg:w-3xs -mt-0.5">
           <span className="font-normal text-primary-foreground text-base text-center text-balance">
             {name}
           </span>

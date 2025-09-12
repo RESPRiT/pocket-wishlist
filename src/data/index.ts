@@ -17,8 +17,8 @@ export type IOTM = {
   tradeable: boolean;
   type: string;
   equipment_slot?: string;
-  is_ioty?: true;
-  is_con?: true;
+  is_ioty?: boolean;
+  is_con?: boolean;
 };
 export type MallPrice = {
   id: number;
