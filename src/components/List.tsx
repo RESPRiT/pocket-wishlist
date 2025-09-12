@@ -127,7 +127,7 @@ function List() {
   );
 
   return (
-    <div className="flex flex-col gap-2 w-full pb-12">
+    <div className="flex flex-wrap lg:flex-col lg:flex-nowrap justify-center items-center gap-2 w-full pb-12">
       {data.map((entry) => (
         <ListEntry key={entry.name} {...entry} />
       ))}

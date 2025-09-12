@@ -9,10 +9,10 @@
 - [x] Get and cache images from KOL.com
   - [ ] Add familiar images to `iotm.json`
 - [x] Generate wiki links
+  - [ ] Wiki links in a new tab
 - [x] Get and cache pricegun data
 - [x] Un-hardcore Mr. A cost calculation
-- [ ] Improve layout of List and derivatives
-  - [ ] Add responsiveness
+- [ ] Add responsiveness to List
 - [x] Darken at price
 - [ ] Darken at the bottom of year; lighten at the top of tier;
 - [ ] (stub) Implement ListControlMenu
@@ -35,12 +35,21 @@
   - [ ] Price trends indicator
   - [ ] Sales volume indicator
   - [ ] Scroll progress indicator
+  - [ ] Item type indicator/replace item label with type
+  - [ ] Ownership indicator
+  - [ ] Tradeable indicator
 - [ ] (stub) Get data for:
   - [ ] Summary descriptions
   - [o] Lowest mall price
     - [ ] Special mall handling for foldables
-- [ ] Loading indicator
-- [ ] Detect/mark ownership
-- [ ] Wishlist feature
+- [ ] Loading indicators
+- [ ] (stub) Wishlist feature
+  - [ ] Detect ownership
+  - [ ] Shareable wishlist
 - [ ] Custom/opinionated sections
 - [ ] Grid view
+- [ ] Click name to copy to clipboard
+- [ ] Click price to link to mall
+  - [ ] Mafia/KOL toggle
+- [ ] Dark mode
+  - [ ] Theming
