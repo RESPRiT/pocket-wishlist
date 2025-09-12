@@ -74,6 +74,7 @@ type ListEntryProps = {
   mrAs: number | null;
 };
 
+// TODO: Lots of magic numbers in here
 function ListEntry({
   img,
   name,

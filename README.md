@@ -34,6 +34,7 @@
   - [ ] Price last updated indicator
   - [ ] Price trends indicator
   - [ ] Sales volume indicator
+  - [ ] Scroll progress indicator
 - [ ] (stub) Get data for:
   - [ ] Summary descriptions
   - [o] Lowest mall price
