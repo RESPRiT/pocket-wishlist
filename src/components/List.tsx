@@ -16,19 +16,9 @@ type Price = {
 function handleSort(
   sort: string
 ): (a: ListEntryProps, b: ListEntryProps) => number {
-  if (sort === "price") {
-    return (a, b) => (b.mall && a.mall ? b.mall - a.mall : b.mall ? -1 : 1);
-  } else if (sort === "tier") {
-    return (a, b) => {
-      const averageA = ((a.speed ? a.speed : 6) + (a.farm ? a.farm : 6)) / 2;
-      const averageB = ((b.speed ? b.speed : 6) + (b.farm ? b.farm : 6)) / 2;
-
-      return averageB - averageA;
-    };
-  }
-
-  // default to date
-  return (a, b) =>
+  const priceSort = (a: ListEntryProps, b: ListEntryProps) =>
+    b.mall && a.mall ? b.mall - a.mall : b.mall ? -1 : 1;
+  const dateSort = (a: ListEntryProps, b: ListEntryProps) =>
     // compare the year + months (bigger = newer)
     // put non-monthly items at the top (11.01 > 11)
     a.year +
@@ -40,6 +30,27 @@ function handleSort(
     // tie-breaker for Con items (below IOTY)
     (a.isCon ? 0.01 : 0) -
     (b.isCon ? 0.01 : 0);
+  const tierSort = (a: ListEntryProps, b: ListEntryProps) => {
+    const averageA =
+      ((a.speed !== undefined ? a.speed : 6) +
+        (a.farm !== undefined ? a.farm : 6)) /
+      2;
+    const averageB =
+      ((b.speed !== undefined ? b.speed : 6) +
+        (b.farm !== undefined ? b.farm : 6)) /
+      2;
+
+    return averageB - averageA !== 0 ? averageB - averageA : priceSort(a, b);
+  };
+
+  if (sort === "price") {
+    return priceSort;
+  } else if (sort === "tier") {
+    return tierSort;
+  }
+
+  // default to date
+  return dateSort;
 }
 
 // TODO: Move/hoist pricing logic elsewhere (and probably rework data schema)
