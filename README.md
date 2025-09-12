@@ -44,6 +44,7 @@
   - [ ] Summary descriptions
   - [o] Lowest mall price
     - [ ] Special mall handling for foldables
+    - [ ] (!) Setup mall price endpoint and retrieve from there
 - [ ] Loading indicators
 - [ ] (stub) Wishlist feature
   - [ ] Detect ownership
