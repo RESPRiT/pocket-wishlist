@@ -1,8 +1,13 @@
 import React from "react";
 
-function EntrySection({ children }: React.PropsWithChildren) {
+function EntrySection({
+  children,
+  className = "gap-5",
+}: React.ComponentPropsWithoutRef<"div">) {
   return (
-    <div className="flex justify-around items-center gap-5">{children}</div>
+    <div className={`flex justify-center items-center ${className}`}>
+      {children}
+    </div>
   );
 }
 

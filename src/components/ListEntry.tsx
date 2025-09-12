@@ -64,13 +64,17 @@ function logBracketScale(
   );
 }
 
-type ListEntryProps = {
+export type ListEntryProps = {
   img: string;
   name: string;
   packaged_name: string;
+  type: string;
   year: number;
+  month?: number;
   speed?: number;
   farm?: number;
+  isIOTY: boolean;
+  isCon: boolean;
   mall: number | null;
   mrAs: number | null;
 };
@@ -80,9 +84,12 @@ function ListEntry({
   img,
   name,
   packaged_name,
+  type,
   year,
   speed,
   farm,
+  isIOTY,
+  isCon,
   mall,
   mrAs,
 }: ListEntryProps) {
@@ -161,9 +168,12 @@ function ListEntry({
 
   return (
     <div
-      className={`flex items-center justify-center gap-7 bg-primary w-full px-7 py-3 rounded-md hover:outline-foreground-muted hover:outline-2 ${
-        standardYear < 3 ? "outline-secondary" : ""
-      }`}
+      className={`relative flex flex-wrap lg:flex-nowrap items-center justify-center
+        gap-x-4 md:gap-x-7 gap-y-2 flex-grow-1
+        bg-primary px-6 py-3 lg:w-full
+        rounded-md hover:outline-foreground-muted hover:outline-2 ${
+          standardYear < 3 ? "outline-secondary" : ""
+        }`}
       style={adjustLightness(
         standardYear < 3
           ? `color-mix(in oklch, var(--secondary-light) ${
@@ -174,38 +184,49 @@ function ListEntry({
         mall && mrAs ? logBracketScale(mall / mrAs) : logBracketScale(-1)
       )}
     >
-      <div ref={ref} className="relative">
-        {renderedStars}
-        <EntrySection>
-          <a
-            href={wikiUrl}
-            className="rounded-sm overflow-hidden hover:outline-2 outline-foreground"
+      {isIOTY || isCon ? (
+        <div
+          className={`absolute flex justify-center items-center h-full left-0 rounded-l-md ${
+            isIOTY ? "bg-accent/60" : "bg-secondary/60"
+          }`}
+          style={{ writingMode: "sideways-lr" }}
+        >
+          <span className="ml-0.25 text-xs md:text-sm text-muted-foreground select-none">
+            {isIOTY ? "IOTY" : "Con"}
+          </span>
+        </div>
+      ) : (
+        <></>
+      )}
+      <EntrySection className="gap-5 w-0 lg:w-auto basis-full lg:basis-auto">
+        <a
+          href={wikiUrl}
+          className="min-w-fit min-h-fit rounded-sm overflow-hidden hover:outline-2 outline-foreground"
+        >
+          <ThemedImg
+            src={`itemimages/${img}`}
+            alt="TODO"
+            reColor="bg-foreground"
+            bgColor="bg-background"
+            className="w-7 h-7 m-2"
+          />
+        </a>
+        <EntryItem label={type} className="w-50 md:w-56 lg:w-3xs -mt-0.5">
+          <span className="font-normal text-primary-foreground text-base text-center text-balance">
+            {name}
+          </span>
+        </EntryItem>
+        <EntryItem label="year">
+          <Badge
+            className="w-14 text-base text-background"
+            style={interpolateColorScale(yearPercent)}
           >
-            <ThemedImg
-              src={`itemimages/${img}`}
-              alt="TODO"
-              reColor="bg-foreground"
-              bgColor="bg-background"
-              className="w-7 h-7 m-2"
-            />
-          </a>
-          <EntryItem label="item">
-            <div className="font-normal text-primary-foreground text-base text-center text-balance w-3xs -mt-0.5">
-              <span className="relative z-10">{name}</span>
-            </div>
-          </EntryItem>
-          <EntryItem label="year">
-            <Badge
-              className="w-14 text-base text-background"
-              style={interpolateColorScale(yearPercent)}
-            >
-              {year}
-            </Badge>
-          </EntryItem>
-        </EntrySection>
-      </div>
-      <EntrySpacer />
-      <EntrySection>
+            {year}
+          </Badge>
+        </EntryItem>
+      </EntrySection>
+      <EntrySpacer className="hidden lg:inline" />
+      <EntrySection className="gap-4 mr-1.5 lg:mr-0 md:gap-5">
         <EntryItem label="speed">
           <Badge
             className="text-base text-background"
@@ -243,7 +264,7 @@ function ListEntry({
       </EntrySection>
       <EntrySpacer />
       <EntryItem label="est. mall price">
-        <div className="flex justify-center items-center gap-1.5 w-42 font-roboto-mono font-normal text-lg">
+        <div className="flex justify-center items-center gap-1.5 w-40 lg:w-42 font-roboto-mono font-normal text-lg">
           <ThemedImg
             src="itemimages/meat.gif"
             alt="meat"
@@ -252,8 +273,8 @@ function ListEntry({
           />
           <span
             className={`text-primary-foreground ${
-              mall && Math.round(mall / 1_000_000) >= 1000 ? "text-xl" : ""
-            } ${mall === null ? "font-bold text-2xl" : ""}`}
+              mall && Math.round(mall / 1_000_000) >= 1000 ? "lg:text-xl" : ""
+            } ${mall === null ? "font-bold lg:text-2xl" : ""}`}
           >
             {mall
               ? Math.round(mall / 1000000) < 1000
@@ -270,8 +291,8 @@ function ListEntry({
           />
           <span
             className={`text-accent-foreground ${
-              mall && Math.round(mall / 1_000_000) >= 1000 ? "text-xl" : ""
-            } ${mall === null ? "font-bold text-2xl" : ""}`}
+              mall && Math.round(mall / 1_000_000) >= 1000 ? "lg:text-xl" : ""
+            } ${mall === null ? "font-bold lg:text-2xl" : ""}`}
           >
             {mall && mrAs
               ? mall < mrAs * 100

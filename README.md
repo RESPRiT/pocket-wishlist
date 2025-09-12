@@ -9,14 +9,16 @@
 - [x] Get and cache images from KOL.com
   - [ ] Add familiar images to `iotm.json`
 - [x] Generate wiki links
+  - [ ] Wiki links in a new tab
 - [x] Get and cache pricegun data
 - [x] Un-hardcore Mr. A cost calculation
-- [ ] Improve layout of List and derivatives
-  - [ ] Add responsiveness
+- [x] Add basic responsiveness to List
+  - [ ] Add clamping for scaling
 - [x] Darken at price
 - [ ] Darken at the bottom of year; lighten at the top of tier;
 - [ ] (stub) Implement ListControlMenu
-  - [ ] Sorting options
+  - [x] Sorting options
+    - [ ] (!!!) Implement lazy loading to prevent rendering lag (especially on sort)
   - [ ] Tier weights
   - [ ] Toggle display name/icon
   - [ ] Total cost of wishlist
@@ -27,8 +29,8 @@
   - [ ] Highlight sort/mute -sort
     - [ ] Small down arrow on hover
 - [ ] (stub) Design UI for:
-  - [ ] Con indicator
-  - [ ] IOTY indicator
+  - [x] Con indicator
+  - [x] IOTY indicator
   - [x] Standard indicator
     - [ ] Double-encoded indicator
   - [ ] Slot indicator
@@ -38,13 +40,24 @@
   - [ ] Sales volume indicator
   - [ ] Sparkles for price indicator
   - [ ] Scroll progress indicator
+  - [x] Item type indicator/replace item label with type
+  - [ ] Ownership indicator
+  - [ ] Tradeable indicator
 - [ ] (stub) Get data for:
   - [ ] Summary descriptions
   - [o] Lowest mall price
     - [ ] Special mall handling for foldables
-- [ ] Loading indicator
-- [ ] Detect/mark ownership
-- [ ] Wishlist feature
+    - [ ] (!) Setup mall price endpoint and retrieve from there
+- [ ] Loading indicators
+- [ ] (stub) Wishlist feature
+  - [ ] Detect ownership
+  - [ ] Shareable wishlist
 - [ ] Custom/opinionated sections
 - [ ] Grid view
+- [ ] Click name to copy to clipboard
+- [ ] Click price to link to mall
+  - [ ] Mafia/KOL toggle
+- [ ] Dark mode
+  - [ ] Theming
+- [ ] "Minimap" view
 - [ ] Spending pyramid

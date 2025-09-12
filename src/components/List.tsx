@@ -1,8 +1,9 @@
 import ListEntry from "./ListEntry";
-
 import { iotms, mall } from "@/data";
 import type { IOTM } from "@/data";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import type { ListEntryProps } from "./ListEntry";
+import { useStore } from "@/stores/userStore";
 
 type Price = {
   value: number;
@@ -11,6 +12,35 @@ type Price = {
   itemId: number;
   tradeable?: boolean;
 };
+
+function handleSort(
+  sort: string
+): (a: ListEntryProps, b: ListEntryProps) => number {
+  if (sort === "price") {
+    return (a, b) => (b.mall && a.mall ? b.mall - a.mall : b.mall ? -1 : 1);
+  } else if (sort === "tier") {
+    return (a, b) => {
+      const averageA = ((a.speed ? a.speed : 6) + (a.farm ? a.farm : 6)) / 2;
+      const averageB = ((b.speed ? b.speed : 6) + (b.farm ? b.farm : 6)) / 2;
+
+      return averageB - averageA;
+    };
+  }
+
+  // default to date
+  return (a, b) =>
+    // compare the year + months (bigger = newer)
+    // put non-monthly items at the top (11.01 > 11)
+    a.year +
+    (a.month ? a.month - 1 : 11.01) * (1 / 12) -
+    (b.year + (b.month ? b.month - 1 : 11.01) * (1 / 12)) +
+    // tie-breaker for IOTYs (above Con)
+    (a.isIOTY ? 0.02 : 0) -
+    (b.isIOTY ? 0.02 : 0) +
+    // tie-breaker for Con items (below IOTY)
+    (a.isCon ? 0.01 : 0) -
+    (b.isCon ? 0.01 : 0);
+}
 
 // TODO: Move/hoist pricing logic elsewhere (and probably rework data schema)
 function getUnboxedName(item: IOTM): string {
@@ -29,6 +59,8 @@ function getUnboxedName(item: IOTM): string {
 
 function List() {
   const [prices, setPrices] = useState([] as Price[]);
+  const { currentOrder, currentSort } = useStore();
+
   // memoize prevents useEffect from activating more than once;
   // no dependencies, so url is only calculated on the first render
   const url = useMemo(
@@ -107,28 +139,29 @@ function List() {
     () =>
       iotms
         .filter((item) => item.type !== "vip")
-        .sort(
-          (a, b) =>
-            (a.month ? a.year - a.month * (1 / 12) : a.year) -
-            (b.month ? b.year + b.month * (1 / 12) : b.year)
-        )
-        .reverse()
         .map((item) => ({
           img: item.img,
           name: getUnboxedName(item),
           packaged_name: item.packaged_name,
+          type: item.type,
           year: item.year,
+          month: item.month,
           speed: item.speed_tier,
           farm: item.aftercore_tier,
+          isIOTY: item.is_ioty || false,
+          isCon: item.is_con || false,
           mall: getPrice(item.packaged_id),
           mrAs, // don't love this here
         })),
     [mrAs, getPrice]
   );
 
+  const sortedData = data.sort(handleSort(currentSort));
+  const orderedData = currentOrder ? sortedData : sortedData.reverse();
+
   return (
-    <div className="flex flex-col gap-2 w-full pb-12">
-      {data.map((entry) => (
+    <div className="flex flex-wrap lg:flex-col lg:flex-nowrap justify-center items-center gap-2 w-full pb-12">
+      {orderedData.map((entry) => (
         <ListEntry key={entry.name} {...entry} />
       ))}
     </div>
