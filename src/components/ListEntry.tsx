@@ -6,16 +6,62 @@ import ThemedImg from "./ThemedImg";
 import Sparkle from "./Sparkle";
 import { Badge } from "./ui/badge";
 
+// Probably shouldn't strictly return a backgroundColor
 type BackgroundStyle = {
   backgroundColor: string;
 };
 
+// TODO: this is basically the same function as the one below
 function interpolateColorScale(percent: number): BackgroundStyle {
   return {
     backgroundColor: `color-mix(in srgb, var(--destructive) ${
       100 * percent
     }%, var(--secondary))`,
   };
+}
+
+function adjustLightness(
+  startColor: string,
+  endColor = "black",
+  percent: number
+): BackgroundStyle {
+  return {
+    backgroundColor: `color-mix(in oklch, ${startColor} ${
+      100 - Math.abs(percent)
+    }%, ${percent < 0 ? endColor : "white"})`,
+  };
+}
+
+function logBracketScale(
+  x: number,
+  brackets = [
+    [1, 2],
+    [2, 3],
+    [3, 5],
+    [5, 10],
+    [10, 50],
+    [50, 12_500],
+  ],
+  range = [0, -30]
+) {
+  const bracketNum = brackets.findIndex(
+    (bracket) =>
+      Math.ceil(x - 0.8) >= bracket[0] && Math.ceil(x - 0.8) < bracket[1]
+  );
+
+  if (bracketNum === -1) return range[1];
+
+  const from = brackets[bracketNum];
+  const to = [
+    range[0] + ((range[1] - range[0]) * bracketNum) / brackets.length,
+    range[0] + ((range[1] - range[0]) * (bracketNum + 0.5)) / brackets.length,
+  ];
+
+  return (
+    to[0] +
+    ((Math.log(x) - Math.log(from[0])) * (to[1] - to[0])) /
+      (Math.log(from[1]) - Math.log(from[0]))
+  );
 }
 
 type ListEntryProps = {
@@ -29,6 +75,7 @@ type ListEntryProps = {
   mrAs: number | null;
 };
 
+// TODO: Lots of magic numbers in here
 function ListEntry({
   img,
   name,
@@ -77,6 +124,13 @@ function ListEntry({
     [packaged_name]
   );
 
+  const standardYear = useMemo(() => {
+    const currentYear = new Date().getFullYear();
+    if (packaged_name === "Clan VIP Lounge invitation") return 0;
+
+    return currentYear - year;
+  }, [year, packaged_name]);
+
   const renderedStars = useMemo(() => {
     const mrAsToStars = (num: number) => {
       if (num < 2) return 0;
@@ -97,7 +151,20 @@ function ListEntry({
   }, [mall, mrAs, size]);
 
   return (
-    <div className="flex items-center justify-center gap-7 bg-primary w-full px-7 py-3 rounded-md hover:outline-foreground-muted hover:outline-2">
+    <div
+      className={`flex items-center justify-center gap-7 bg-primary w-full px-7 py-3 rounded-md hover:outline-foreground-muted hover:outline-2 ${
+        standardYear < 3 ? "outline-secondary" : ""
+      }`}
+      style={adjustLightness(
+        standardYear < 3
+          ? `color-mix(in oklch, var(--secondary-light) ${
+              35 + 65 * (1 - standardYear / 3)
+            }%, var(--primary))`
+          : "var(--primary)",
+        standardYear < 3 ? "black" : "var(--destructive)",
+        mall && mrAs ? logBracketScale(mall / mrAs) : logBracketScale(-1)
+      )}
+    >
       <EntrySection>
         <a
           href={wikiUrl}
@@ -163,42 +230,47 @@ function ListEntry({
         </EntryItem>
       </EntrySection>
       <EntrySpacer />
-      <div ref={ref} className="relative">
-        {renderedStars}
-        <EntryItem label="est. mall price">
-          <div className="flex justify-center items-center gap-1.5 w-42 font-roboto-mono font-normal text-lg">
-            <ThemedImg
-              src="itemimages/meat.gif"
-              alt="meat"
-              reColor="bg-foreground"
-              className="w-6 h-6"
-            />
-            <span className="relative z-10 text-primary-foreground">
-              {mall
-                ? Math.round(mall / 1000000) < 1000
-                  ? `${Math.round(mall / 1000000)}m`
-                  : `${Math.min(Math.round(mall / 100000000) / 10, 999)}b`
-                : "∞"}
-            </span>
-            <span className="text-muted-foreground select-none">/</span>
-            <ThemedImg
-              src="itemimages/mracc.gif"
-              alt="Mr. Accesories"
-              reColor="bg-accent"
-              className="w-7 h-7 -mx-0.5"
-            />
-            <span className="text-accent-foreground">
-              {mall && mrAs
-                ? mall < mrAs * 100
-                  ? (mall / mrAs).toFixed(1)
-                  : mall / mrAs < 1000
-                  ? Math.round(mall / mrAs)
-                  : `${Math.round(mall / mrAs / 1000)}k`
-                : "∞"}
-            </span>
-          </div>
-        </EntryItem>
-      </div>
+      <EntryItem label="est. mall price">
+        <div className="flex justify-center items-center gap-1.5 w-42 font-roboto-mono font-normal text-lg">
+          <ThemedImg
+            src="itemimages/meat.gif"
+            alt="meat"
+            reColor="bg-foreground"
+            className="w-6 h-6"
+          />
+          <span
+            className={`text-primary-foreground ${
+              mall && Math.round(mall / 1_000_000) >= 1000 ? "text-xl" : ""
+            } ${mall === null ? "font-bold text-2xl" : ""}`}
+          >
+            {mall
+              ? Math.round(mall / 1000000) < 1000
+                ? `${Math.round(mall / 1000000)}m`
+                : `${Math.min(Math.round(mall / 100000000) / 10, 999)}b`
+              : "∞"}
+          </span>
+          <span className="text-muted-foreground select-none">/</span>
+          <ThemedImg
+            src="itemimages/mracc.gif"
+            alt="Mr. Accesories"
+            reColor="bg-accent"
+            className="w-7 h-7 -mx-0.5"
+          />
+          <span
+            className={`text-accent-foreground ${
+              mall && Math.round(mall / 1_000_000) >= 1000 ? "text-xl" : ""
+            } ${mall === null ? "font-bold text-2xl" : ""}`}
+          >
+            {mall && mrAs
+              ? mall < mrAs * 100
+                ? (mall / mrAs).toFixed(1)
+                : mall / mrAs < 1000
+                ? Math.round(mall / mrAs)
+                : `${Math.round(mall / mrAs / 1000)}k`
+              : "∞"}
+          </span>
+        </div>
+      </EntryItem>
     </div>
   );
 }

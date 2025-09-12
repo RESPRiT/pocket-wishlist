@@ -13,6 +13,8 @@
 - [x] Un-hardcore Mr. A cost calculation
 - [ ] Improve layout of List and derivatives
   - [ ] Add responsiveness
+- [x] Darken at price
+- [ ] Darken at the bottom of year; lighten at the top of tier;
 - [ ] (stub) Implement ListControlMenu
   - [ ] Sorting options
   - [ ] Tier weights
@@ -27,13 +29,15 @@
 - [ ] (stub) Design UI for:
   - [ ] Con indicator
   - [ ] IOTY indicator
-  - [ ] Standard indicator
+  - [x] Standard indicator
+    - [ ] Double-encoded indicator
   - [ ] Slot indicator
   - [ ] Derivatives
   - [ ] Price last updated indicator
   - [ ] Price trends indicator
   - [ ] Sales volume indicator
   - [ ] Sparkles for price indicator
+  - [ ] Scroll progress indicator
 - [ ] (stub) Get data for:
   - [ ] Summary descriptions
   - [o] Lowest mall price
