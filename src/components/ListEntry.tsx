@@ -198,36 +198,37 @@ function ListEntry({
       ) : (
         <></>
       )}
-      <div ref={ref} className="relative">
+      <EntrySection
+        ref={ref}
+        className="relative gap-5 w-0 lg:w-auto basis-full lg:basis-auto"
+      >
         {renderedStars}
-        <EntrySection className="gap-5 w-0 lg:w-auto basis-full lg:basis-auto">
-          <a
-            href={wikiUrl}
-            className="min-w-fit min-h-fit rounded-sm overflow-hidden hover:outline-2 outline-foreground"
+        <a
+          href={wikiUrl}
+          className="min-w-fit min-h-fit rounded-sm overflow-hidden hover:outline-2 outline-foreground"
+        >
+          <ThemedImg
+            src={`itemimages/${img}`}
+            alt="TODO"
+            reColor="bg-foreground"
+            bgColor="bg-background"
+            className="w-7 h-7 m-2"
+          />
+        </a>
+        <EntryItem label={type} className="w-50 md:w-56 lg:w-3xs -mt-0.5">
+          <span className="font-normal text-primary-foreground text-base text-center text-balance relative z-10">
+            {name}
+          </span>
+        </EntryItem>
+        <EntryItem label="year">
+          <Badge
+            className="w-14 text-base text-background"
+            style={interpolateColorScale(yearPercent)}
           >
-            <ThemedImg
-              src={`itemimages/${img}`}
-              alt="TODO"
-              reColor="bg-foreground"
-              bgColor="bg-background"
-              className="w-7 h-7 m-2"
-            />
-          </a>
-          <EntryItem label={type} className="w-50 md:w-56 lg:w-3xs -mt-0.5">
-            <span className="font-normal text-primary-foreground text-base text-center text-balance relative z-10">
-              {name}
-            </span>
-          </EntryItem>
-          <EntryItem label="year">
-            <Badge
-              className="w-14 text-base text-background"
-              style={interpolateColorScale(yearPercent)}
-            >
-              {year}
-            </Badge>
-          </EntryItem>
-        </EntrySection>
-      </div>
+            {year}
+          </Badge>
+        </EntryItem>
+      </EntrySection>
       <EntrySpacer className="hidden lg:inline" />
       <EntrySection className="gap-4 mr-1.5 lg:mr-0 md:gap-5">
         <EntryItem label="speed">

@@ -2,10 +2,11 @@ import React from "react";
 
 function EntrySection({
   children,
+  ref,
   className = "gap-5",
-}: React.ComponentPropsWithoutRef<"div">) {
+}: React.ComponentPropsWithRef<"div">) {
   return (
-    <div className={`flex justify-center items-center ${className}`}>
+    <div ref={ref} className={`flex justify-center items-center ${className}`}>
       {children}
     </div>
   );
