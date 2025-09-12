@@ -63,12 +63,13 @@ function logBracketScale(
   );
 }
 
-type ListEntryProps = {
+export type ListEntryProps = {
   img: string;
   name: string;
   packaged_name: string;
   type: string;
   year: number;
+  month?: number;
   speed?: number;
   farm?: number;
   isIOTY: boolean;

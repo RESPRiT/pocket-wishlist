@@ -17,7 +17,8 @@
 - [x] Darken at price
 - [ ] Darken at the bottom of year; lighten at the top of tier;
 - [ ] (stub) Implement ListControlMenu
-  - [ ] Sorting options
+  - [x] Sorting options
+    - [ ] (!!!) Implement lazy loading to prevent rendering lag (especially on sort)
   - [ ] Tier weights
   - [ ] Toggle display name/icon
   - [ ] Total cost of wishlist
@@ -36,7 +37,7 @@
   - [ ] Price trends indicator
   - [ ] Sales volume indicator
   - [ ] Scroll progress indicator
-  - [ ] Item type indicator/replace item label with type
+  - [x] Item type indicator/replace item label with type
   - [ ] Ownership indicator
   - [ ] Tradeable indicator
 - [ ] (stub) Get data for:
@@ -54,3 +55,4 @@
   - [ ] Mafia/KOL toggle
 - [ ] Dark mode
   - [ ] Theming
+- [ ] "Minimap" view
