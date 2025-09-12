@@ -136,7 +136,7 @@ function ListEntry({
       {isIOTY || isCon ? (
         <div
           className={`absolute flex justify-center items-center h-full left-0 rounded-l-md ${
-            isIOTY ? "bg-accent/70" : "bg-secondary/70"
+            isIOTY ? "bg-accent/60" : "bg-secondary/60"
           }`}
           style={{ writingMode: "sideways-lr" }}
         >
