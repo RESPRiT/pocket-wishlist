@@ -1,9 +1,10 @@
 import ListEntry from "./ListEntry";
 import { iotms, mall } from "@/data";
 import type { IOTM } from "@/data";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState, useRef } from "react";
 import type { ListEntryProps } from "./ListEntry";
 import { useStore } from "@/stores/userStore";
+import { useWindowVirtualizer } from "@tanstack/react-virtual";
 
 type Price = {
   value: number;
@@ -170,11 +171,45 @@ function List() {
   const sortedData = data.sort(handleSort(currentSort));
   const orderedData = currentOrder ? sortedData : sortedData.reverse();
 
+  const listRef = useRef<HTMLDivElement>(null);
+
+  const virtualizer = useWindowVirtualizer({
+    count: orderedData.length,
+    estimateSize: () => 75,
+    gap: 8,
+    overscan: 5,
+    getItemKey: (item) => orderedData[item].packaged_name,
+  });
+
+  const items = virtualizer.getVirtualItems();
+  const virtualOffset = items[0] ? items[0].start : 0;
+
   return (
-    <div className="flex flex-wrap lg:flex-col lg:flex-nowrap justify-center items-center gap-2 w-full pb-12">
-      {orderedData.map((entry) => (
-        <ListEntry key={entry.name} {...entry} />
-      ))}
+    <div
+      ref={listRef}
+      className="relative w-full pb-12"
+      style={{
+        height: `${virtualizer.getTotalSize()}px`,
+      }}
+    >
+      <div
+        className="absolute flex flex-wrap gap-2 w-full"
+        style={{
+          position: "absolute",
+          transform: `translateY(${virtualOffset}px)`,
+        }}
+      >
+        {items.map((row) => (
+          <div
+            className="w-full h-min"
+            key={row.key}
+            data-index={row.index}
+            ref={virtualizer.measureElement}
+          >
+            <ListEntry {...orderedData[row.index]} />
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

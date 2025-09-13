@@ -18,7 +18,7 @@
 - [ ] Darken at the bottom of year; lighten at the top of tier;
 - [ ] (stub) Implement ListControlMenu
   - [x] Sorting options
-    - [ ] (!!!) Implement lazy loading to prevent rendering lag (especially on sort)
+    - [x] (!!!) Implement lazy loading to prevent rendering lag (especially on sort)
   - [ ] Tier weights
   - [ ] Toggle display name/icon
   - [ ] Total cost of wishlist
@@ -57,3 +57,6 @@
 - [ ] Dark mode
   - [ ] Theming
 - [ ] "Minimap" view
+- [ ] Back to top button
+- [ ] Featured "this month's IOTM"
+- [ ] Features "today's raffle IOTM"

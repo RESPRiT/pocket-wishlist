@@ -6,7 +6,7 @@ function ListControlMenu() {
 
   // TODO: Definitely some not-DRY shenanigans going on here...
   return (
-    <div className="flex justify-center sticky top-0 z-30">
+    <div className="flex justify-center sticky top-2 z-30">
       <div
         className="flex flex-wrap justify-center items-center gap-0 bg-background/95
         min-w-min m-2 p-1 rounded-md"
