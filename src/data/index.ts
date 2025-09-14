@@ -1,5 +1,8 @@
 import iotmData from "./iotm.json";
-import mallData from "./lowest_mall.json";
+export type MallPrice = {
+  id: number;
+  lowestMall: number;
+};
 export type IOTM = {
   img: string;
   packaged_id: number;
@@ -20,9 +23,4 @@ export type IOTM = {
   is_ioty?: boolean;
   is_con?: boolean;
 };
-export type MallPrice = {
-  id: number;
-  lowestMall: number;
-};
 export const iotms = iotmData as IOTM[];
-export const mall = mallData as MallPrice[];
