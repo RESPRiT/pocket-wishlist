@@ -187,7 +187,7 @@ function List() {
   return (
     <div
       ref={listRef}
-      className="relative w-full pb-12"
+      className="relative w-full mb-12"
       style={{
         height: `${virtualizer.getTotalSize()}px`,
       }}
