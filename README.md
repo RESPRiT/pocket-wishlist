@@ -40,6 +40,8 @@
   - [x] Item type indicator/replace item label with type
   - [ ] Ownership indicator
   - [ ] Tradeable indicator
+  - [ ] Price estimate type indicator
+    - [x] Hover text
 - [ ] (stub) Get data for:
   - [ ] Summary descriptions
   - [x] Lowest mall price
@@ -60,3 +62,4 @@
 - [ ] Back to top button
 - [ ] Featured "this month's IOTM"
 - [ ] Features "today's raffle IOTM"
+- [ ] (stub) a11y audit

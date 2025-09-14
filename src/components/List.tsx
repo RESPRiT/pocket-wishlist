@@ -17,8 +17,12 @@ type Price = {
 function handleSort(
   sort: string
 ): (a: ListEntryProps, b: ListEntryProps) => number {
-  const priceSort = (a: ListEntryProps, b: ListEntryProps) =>
-    b.mall && a.mall ? b.mall - a.mall : b.mall ? -1 : 1;
+  const priceSort = (a: ListEntryProps, b: ListEntryProps) => {
+    const aLowest = Math.min(a.price || Infinity, a.lowestMall || Infinity);
+    const bLowest = Math.min(b.price || Infinity, b.lowestMall || Infinity);
+
+    return bLowest && aLowest ? bLowest - aLowest : bLowest ? -1 : 1;
+  };
   const dateSort = (a: ListEntryProps, b: ListEntryProps) =>
     // compare the year + months (bigger = newer)
     // put non-monthly items at the top (11.01 > 11)
@@ -158,7 +162,7 @@ function List() {
   }, [priceGunUrl]);
 
   const getPrice = useCallback(
-    (itemId: number): number | null => {
+    (itemId: number): { price: number | null; lowestMall: number | null } => {
       // this isn't strict equality because it's actually an evil lie:
       // JSON.parse() results in all object fields being strings,
       // so, fields that should be e.g. numbers are actually strings
@@ -166,19 +170,23 @@ function List() {
       const priceEntry = prices.find((price) => price.itemId == itemId);
       const mallEntry = mall.find((price) => price.id == itemId);
 
-      if (priceEntry === undefined) {
-        if (mallEntry === undefined) return null;
-        if (mallEntry.lowestMall > 0) return mallEntry.lowestMall;
-        return null;
-      }
-      if (mallEntry !== undefined && mallEntry.lowestMall < priceEntry.value)
-        return mallEntry.lowestMall;
-      return priceEntry.value;
+      return {
+        price: priceEntry ? priceEntry.value : null,
+        lowestMall:
+          mallEntry && mallEntry.lowestMall > 0 ? mallEntry.lowestMall : null,
+      };
     },
     [prices, mall]
   );
 
-  const mrAs = useMemo(() => getPrice(194), [getPrice]);
+  const mrAs = useMemo(
+    () =>
+      Object.values(getPrice(194)).reduce(
+        (acc: number, v) => (v !== null ? Math.min(acc, v) : acc),
+        Infinity
+      ),
+    [getPrice]
+  );
 
   const data = useMemo(
     () =>
@@ -195,7 +203,7 @@ function List() {
           farm: item.aftercore_tier,
           isIOTY: item.is_ioty || false,
           isCon: item.is_con || false,
-          mall: getPrice(item.packaged_id),
+          ...getPrice(item.packaged_id),
           mrAs, // don't love this here
         })),
     [mrAs, getPrice]

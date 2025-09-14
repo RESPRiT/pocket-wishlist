@@ -74,7 +74,8 @@ export type ListEntryProps = {
   farm?: number;
   isIOTY: boolean;
   isCon: boolean;
-  mall: number | null;
+  price: number | null;
+  lowestMall: number | null;
   mrAs: number | null;
 };
 
@@ -89,7 +90,8 @@ function ListEntry({
   farm,
   isIOTY,
   isCon,
-  mall,
+  price,
+  lowestMall,
   mrAs,
 }: ListEntryProps) {
   const yearPercent = useMemo(() => {
@@ -114,6 +116,20 @@ function ListEntry({
 
     return currentYear - year;
   }, [year, packaged_name]);
+
+  const mall =
+    price || lowestMall
+      ? Math.min(price || Infinity, lowestMall || Infinity)
+      : null;
+  function getMallStatus() {
+    if (price === null && lowestMall === null)
+      return "Mall extinct, no recent sales data";
+    if (price === null) return "Based on lowest current mall listing";
+    if (lowestMall === null) return "Based on recent sales data";
+    return price < lowestMall
+      ? "Based on recent sales data"
+      : "Based on lowest current mall listing";
+  }
 
   return (
     <div
@@ -213,7 +229,11 @@ function ListEntry({
       </EntrySection>
       <EntrySpacer />
       <EntryItem label="est. mall price">
-        <div className="flex justify-center items-center gap-1.5 w-40 lg:w-42 font-roboto-mono font-normal text-lg">
+        <div
+          className="flex justify-center items-center gap-1.5 w-40 lg:w-42
+                     font-roboto-mono font-normal text-lg"
+          title={getMallStatus()}
+        >
           <ThemedImg
             src="itemimages/meat.gif"
             alt="meat"
