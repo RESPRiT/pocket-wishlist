@@ -27,18 +27,19 @@ function ThemedImg({
     async function storeImage() {
       try {
         const image = await fetch(url);
+        if (!image.ok) throw new Error(`${image.status}`);
         const blob = await image.blob();
         const base64 = await new Promise<string>((resolve, reject) => {
           const reader = new FileReader();
           reader.onloadend = () => resolve(reader.result as string);
-          reader.onerror = reject;
+          reader.onerror = () => reject;
           reader.readAsDataURL(blob);
         });
 
         localStorage.setItem(src, base64);
         setImgSrc(base64);
       } catch (error) {
-        console.warn("Couldn't store image", url, error);
+        console.warn("Couldn't store image at", url, error);
       }
     }
 

@@ -30,6 +30,7 @@
 - [ ] (stub) Design UI for:
   - [x] Con indicator
   - [x] IOTY indicator
+  - [ ] Misc. indicator
   - [x] Standard indicator
     - [ ] Double-encoded indicator
   - [ ] Slot indicator
