@@ -148,7 +148,6 @@ function List() {
           "https://resprit--3e24629c912a11f0b6710224a6c84d84.web.val.run/lowest-mall"
         );
         const mallResults = (await mallResponse.json()) as MallPrice[];
-        console.log(mallResults);
         localStorage.setItem("mall", JSON.stringify(mallResults));
         localStorage.setItem("mallLastUpdated", String(Date.now()));
         setMall(mallResults);

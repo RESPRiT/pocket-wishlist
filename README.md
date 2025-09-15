@@ -19,6 +19,7 @@
 - [ ] (stub) Implement ListControlMenu
   - [x] Sorting options
     - [x] (!!!) Implement lazy loading to prevent rendering lag (especially on sort)
+    - [ ] Pre-load virtualized images
   - [ ] Tier weights
   - [ ] Toggle display name/icon
   - [ ] Total cost of wishlist
@@ -47,7 +48,9 @@
   - [x] Lowest mall price
     - [ ] Special mall handling for foldables
     - [x] (!) Setup mall price endpoint and retrieve from there
-- [ ] Loading indicators
+- [ ] (stub) Loading indicators
+  - [x] Image loading
+  - [ ] Economy data loading
 - [ ] (stub) Wishlist feature
   - [ ] Detect ownership
   - [ ] Shareable wishlist

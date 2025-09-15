@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { Skeleton } from "@/components/ui/skeleton";
 
 function ThemedImg({
   className,
@@ -14,15 +15,14 @@ function ThemedImg({
   reColor: string;
   bgColor?: string;
 }) {
-  const [imgSrc, setImgSrc] = useState("placeholder");
-  const url = `https://s3.amazonaws.com/images.kingdomofloathing.com/${src}`;
+  const [imgSrc, setImgSrc] = useState(localStorage.getItem(src));
 
   useEffect(() => {
-    const cached = localStorage.getItem(src);
-    if (cached) {
-      setImgSrc(cached);
+    if (imgSrc) {
       return;
     }
+
+    const url = `https://s3.amazonaws.com/images.kingdomofloathing.com/${src}`;
 
     async function storeImage() {
       try {
@@ -43,7 +43,7 @@ function ThemedImg({
     }
 
     storeImage();
-  }, [src, url]);
+  }, [src, imgSrc]);
 
   return (
     <div className="grid" {...props}>
@@ -53,12 +53,16 @@ function ThemedImg({
         <></>
       )}
       <div className={`${className} col-start-1 row-start-1`}>
-        <img
-          src={imgSrc}
-          alt={alt}
-          style={style}
-          className={`w-full h-full object-cover mix-blend-multiply`}
-        />
+        {imgSrc ? (
+          <img
+            src={imgSrc}
+            alt={alt}
+            style={style}
+            className={`w-full h-full object-cover mix-blend-multiply`}
+          />
+        ) : (
+          <Skeleton className="w-full h-full" />
+        )}
       </div>
       <div
         className={`col-start-1 row-start-1 ${reColor} mix-blend-lighten`}
