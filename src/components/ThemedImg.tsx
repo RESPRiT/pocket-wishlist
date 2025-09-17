@@ -47,7 +47,7 @@ function ThemedImg({
   }, [src, imgSrc]);
 
   return (
-    <div className="grid" {...props}>
+    <div className="grid select-none" {...props}>
       {bgColor !== undefined ? (
         <div className={`col-start-1 row-start-1 ${bgColor}`}></div>
       ) : (

@@ -50,6 +50,7 @@
   - [x] Lowest mall price
     - [ ] Special mall handling for foldables
     - [x] (!) Setup mall price endpoint and retrieve from there
+      - [ ] Auto-update mall price endpoint
 - [ ] (stub) Loading indicators
   - [x] Image loading
   - [ ] Economy data loading

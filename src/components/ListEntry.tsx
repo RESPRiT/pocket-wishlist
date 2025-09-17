@@ -8,6 +8,8 @@ import { Badge } from "./ui/badge";
 // Probably shouldn't strictly return a backgroundColor
 type BackgroundStyle = {
   backgroundColor: string;
+  opacity?: number;
+  background?: string;
 };
 
 // TODO: this is basically the same function as the one below
@@ -24,10 +26,12 @@ function adjustLightness(
   endColor = "black",
   percent: number
 ): BackgroundStyle {
+  const adjustedColor = `color-mix(in oklch, ${startColor} ${
+    100 - Math.abs(percent)
+  }%, ${percent < 0 ? endColor : "white"})`;
+
   return {
-    backgroundColor: `color-mix(in oklch, ${startColor} ${
-      100 - Math.abs(percent)
-    }%, ${percent < 0 ? endColor : "white"})`,
+    backgroundColor: adjustedColor,
   };
 }
 
@@ -135,20 +139,27 @@ function ListEntry({
     <div
       className={`relative flex flex-wrap lg:flex-nowrap items-center justify-center
         md:clamp-[gap-x,2.25,6,md,lg] clamp-[gap-x,1.5,2.25,20rem,sm] gap-y-2
-        bg-primary clamp-[px,5,6,20rem,sm] py-3 h-full lg:w-full
+        clamp-[px,5,6,20rem,sm] py-3 h-full lg:w-full
+        overflow-hidden
         rounded-md hover:outline-foreground-muted hover:outline-2 ${
           standardYear < 3 ? "outline-secondary" : ""
         }`}
-      style={adjustLightness(
-        standardYear < 3
-          ? `color-mix(in oklch, var(--secondary-light) ${
-              35 + 65 * (1 - standardYear / 3)
-            }%, var(--primary))`
-          : "var(--primary)",
-        standardYear < 3 ? "black" : "var(--destructive)",
-        mall && mrAs ? logBracketScale(mall / mrAs) : logBracketScale(-1)
-      )}
     >
+      {/* Background Color */}
+      <div
+        className="-z-20 absolute w-full h-full"
+        style={adjustLightness(
+          standardYear < 3
+            ? `color-mix(in oklch, var(--secondary-light) ${
+                35 + 65 * (1 - standardYear / 3)
+              }%, var(--primary))`
+            : "var(--primary)",
+          standardYear < 3 ? "black" : "var(--destructive)",
+          mall && mrAs ? logBracketScale(mall / mrAs) : logBracketScale(-1)
+        )}
+      ></div>
+      {/* Background Texture */}
+      <div className="-z-10 absolute w-full h-full"></div>
       {(isIOTY || isCon) && (
         <div
           className={`absolute flex justify-center items-center h-full left-0 rounded-l-md ${
