@@ -216,7 +216,7 @@ function ListEntry({
         </EntryItem>
         <EntryItem label="avg.">
           <Badge
-            className="md:clamp-[text,sm,base,md,lg] clamp-[text,xs,sm,20rem,sm] clamp-[max-w,7,9,md,lg] large:max-w-full text-background"
+            className="md:clamp-[text,sm,base,md,lg] clamp-[text,xs,sm,20rem,sm] clamp-[w,7,9,sm,md] text-background"
             style={interpolateColorScale(
               speed !== undefined && farm !== undefined
                 ? Math.max(0, ((speed + farm) / 2 - 1) / 6)
