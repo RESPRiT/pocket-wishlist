@@ -1,7 +1,7 @@
 function EntrySpacer({ className = "" }: { className?: string }) {
   return (
     <span
-      className={`w-1 md:w-1.5 h-5 md:h-6 bg-background/65 rounded-sm ${className}`}
+      className={`clamp-[w,1,1.5,md,lg] clamp-[h,5,6,md,lg] bg-background/65 rounded-sm ${className}`}
       aria-hidden="true"
     ></span>
   );

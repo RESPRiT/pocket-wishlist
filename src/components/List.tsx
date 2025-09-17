@@ -233,7 +233,7 @@ function List() {
       }}
     >
       <div
-        className="absolute flex flex-wrap gap-2 w-full"
+        className="absolute flex flex-wrap gap-2 w-full items-stretch"
         style={{
           position: "absolute",
           transform: `translateY(${virtualOffset}px)`,
@@ -241,7 +241,7 @@ function List() {
       >
         {items.map((row) => (
           <div
-            className="w-full h-min"
+            className="flex-grow-1"
             key={row.key}
             data-index={row.index}
             ref={virtualizer.measureElement}

@@ -134,8 +134,8 @@ function ListEntry({
   return (
     <div
       className={`relative flex flex-wrap lg:flex-nowrap items-center justify-center
-        gap-x-4 md:gap-x-7 gap-y-2 flex-grow-1
-        bg-primary px-6 py-3 lg:w-full
+        md:clamp-[gap-x,2.25,6,md,lg] clamp-[gap-x,1.5,2.25,20rem,sm] gap-y-2
+        bg-primary clamp-[px,5,6,20rem,sm] py-3 h-full lg:w-full
         rounded-md hover:outline-foreground-muted hover:outline-2 ${
           standardYear < 3 ? "outline-secondary" : ""
         }`}
@@ -149,19 +149,17 @@ function ListEntry({
         mall && mrAs ? logBracketScale(mall / mrAs) : logBracketScale(-1)
       )}
     >
-      {isIOTY || isCon ? (
+      {(isIOTY || isCon) && (
         <div
           className={`absolute flex justify-center items-center h-full left-0 rounded-l-md ${
             isIOTY ? "bg-accent/60" : "bg-secondary/60"
           }`}
           style={{ writingMode: "sideways-lr" }}
         >
-          <span className="ml-0.25 text-xs md:text-sm text-muted-foreground select-none">
+          <span className="ml-0.25 md:clamp-[text,xs,sm,md,lg] clamp-[text,0.55rem,xs,20rem,sm] text-muted-foreground select-none">
             {isIOTY ? "IOTY" : "Con"}
           </span>
         </div>
-      ) : (
-        <></>
       )}
       <EntrySection className="gap-5 w-0 lg:w-auto basis-full lg:basis-auto">
         <a
@@ -173,17 +171,17 @@ function ListEntry({
             alt="TODO"
             reColor="bg-foreground"
             bgColor="bg-background"
-            className="w-7 h-7 m-2"
+            className="clamp-[size,6,7,sm,md] m-2"
           />
         </a>
-        <EntryItem label={type} className="w-50 md:w-56 lg:w-3xs -mt-0.5">
-          <span className="font-normal text-primary-foreground text-base text-center text-balance">
+        <EntryItem label={type} className="clamp-[w,42,56,md,lg] -mt-0.5">
+          <span className="clamp-[text,sm,base,20rem,sm] font-normal text-primary-foreground text-center text-balance">
             {name}
           </span>
         </EntryItem>
-        <EntryItem label="year">
+        <EntryItem label={`${standardYear < 3 ? "Standard" : "Hardcore"}`}>
           <Badge
-            className="w-14 text-base text-background"
+            className="w-14 clamp-[text,sm,base,md,lg] text-background"
             style={interpolateColorScale(yearPercent)}
           >
             {year}
@@ -191,10 +189,14 @@ function ListEntry({
         </EntryItem>
       </EntrySection>
       <EntrySpacer className="hidden lg:inline" />
-      <EntrySection className="gap-4 mr-1.5 lg:mr-0 md:gap-5">
+      <EntrySection
+        className="md:clamp-[w,32,36,md,lg] clamp-[w,26,32,20rem,sm]
+                   md:clamp-[gap,3.5,5,md,lg] clamp-[gap,2.5,3.5,20rem,sm]
+                   clamp-[mr,1,1.5,20rem,sm] lg:mr-0"
+      >
         <EntryItem label="speed">
           <Badge
-            className="text-base text-background"
+            className="md:clamp-[text,sm,base,md,lg] clamp-[text,xs,sm,20rem,sm] max-w-7 lg:max-w-full text-background"
             style={interpolateColorScale(
               speed !== undefined ? Math.max(0, (speed - 1) / 6) : 1
             )}
@@ -204,7 +206,7 @@ function ListEntry({
         </EntryItem>
         <EntryItem label="freed">
           <Badge
-            className="text-base text-background"
+            className="md:clamp-[text,sm,base,md,lg] clamp-[text,xs,sm,20rem,sm] max-w-7 lg:max-w-full text-background"
             style={interpolateColorScale(
               farm !== undefined ? Math.max(0, (farm - 1) / 6) : 1
             )}
@@ -214,7 +216,7 @@ function ListEntry({
         </EntryItem>
         <EntryItem label="avg.">
           <Badge
-            className="w-9 text-base text-background"
+            className="md:clamp-[text,sm,base,md,lg] clamp-[text,xs,sm,20rem,sm] clamp-[max-w,7,9,md,lg] large:max-w-full text-background"
             style={interpolateColorScale(
               speed !== undefined && farm !== undefined
                 ? Math.max(0, ((speed + farm) / 2 - 1) / 6)
@@ -230,15 +232,17 @@ function ListEntry({
       <EntrySpacer />
       <EntryItem label="est. mall price">
         <div
-          className="flex justify-center items-center gap-1.5 w-40 lg:w-42
-                     font-roboto-mono font-normal text-lg"
+          className="flex justify-center items-center
+                     md:clamp-[gap,1.25,1.5,md,lg] clamp-[gap,0.5,1.25,20rem,sm]
+                     md:clamp-[w,38,40,md,lg] lg:w-42 clamp-[w,31,38,20rem,sm]
+                     font-roboto-mono font-normal md:clamp-[text,base,lg,md,lg] clamp-[text,sm,base,20rem,sm]"
           title={getMallStatus()}
         >
           <ThemedImg
             src="itemimages/meat.gif"
             alt="meat"
             reColor="bg-foreground"
-            className="w-6 h-6"
+            className="clamp-[size,5,6,20rem,sm]"
           />
           <span
             className={`text-primary-foreground ${
@@ -256,7 +260,7 @@ function ListEntry({
             src="itemimages/mracc.gif"
             alt="Mr. Accesories"
             reColor="bg-accent"
-            className="w-7 h-7 -mx-0.5"
+            className="clamp-[size,6,7,20rem,sm] clamp-[mr,-0.6,-0.5,20rem,sm]"
           />
           <span
             className={`text-accent-foreground ${

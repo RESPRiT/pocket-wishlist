@@ -31,7 +31,7 @@ function IconButton({
       variant="link"
       className={`${
         selected ? accent : color
-      } ${hover} ${scale} font-normal text-xl gap-1.5`}
+      } ${hover} ${scale} font-normal clamp-[text,base,xl,sm,md] clamp-[gap,0.5,1.5,sm,md]`}
       {...props}
     >
       {selected || filled ? (

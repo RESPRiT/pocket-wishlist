@@ -13,7 +13,8 @@
 - [x] Get and cache pricegun data
 - [x] Un-hardcore Mr. A cost calculation
 - [x] Add basic responsiveness to List
-  - [ ] Add clamping for scaling
+  - [x] Add clamping for scaling
+    - [ ] Fix virtualization for rows of 2 items at mid-sizes
 - [x] Darken at price
 - [ ] Darken at the bottom of year; lighten at the top of tier;
 - [ ] (stub) Implement ListControlMenu
