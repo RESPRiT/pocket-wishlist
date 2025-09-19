@@ -13,7 +13,9 @@
 
 :root {
   --color-background: oklch(97.4% 0.026053 90.1);
-  --color-primary: oklch(87.4% 0.0409 90.2);
+  --color-primary: hsl(
+    from var(--color-background) h calc(s * 0.45) calc(l * 0.85)
+  );
   --color-foreground: oklch(26.7% 0.048517 219.8);
   --color-secondary: oklch(64.4% 0.101908 187.4);
   --color-accent: oklch(65.4% 0.133917 85.7);

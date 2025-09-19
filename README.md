@@ -14,13 +14,14 @@
 - [x] Un-hardcore Mr. A cost calculation
 - [x] Add basic responsiveness to List
   - [x] Add clamping for scaling
-    - [ ] Fix virtualization for rows of 2 items at mid-sizes
+    - [ ] Fix virtualization for rows of 2 items at mid-sizes (lanes option)
 - [x] Darken at price
 - [ ] Darken at the bottom of year; lighten at the top of tier;
 - [ ] (stub) Implement ListControlMenu
   - [x] Sorting options
     - [x] (!!!) Implement lazy loading to prevent rendering lag (especially on sort)
     - [ ] Pre-load virtualized images
+    - [ ] Update price sorting to tie-break on date
   - [ ] Tier weights
   - [ ] Toggle display name/icon
   - [ ] Total cost of wishlist
@@ -41,7 +42,7 @@
   - [ ] Sales volume indicator
   - [ ] Scroll progress indicator
   - [x] Item type indicator/replace item label with type
-  - [ ] Ownership indicator
+  - [o] Ownership indicator
   - [ ] Tradeable indicator
   - [ ] Price estimate type indicator
     - [x] Hover text
@@ -56,6 +57,9 @@
   - [ ] Economy data loading
 - [ ] (stub) Wishlist feature
   - [ ] Detect ownership
+    - [ ] Mafia script to detect ownership
+    - [ ] Endpoint to update and store ownership
+    - [ ] Retrieve ownership status in frontend
   - [ ] Shareable wishlist
 - [ ] Custom/opinionated sections
 - [ ] Grid view
