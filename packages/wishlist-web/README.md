@@ -13,6 +13,7 @@
 - [x] Get and cache pricegun data
 - [x] Un-hardcore Mr. A cost calculation
 - [x] Add basic responsiveness to List
+  - [ ] Move ribbon label to top for small sizes
   - [x] Add clamping for scaling
     - [ ] Fix virtualization for rows of 2 items at mid-sizes (lanes option)
 - [x] Darken at price
@@ -42,7 +43,7 @@
   - [ ] Sales volume indicator
   - [ ] Scroll progress indicator
   - [x] Item type indicator/replace item label with type
-  - [o] Ownership indicator
+  - [x] Ownership indicator
   - [ ] Tradeable indicator
   - [ ] Price estimate type indicator
     - [x] Hover text
@@ -56,10 +57,10 @@
   - [x] Image loading
   - [ ] Economy data loading
 - [ ] (stub) Wishlist feature
-  - [ ] Detect ownership
-    - [ ] Mafia script to detect ownership
-    - [ ] Endpoint to update and store ownership
-    - [ ] Retrieve ownership status in frontend
+  - [x] Detect ownership
+    - [x] Mafia script to detect ownership
+    - [x] Endpoint to update and store ownership
+    - [x] Retrieve ownership status in frontend
   - [ ] Shareable wishlist
 - [ ] Custom/opinionated sections
 - [ ] Grid view

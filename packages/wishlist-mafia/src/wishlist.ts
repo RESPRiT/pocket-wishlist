@@ -141,7 +141,6 @@ function haveOpened(iotm: IOTM): boolean {
 
     case "slotless":
     case "content":
-      console.log(iotm.packaged_name);
       return getBoolean(prefs[iotm.packaged_id]);
   }
 
