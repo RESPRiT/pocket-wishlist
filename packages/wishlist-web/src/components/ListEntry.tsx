@@ -38,6 +38,7 @@ function adjustLightness(
 
 function logBracketScale(
   x: number,
+  range = [0, -30],
   brackets = [
     [1, 2],
     [2, 3],
@@ -45,8 +46,7 @@ function logBracketScale(
     [5, 10],
     [10, 50],
     [50, 12_500],
-  ],
-  range = [0, -30]
+  ]
 ) {
   const bracketNum = brackets.findIndex(
     (bracket) =>
@@ -82,6 +82,7 @@ export type ListEntryProps = {
   price: number | null;
   lowestMall: number | null;
   mrAs: number | null;
+  status: "NONE" | "PACKAGED" | "OPENED";
 };
 
 // TODO: Lots of magic numbers in here
@@ -98,6 +99,7 @@ function ListEntry({
   price,
   lowestMall,
   mrAs,
+  status,
 }: ListEntryProps) {
   const yearPercent = useMemo(() => {
     const currentYear = new Date().getFullYear();
@@ -143,24 +145,34 @@ function ListEntry({
         clamp-[px,5,6,20rem,sm] py-3 h-full min-w-[290px] lg:w-full
         overflow-hidden
         rounded-md hover:outline-foreground-muted hover:outline-2 ${
-          standardYear < 3 ? "outline-secondary" : ""
+          standardYear < 3 && "outline-secondary"
         }`}
     >
       {/* Background Color */}
       <div
         className="-z-20 absolute w-full h-full"
-        style={adjustLightness(
-          standardYear < 3
-            ? `color-mix(in oklch, var(--secondary-light) ${
-                35 + 65 * (1 - standardYear / 3)
-              }%, var(--primary))`
-            : "var(--primary)",
-          standardYear < 3 ? "black" : "var(--destructive)",
-          mall && mrAs ? logBracketScale(mall / mrAs) : logBracketScale(-1)
-        )}
+        style={
+          status === "OPENED" || status === "PACKAGED"
+            ? {
+                backgroundColor: "var(--confirm)",
+              }
+            : adjustLightness(
+                standardYear < 3
+                  ? `color-mix(in oklch, var(--secondary-light) ${
+                      35 + 65 * (1 - standardYear / 3)
+                    }%, var(--primary))`
+                  : "var(--primary)",
+                standardYear < 3 ? "black" : "var(--destructive)",
+                logBracketScale(mall && mrAs ? mall / mrAs : -1)
+              )
+        }
       ></div>
       {/* Background Texture */}
-      <div className="-z-10 absolute w-full h-full"></div>
+      <div
+        className={`-z-10 absolute w-full h-full ${
+          status === "PACKAGED" && "starred" /* something... */
+        }`}
+      ></div>
       {(isIOTY || isCon) && (
         <div
           className={`absolute flex justify-center items-center h-full left-0 rounded-l-md ${

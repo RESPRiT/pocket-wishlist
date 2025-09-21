@@ -14,6 +14,11 @@ type Price = {
   tradeable?: boolean;
 };
 
+type WishStatus = {
+  lastUpdated: number;
+  wishlist: Record<number, "NONE" | "PACKAGED" | "OPENED">;
+};
+
 function handleSort(
   sort: string
 ): (a: ListEntryProps, b: ListEntryProps) => number {
@@ -76,6 +81,10 @@ function getUnboxedName(item: IOTM): string {
 function List() {
   const [prices, setPrices] = useState([] as Price[]);
   const [mall, setMall] = useState([] as MallPrice[]);
+  const [wishlist, setWishlist] = useState({
+    lastUpdated: -1,
+    wishlist: {},
+  } as WishStatus);
   const { currentOrder, currentSort } = useStore();
 
   // memoize prevents useEffect from activating more than once;
@@ -92,6 +101,20 @@ function List() {
   // TODO: fetching and caching logic feels kind of repetitive and DIY,
   // maybe a better pattern or library could be used
   useEffect(() => {
+    async function getWishlist() {
+      try {
+        // TODO: Un-hardcode user
+        const wishResponse = await fetch(
+          "https://resprit--94d09ed2946611f08e910224a6c84d84.web.val.run/get-wishlist?u=1927026"
+        );
+        const wishResults = (await wishResponse.json()) as WishStatus;
+        setWishlist(wishResults);
+      } catch (error) {
+        console.log("Couldn't get wishlist", error);
+      }
+    }
+    getWishlist();
+
     const priceGunCached = localStorage.getItem("prices");
     const priceGunLastUpdated = localStorage.getItem("pricesLastUpdated");
     // if we wanted to be more robust, we could check if
@@ -204,8 +227,9 @@ function List() {
           isCon: item.is_con || false,
           ...getPrice(item.packaged_id),
           mrAs, // don't love this here
+          status: wishlist.wishlist[item.packaged_id] || null,
         })),
-    [mrAs, getPrice]
+    [mrAs, getPrice, wishlist]
   );
 
   const sortedData = data.sort(handleSort(currentSort));
