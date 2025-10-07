@@ -12,7 +12,7 @@
     "format": "prettier --write .",
     "lint": "pnpm run eslint && pnpm run prettier --check .",
     "test": "vitest",
-    "watch": "node build.mjs --watch"
+    "dev": "node build.mjs --watch"
   },
   "dependencies": {
     "jsoncrush": "^1.1.8",

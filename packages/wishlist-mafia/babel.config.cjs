@@ -9,7 +9,7 @@ module.exports = function (api) {
       [
         "@babel/preset-env",
         {
-          targets: { rhino: "1.7.14" },
+          targets: { rhino: "1.8.0" },
           include: ["transform-shorthand-properties"],
         },
       ],
