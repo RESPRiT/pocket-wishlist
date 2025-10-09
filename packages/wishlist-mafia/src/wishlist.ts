@@ -95,11 +95,14 @@ function haveOpened(iotm: IOTM): boolean {
     }
 
     case "campground": {
-      if (iotm.tradeable) return haveInCampground(packaged);
+      if (iotm.tradeable) return haveItem(packaged);
 
-      return arrayOf(iotm.opened_ids)
-        .map((i) => Item.get(i))
-        .some((i) => haveInCampground(i));
+      return (
+        haveInCampground(packaged) ||
+        arrayOf(iotm.opened_ids)
+          .map((i) => Item.get(i))
+          .some((i) => haveInCampground(i))
+      );
     }
 
     case "eudora": {

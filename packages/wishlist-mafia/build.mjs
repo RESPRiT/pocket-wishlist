@@ -29,7 +29,7 @@ const context = await esbuild.context({
   bundle: true,
   minifySyntax: true,
   platform: "node",
-  target: "rhino1.7.14",
+  target: "rhino1.8.0",
   external: ["kolmafia"],
   plugins: [babel(), watchPlugin],
   outdir: "dist/scripts/wishlist",

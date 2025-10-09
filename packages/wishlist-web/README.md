@@ -36,7 +36,7 @@
   - [ ] Misc. indicator
   - [x] Standard indicator
     - [ ] Double-encoded indicator
-  - [ ] Slot indicator
+  - [o] Slot indicator
   - [ ] Derivatives
   - [ ] Price last updated indicator
   - [ ] Price trends indicator
@@ -56,7 +56,7 @@
 - [ ] (stub) Loading indicators
   - [x] Image loading
   - [ ] Economy data loading
-- [ ] (stub) Wishlist feature
+- [o] (stub) Wishlist feature
   - [x] Detect ownership
     - [x] Mafia script to detect ownership
     - [x] Endpoint to update and store ownership
