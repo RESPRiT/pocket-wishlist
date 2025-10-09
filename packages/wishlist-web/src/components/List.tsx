@@ -32,7 +32,7 @@ function handleSort(
 
     // tie-breaker
     if (aLowest === bLowest) {
-      return skipTie ? -1 : dateSort(a, b, true);
+      return skipTie ? a.name.localeCompare(b.name) : dateSort(a, b, true);
     }
 
     return aLowest - bLowest;
@@ -51,7 +51,7 @@ function handleSort(
     if (a.isCon && !b.isCon) return -1;
     if (!a.isCon && b.isCon) return 1;
 
-    if (skipTie) return -1;
+    if (skipTie) return a.name.localeCompare(b.name);
 
     // tie-break
     return priceSort(a, b, true);
