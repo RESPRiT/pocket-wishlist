@@ -22,24 +22,40 @@ type WishStatus = {
 function handleSort(
   sort: string
 ): (a: ListEntryProps, b: ListEntryProps) => number {
-  const priceSort = (a: ListEntryProps, b: ListEntryProps) => {
+  const priceSort = (
+    a: ListEntryProps,
+    b: ListEntryProps,
+    skipTie = false
+  ): number => {
     const aLowest = Math.min(a.price || Infinity, a.lowestMall || Infinity);
     const bLowest = Math.min(b.price || Infinity, b.lowestMall || Infinity);
 
-    return bLowest && aLowest ? bLowest - aLowest : bLowest ? -1 : 1;
+    // tie-breaker
+    if (aLowest === bLowest) {
+      return skipTie ? -1 : dateSort(a, b, true);
+    }
+
+    return aLowest - bLowest;
   };
-  const dateSort = (a: ListEntryProps, b: ListEntryProps) =>
-    // compare the year + months (bigger = newer)
-    // put non-monthly items at the top (11.01 > 11)
-    a.year +
-    (a.month ? a.month - 1 : 11.01) * (1 / 12) -
-    (b.year + (b.month ? b.month - 1 : 11.01) * (1 / 12)) +
-    // tie-breaker for IOTYs (above Con)
-    (a.isIOTY ? 0.02 : 0) -
-    (b.isIOTY ? 0.02 : 0) +
-    // tie-breaker for Con items (below IOTY)
-    (a.isCon ? 0.01 : 0) -
-    (b.isCon ? 0.01 : 0);
+  const dateSort = (a: ListEntryProps, b: ListEntryProps, skipTie = false) => {
+    // compare years, bigger = "smaller" (newer)
+    if (a.year !== b.year) return b.year - a.year;
+
+    // compare months, monthless => bigger (so, 13 > 12)
+    if ((a.month ?? 13) !== (b.month ?? 13))
+      return (b.month ?? 13) - (a.month ?? 13);
+
+    // compare con and ioty status
+    if (a.isIOTY && !b.isIOTY) return -1;
+    if (!a.isIOTY && b.isIOTY) return 1;
+    if (a.isCon && !b.isCon) return -1;
+    if (!a.isCon && b.isCon) return 1;
+
+    if (skipTie) return -1;
+
+    // tie-break
+    return priceSort(a, b, true);
+  };
   const tierSort = (a: ListEntryProps, b: ListEntryProps) => {
     const averageA =
       ((a.speed !== undefined ? a.speed : 6) +
@@ -50,7 +66,7 @@ function handleSort(
         (b.farm !== undefined ? b.farm : 6)) /
       2;
 
-    return averageB - averageA !== 0 ? averageB - averageA : priceSort(a, b);
+    return averageA - averageB !== 0 ? averageA - averageB : priceSort(a, b);
   };
 
   if (sort === "price") {
@@ -233,7 +249,7 @@ function List() {
   );
 
   const sortedData = data.sort(handleSort(currentSort));
-  const orderedData = currentOrder ? sortedData : sortedData.reverse();
+  const orderedData = currentOrder ? sortedData.reverse() : sortedData;
 
   const listRef = useRef<HTMLDivElement>(null);
 
