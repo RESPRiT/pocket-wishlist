@@ -16,6 +16,7 @@ jobs:
     name: Build and Push
     steps:
       - uses: actions/checkout@v4
+
       - name: Use Bun
         uses: oven-sh/setup-bun@v2
         with:
@@ -27,6 +28,7 @@ jobs:
       - name: Build script
         run: bun run build
 
+      # Ensure that GitHub Actions has read/write permissions for this to work:
       - name: Push
         uses: s0/git-publish-subdir-action@develop
         env:

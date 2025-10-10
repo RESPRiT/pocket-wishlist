@@ -152,9 +152,14 @@ function ListEntry({
       <div
         className="-z-20 absolute w-full h-full"
         style={
-          status === "OPENED" || status === "PACKAGED"
+          status === "OPENED"
             ? {
                 backgroundColor: "var(--confirm)",
+              }
+            : status === "PACKAGED"
+            ? {
+                backgroundColor:
+                  "color-mix(in hsl, var(--accent) 50%, white 0%)",
               }
             : adjustLightness(
                 standardYear < 3
@@ -203,7 +208,7 @@ function ListEntry({
             {name}
           </span>
         </EntryItem>
-        <EntryItem label={`${standardYear < 3 ? "Standard" : "Hardcore"}`}>
+        <EntryItem label={`${standardYear < 3 ? "standard" : "hardcore"}`}>
           <Badge
             className="w-14 clamp-[text,sm,base,md,lg] text-background"
             style={interpolateColorScale(yearPercent)}

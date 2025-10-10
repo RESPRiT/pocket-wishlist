@@ -95,13 +95,12 @@ function haveOpened(iotm: IOTM): boolean {
     }
 
     case "campground": {
-      if (iotm.tradeable) return haveItem(packaged);
-
       return (
+        haveItem(packaged) ||
         haveInCampground(packaged) ||
         arrayOf(iotm.opened_ids)
           .map((i) => Item.get(i))
-          .some((i) => haveInCampground(i))
+          .some((i) => haveItem(i) || haveInCampground(i))
       );
     }
 
