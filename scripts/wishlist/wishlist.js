@@ -863,10 +863,10 @@ function haveOpened(iotm) {
     case "custom":
       return iotm.packaged_id == 5790 ? haveItem(import_kolmafia5.Item.get("box of bear arms")) || haveItem(import_kolmafia5.Item.get("left bear arm")) || haveItem(import_kolmafia5.Item.get("right bear arm")) : !1;
     case "campground":
-      return iotm.tradeable ? haveItem(packaged) : haveInCampground(packaged) || arrayOf(iotm.opened_ids).map(function(i) {
+      return haveItem(packaged) || haveInCampground(packaged) || arrayOf(iotm.opened_ids).map(function(i) {
         return import_kolmafia5.Item.get(i);
       }).some(function(i) {
-        return haveInCampground(i);
+        return haveItem(i) || haveInCampground(i);
       });
     case "eudora": {
       var eudoraId = eudoras[iotm.packaged_id];
