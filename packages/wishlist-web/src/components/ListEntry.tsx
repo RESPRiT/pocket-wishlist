@@ -26,11 +26,12 @@ function interpolateColorScale(percent: number): BackgroundStyle {
 function adjustLightness(
   startColor: string,
   endColor = "black",
-  percent: number
+  percent: number,
+  contrastColor = "white"
 ): BackgroundStyle {
   const adjustedColor = `color-mix(in oklch, ${startColor} ${
     100 - Math.abs(percent)
-  }%, ${percent < 0 ? endColor : "white"})`;
+  }%, ${percent < 0 ? endColor : contrastColor})`;
 
   return {
     backgroundColor: adjustedColor,
@@ -170,16 +171,19 @@ function ListEntry({
                       theme === "light"
                         ? "var(--secondary-light)"
                         : "var(--secondary-dark)"
-                    } ${35 + 65 * (1 - standardYear / 3)}%, var(--primary)) `
+                    } ${
+                      (theme === "light" ? 30 : 0) + 65 * (1 - standardYear / 3)
+                    }%, var(--primary)) `
                   : "var(--primary)",
                 standardYear < 3
                   ? theme === "light"
                     ? "black"
                     : "white"
                   : "var(--destructive)",
-                theme === "light" || standardYear < 3
+                theme === "light"
                   ? logBracketScale(mall && mrAs ? mall / mrAs : -1)
-                  : logBracketScale(mall && mrAs ? mall / mrAs : -1) - 35
+                  : logBracketScale(mall && mrAs ? mall / mrAs : -1, [0, -60]),
+                theme === "light" ? "white" : "black"
               )
         }
       ></div>
@@ -189,7 +193,13 @@ function ListEntry({
           status === "PACKAGED" &&
           `houndstooth ${theme === "dark" ? "mix-blend-saturation" : ""}`
         } ${
-          status === "OPENED" && `banknote ${theme === "dark" ? "invert" : ""}`
+          status === "OPENED" &&
+          `banknote ${theme === "dark" ? "invert opacity-10" : ""}`
+        } ${
+          standardYear < 3 &&
+          status !== "OPENED" &&
+          status !== "PACKAGED" &&
+          `dotted ${theme === "dark" ? "invert" : ""}`
         }`}
       ></div>
       {(isIOTY || isCon) && (

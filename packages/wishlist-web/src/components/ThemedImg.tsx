@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useTheme } from "@/hooks/useTheme";
+import { cn } from "@/lib/utils";
 
 function ThemedImg({
   className,
@@ -16,6 +18,7 @@ function ThemedImg({
   bgColor?: string;
 }) {
   const [imgSrc, setImgSrc] = useState(localStorage.getItem(src));
+  const { theme } = useTheme();
 
   useEffect(() => {
     if (imgSrc) {
@@ -54,21 +57,28 @@ function ThemedImg({
         <></>
       )}
       <div
-        className={`${className} col-start-1 row-start-1 dark:mix-blend-lighten dark:invert`}
+        className={cn(`${className} col-start-1 row-start-1`, {
+          "mix-blend-lighten": theme === "dark",
+          invert: theme === "dark",
+        })}
       >
         {imgSrc ? (
           <img
             src={imgSrc}
             alt={alt}
             style={style}
-            className={`w-full h-full object-cover mix-blend-multiply dark:mix-blend-normal`}
+            className={cn("w-full h-full object-cover mix-blend-multiply", {
+              "mix-blend-normal": theme === "dark",
+            })}
           />
         ) : (
           <Skeleton className="w-full h-full" />
         )}
       </div>
       <div
-        className={`col-start-1 row-start-1 ${reColor} mix-blend-lighten dark:mix-blend-darken`}
+        className={cn(`col-start-1 row-start-1 ${reColor} mix-blend-lighten`, {
+          "mix-blend-darken": theme === "dark",
+        })}
       ></div>
     </div>
   );
