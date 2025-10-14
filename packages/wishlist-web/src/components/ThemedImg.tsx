@@ -53,20 +53,22 @@ function ThemedImg({
       ) : (
         <></>
       )}
-      <div className={`${className} col-start-1 row-start-1`}>
+      <div
+        className={`${className} col-start-1 row-start-1 dark:mix-blend-lighten dark:invert`}
+      >
         {imgSrc ? (
           <img
             src={imgSrc}
             alt={alt}
             style={style}
-            className={`w-full h-full object-cover mix-blend-multiply`}
+            className={`w-full h-full object-cover mix-blend-multiply dark:mix-blend-normal`}
           />
         ) : (
           <Skeleton className="w-full h-full" />
         )}
       </div>
       <div
-        className={`col-start-1 row-start-1 ${reColor} mix-blend-lighten`}
+        className={`col-start-1 row-start-1 ${reColor} mix-blend-lighten dark:mix-blend-darken`}
       ></div>
     </div>
   );

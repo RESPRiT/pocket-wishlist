@@ -22,7 +22,7 @@
   - [x] Sorting options
     - [x] (!!!) Implement lazy loading to prevent rendering lag (especially on sort)
     - [ ] Pre-load virtualized images
-    - [ ] Update price sorting to tie-break on date
+    - [x] Update price sorting to tie-break on date
   - [ ] Tier weights
   - [ ] Toggle display name/icon
   - [ ] Total cost of wishlist
@@ -30,6 +30,9 @@
   - [ ] Toggle compact/label-less rows
   - [ ] Search for entry
     - [ ] Ctrl-K for search
+  - [ ] Filter options
+    - [ ] Filter favorite
+    - [ ] Filter owned/unowned
 - [ ] (stub) Design UI for:
   - [x] Con indicator
   - [x] IOTY indicator

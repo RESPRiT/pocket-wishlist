@@ -5,6 +5,7 @@ import EntrySpacer from "./EntrySpacer";
 import ThemedImg from "./ThemedImg";
 import { Badge } from "./ui/badge";
 import "@/styles/textures.css";
+import { useTheme } from "@/hooks/useTheme";
 
 // Probably shouldn't strictly return a backgroundColor
 type BackgroundStyle = {
@@ -138,6 +139,8 @@ function ListEntry({
       : "Based on lowest current mall listing";
   }
 
+  const { theme } = useTheme();
+
   return (
     <div
       className={`relative flex flex-wrap lg:flex-nowrap items-center justify-center
@@ -163,19 +166,30 @@ function ListEntry({
               }
             : adjustLightness(
                 standardYear < 3
-                  ? `color-mix(in oklch, var(--secondary-light) ${
-                      35 + 65 * (1 - standardYear / 3)
-                    }%, var(--primary))`
+                  ? `color-mix(in oklch, ${
+                      theme === "light"
+                        ? "var(--secondary-light)"
+                        : "var(--secondary-dark)"
+                    } ${35 + 65 * (1 - standardYear / 3)}%, var(--primary)) `
                   : "var(--primary)",
-                standardYear < 3 ? "black" : "var(--destructive)",
-                logBracketScale(mall && mrAs ? mall / mrAs : -1)
+                standardYear < 3
+                  ? theme === "light"
+                    ? "black"
+                    : "white"
+                  : "var(--destructive)",
+                theme === "light" || standardYear < 3
+                  ? logBracketScale(mall && mrAs ? mall / mrAs : -1)
+                  : logBracketScale(mall && mrAs ? mall / mrAs : -1) - 35
               )
         }
       ></div>
       {/* Background Texture */}
       <div
         className={`-z-10 absolute w-full h-full ${
-          status === "PACKAGED" && "starred" /* something... */
+          status === "PACKAGED" &&
+          `houndstooth ${theme === "dark" ? "mix-blend-saturation" : ""}`
+        } ${
+          status === "OPENED" && `banknote ${theme === "dark" ? "invert" : ""}`
         }`}
       ></div>
       {(isIOTY || isCon) && (
