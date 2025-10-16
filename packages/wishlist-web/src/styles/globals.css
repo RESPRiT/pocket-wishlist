@@ -68,7 +68,8 @@
   );
   --color-foreground: oklch(93.1% 0.026033 92.4);
   --color-secondary: oklch(55.5% 0.172041 277);
-  --color-accent: oklch(88.4% 0.154486 90.9);
+  --color-accent-foreground: oklch(88.4% 0.154486 90.9);
+  --accent-foreground: var(--color-accent-foreground);
   --color-select: oklch(74.7% 0.142922 88.5);
   --color-confirm: oklch(52.2% 0.080764 176);
   --color-destructive: oklch(58.6% 0.206442 27.1);

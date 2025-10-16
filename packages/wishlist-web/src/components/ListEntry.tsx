@@ -312,7 +312,7 @@ function ListEntry({
           <ThemedImg
             src="itemimages/mracc.gif"
             alt="Mr. Accesories"
-            reColor="bg-accent"
+            reColor="bg-accent-foreground"
             className="clamp-[size,6,7,20rem,sm] clamp-[mr,-0.6,-0.5,20rem,sm]"
           />
           <span

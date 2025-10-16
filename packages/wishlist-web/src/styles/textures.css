@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 .striped {
-  opacity: 0.25;
+  opacity: 0.03;
   background: repeating-linear-gradient(
     -45deg,
     white,
