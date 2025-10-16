@@ -1,8 +1,10 @@
 import iotmData from "./iotm.json";
+
 export type MallPrice = {
   id: number;
   lowestMall: number;
 };
+
 export type IOTM = {
   img: string;
   packaged_id: number;
@@ -23,4 +25,7 @@ export type IOTM = {
   is_ioty?: boolean;
   is_con?: boolean;
 };
+
 export const iotms = iotmData as IOTM[];
+
+export type { Price, WishStatus } from "@/types/data";

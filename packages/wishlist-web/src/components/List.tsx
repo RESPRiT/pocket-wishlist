@@ -1,23 +1,13 @@
 import ListEntry from "./ListEntry";
 import { iotms } from "@/data";
-import type { IOTM, MallPrice } from "@/data";
-import { useCallback, useEffect, useMemo, useState, useRef } from "react";
+import type { IOTM } from "@/data";
+import { useCallback, useMemo, useRef } from "react";
 import type { ListEntryProps } from "./ListEntry";
 import { useStore } from "@/stores/userStore";
 import { useWindowVirtualizer } from "@tanstack/react-virtual";
-
-type Price = {
-  value: number;
-  volume: number;
-  date: Date;
-  itemId: number;
-  tradeable?: boolean;
-};
-
-type WishStatus = {
-  lastUpdated: number;
-  wishlist: Record<number, "NONE" | "PACKAGED" | "OPENED">;
-};
+import { usePrices } from "@/hooks/usePrices";
+import { useMallPrices } from "@/hooks/useMallPrices";
+import { useWishlist } from "@/hooks/useWishlist";
 
 function handleSort(
   sort: string
@@ -79,7 +69,6 @@ function handleSort(
   return dateSort;
 }
 
-// TODO: Move/hoist pricing logic elsewhere (and probably rework data schema)
 function getUnboxedName(item: IOTM): string {
   if (
     item.type !== "skill" &&
@@ -95,109 +84,16 @@ function getUnboxedName(item: IOTM): string {
 }
 
 function List() {
-  const [prices, setPrices] = useState([] as Price[]);
-  const [mall, setMall] = useState([] as MallPrice[]);
-  const [wishlist, setWishlist] = useState({
-    lastUpdated: -1,
-    wishlist: {},
-  } as WishStatus);
   const { currentOrder, currentSort } = useStore();
 
-  // memoize prevents useEffect from activating more than once;
-  // no dependencies, so url is only calculated on the first render
-  const priceGunUrl = useMemo(
-    () =>
-      `https://pricegun.loathers.net/api/${iotms
-        .map((item) => item.packaged_id)
-        .concat([194]) // also lookup Mr. A prices
-        .join(",")}`,
+  // Fetch data using hooks
+  const itemIds = useMemo(
+    () => iotms.map((item) => item.packaged_id).concat([194]), // include Mr. A
     []
   );
-
-  // TODO: fetching and caching logic feels kind of repetitive and DIY,
-  // maybe a better pattern or library could be used
-  useEffect(() => {
-    async function getWishlist() {
-      try {
-        // TODO: Un-hardcode user
-        const wishResponse = await fetch(
-          "https://resprit--94d09ed2946611f08e910224a6c84d84.web.val.run/get-wishlist?u=1927026"
-        );
-        const wishResults = (await wishResponse.json()) as WishStatus;
-        setWishlist(wishResults);
-      } catch (error) {
-        console.log("Couldn't get wishlist", error);
-      }
-    }
-    getWishlist();
-
-    const priceGunCached = localStorage.getItem("prices");
-    const priceGunLastUpdated = localStorage.getItem("pricesLastUpdated");
-    // if we wanted to be more robust, we could check if
-    // lastUpdated is a valid Date
-    const priceGunUpdateDate = priceGunLastUpdated
-      ? new Date(parseInt(priceGunLastUpdated))
-      : null;
-
-    const mallCached = localStorage.getItem("mall");
-    const mallLastUpdated = localStorage.getItem("mallLastUpdated");
-    const mallUpdateDate = mallLastUpdated
-      ? new Date(parseInt(mallLastUpdated))
-      : null;
-
-    function updatedToday(date: Date | null): boolean {
-      if (date === null) return false;
-
-      const today = new Date();
-
-      const ret =
-        date.getFullYear() === today.getFullYear() &&
-        date.getMonth() === today.getMonth() &&
-        date.getDate() === today.getDate();
-
-      return ret;
-    }
-
-    if (
-      priceGunCached &&
-      mallCached &&
-      updatedToday(priceGunUpdateDate) &&
-      updatedToday(mallUpdateDate)
-    ) {
-      setPrices(JSON.parse(priceGunCached) as Price[]); // type is a lie, see below
-      setMall(JSON.parse(mallCached) as MallPrice[]);
-      return;
-    }
-
-    async function storePrices() {
-      try {
-        const priceGunResponse = await fetch(priceGunUrl);
-        const priceGunResults = (await priceGunResponse.json()) as Price[];
-        localStorage.setItem("prices", JSON.stringify(priceGunResults));
-        localStorage.setItem("pricesLastUpdated", String(Date.now()));
-        setPrices(priceGunResults);
-      } catch (error) {
-        console.log("Couldn't store pricegun prices", priceGunUrl, error);
-      }
-    }
-
-    async function storeMall() {
-      try {
-        const mallResponse = await fetch(
-          "https://resprit--3e24629c912a11f0b6710224a6c84d84.web.val.run/lowest-mall"
-        );
-        const mallResults = (await mallResponse.json()) as MallPrice[];
-        localStorage.setItem("mall", JSON.stringify(mallResults));
-        localStorage.setItem("mallLastUpdated", String(Date.now()));
-        setMall(mallResults);
-      } catch (error) {
-        console.log("Couldn't store mall prices", error);
-      }
-    }
-
-    if (!priceGunCached || !updatedToday(priceGunUpdateDate)) storePrices();
-    if (!mallCached || !updatedToday(mallUpdateDate)) storeMall();
-  }, [priceGunUrl]);
+  const { prices } = usePrices(itemIds);
+  const { mallPrices: mall } = useMallPrices();
+  const { wishlist } = useWishlist();
 
   const getPrice = useCallback(
     (itemId: number): { price: number | null; lowestMall: number | null } => {

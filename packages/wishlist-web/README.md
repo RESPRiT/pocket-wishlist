@@ -2,12 +2,27 @@
 
 # TO-DOs
 
+## IN PROGRESS
+
+- [x] Remove data handling logic from List.tsx
+- [ ] Decompose ListEntry.tsx in simpler component
+- [ ] Remove color handling logic from ListEntry.tsx
+
+## UP NEXT
+
+- [ ] Price last updated indicator
+  - [ ] Add last updated field to mall-price
+- [ ] Wishlist last updated indicator
+
+## ON DECK
+
 - [x] List all IOTMs via `iotm.json`
   - [ ] (stub) Use better data flow pattern
 - [x] Color scale for year badge
 - [x] Color scale for tier badge
 - [x] Get and cache images from KOL.com
   - [ ] Add familiar images to `iotm.json`
+  - [ ] Add opened images to `iotm.json`
 - [x] Generate wiki links
   - [ ] Wiki links in a new tab
 - [x] Get and cache pricegun data
@@ -38,10 +53,9 @@
   - [x] IOTY indicator
   - [ ] Misc. indicator
   - [x] Standard indicator
-    - [ ] Double-encoded indicator
+    - [x] Double-encoded indicator
   - [o] Slot indicator
   - [ ] Derivatives
-  - [ ] Price last updated indicator
   - [ ] Price trends indicator
   - [ ] Sales volume indicator
   - [ ] Scroll progress indicator
@@ -70,10 +84,14 @@
 - [ ] Click name to copy to clipboard
 - [ ] Click price to link to mall
   - [ ] Mafia/KOL toggle
-- [ ] Dark mode
-  - [ ] Theming
+- [o] Dark mode
+  - [o] Theming
 - [ ] "Minimap" view
 - [ ] Back to top button
 - [ ] Featured "this month's IOTM"
 - [ ] Features "today's raffle IOTM"
 - [ ] (stub) a11y audit
+
+## TABLED
+
+## DONE
