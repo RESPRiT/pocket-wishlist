@@ -879,7 +879,7 @@ function haveOpened(iotm) {
         return (0, import_kolmafia5.haveFamiliar)(f);
       });
     case "item":
-      return iotm.tradeable ? arrayOf(iotm.packaged_id).map(function(i) {
+      return iotm.tradeable ? arrayOf(iotm.packaged_id).concat(arrayOf(iotm.opened_ids)).map(function(i) {
         return import_kolmafia5.Item.get(i);
       }).flatMap(function(i) {
         var group = getFoldGroup(i);
@@ -888,7 +888,10 @@ function haveOpened(iotm) {
         return haveItem(i);
       }) : arrayOf(iotm.opened_ids).map(function(i) {
         return import_kolmafia5.Item.get(i);
-      }).every(function(i) {
+      }).flatMap(function(i) {
+        var group = getFoldGroup(i);
+        return group.length > 0 ? group : i;
+      }).some(function(i) {
         return haveItem(i);
       });
     case "skill":
