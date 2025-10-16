@@ -122,6 +122,7 @@ function haveOpened(iotm: IOTM): boolean {
     case "item": {
       if (iotm.tradeable) {
         return arrayOf(iotm.packaged_id)
+          .concat(arrayOf(iotm.opened_ids))
           .map((i) => Item.get(i))
           .flatMap((i) => {
             const group = getFoldGroup(i);
@@ -131,7 +132,11 @@ function haveOpened(iotm: IOTM): boolean {
       } else {
         return arrayOf(iotm.opened_ids)
           .map((i) => Item.get(i))
-          .every((i) => haveItem(i));
+          .flatMap((i) => {
+            const group = getFoldGroup(i);
+            return group.length > 0 ? group : i;
+          })
+          .some((i) => haveItem(i));
       }
     }
 
