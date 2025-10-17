@@ -15,7 +15,7 @@ export function EntryPriceSection({
   price,
   lowestMall,
 }: EntryPriceSectionProps) {
-  const formatMallStatus = () => {
+  const getMallStatus = () => {
     if (price === null && lowestMall === null)
       return "Mall extinct, no recent sales data";
     if (price === null) return "Based on lowest current mall listing";
@@ -67,7 +67,7 @@ export function EntryPriceSection({
                    md:clamp-[gap,1.25,1.5,md,lg] clamp-[gap,0.5,1.25,20rem,sm]
                    md:clamp-[w,38,40,md,lg] lg:w-42 clamp-[w,31,38,20rem,sm]
                    font-roboto-mono font-normal md:clamp-[text,base,lg,md,lg] clamp-[text,sm,base,20rem,sm]"
-        title={formatMallStatus()}
+        title={getMallStatus()}
       >
         <ThemedImg
           src="itemimages/meat.gif"

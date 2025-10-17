@@ -7,6 +7,7 @@ import { EntryInfoSection } from "./entry/EntryInfoSection";
 import { EntryTiersSection } from "./entry/EntryTiersSection";
 import { EntryPriceSection } from "./entry/EntryPriceSection";
 import { YEAR_BASE } from "@/lib/colors";
+import { cn } from "@/lib/utils";
 
 export type ListEntryProps = {
   img: string;
@@ -74,13 +75,16 @@ function ListEntry({
 
   return (
     <div
-      className={`relative flex flex-wrap lg:flex-nowrap items-center justify-center
+      className={cn(
+        `relative flex flex-wrap lg:flex-nowrap items-center justify-center
         md:clamp-[gap-x,2.25,6,md,lg] clamp-[gap-x,1.5,2.25,20rem,sm] gap-y-2
         clamp-[px,5,6,20rem,sm] py-3 h-full min-w-[290px] lg:w-full
         overflow-hidden
-        rounded-md hover:outline-foreground-muted hover:outline-2 ${
-          isStandard && "outline-secondary"
-        }`}
+        rounded-md hover:outline-foreground-muted hover:outline-2`,
+        {
+          "outline-secondary": isStandard,
+        }
+      )}
     >
       <EntryBackground
         status={status}
