@@ -1,6 +1,3 @@
-/**
- * Checks if a cached timestamp is stale (older than maxAge)
- */
 export function isCacheStale(
   lastUpdatedKey: string,
   maxAge: number = 24 * 60 * 60 * 1000 // 24 hours default
@@ -14,9 +11,6 @@ export function isCacheStale(
   return Date.now() - timestamp > maxAge;
 }
 
-/**
- * Gets cached data from localStorage
- */
 export function getCachedData<T>(cacheKey: string): T | null {
   const cached = localStorage.getItem(cacheKey);
   if (!cached) return null;
@@ -29,9 +23,6 @@ export function getCachedData<T>(cacheKey: string): T | null {
   }
 }
 
-/**
- * Sets data in localStorage cache with timestamp
- */
 export function setCachedData<T>(
   cacheKey: string,
   timestampKey: string,
