@@ -17,7 +17,9 @@ export function useWishlist(userId?: string) {
         setWishlist(data);
         setIsLoading(false);
       } catch (err) {
-        setError(err instanceof Error ? err : new Error("Failed to fetch wishlist"));
+        setError(
+          err instanceof Error ? err : new Error("Failed to fetch wishlist")
+        );
         setIsLoading(false);
       }
     }

@@ -11,12 +11,11 @@ type EntryBackgroundProps = {
   theme: "light" | "dark";
 };
 
-// Constants for standard year color mixing
-const STANDARD_YEAR_CONFIG = {
+const BASE_COLOR_CONFIG = {
   maxYears: 3,
-  lightThemeOffset: 30,
-  darkThemeOffset: 0,
-  yearProgressMultiplier: 65,
+  lightThemeOffset: 35, // "top half" of the mix
+  darkThemeOffset: 0, // "bottom half" of the mix
+  mixRange: 65,
 } as const;
 
 const PRICE_DARKNESS_RANGE = {
@@ -24,10 +23,6 @@ const PRICE_DARKNESS_RANGE = {
   dark: [0, -60] as [number, number],
 } as const;
 
-/**
- * Computes the base color for the entry background.
- * Standard items get a gradient based on year, others get primary color.
- */
 function getBaseColor(
   isStandard: boolean,
   standardYear: number,
@@ -40,43 +35,28 @@ function getBaseColor(
 
   const themeOffset =
     theme === "light"
-      ? STANDARD_YEAR_CONFIG.lightThemeOffset
-      : STANDARD_YEAR_CONFIG.darkThemeOffset;
-
-  const yearProgress = 1 - standardYear / STANDARD_YEAR_CONFIG.maxYears;
-  const mixPercent =
-    themeOffset + STANDARD_YEAR_CONFIG.yearProgressMultiplier * yearProgress;
+      ? BASE_COLOR_CONFIG.lightThemeOffset
+      : BASE_COLOR_CONFIG.darkThemeOffset;
+  const yearPercent = 1 - standardYear / BASE_COLOR_CONFIG.maxYears;
+  const mixPercent = themeOffset + BASE_COLOR_CONFIG.mixRange * yearPercent;
 
   return `color-mix(in oklch, ${themeVar} ${mixPercent}%, var(--primary))`;
 }
 
-/**
- * Determines the end color for lightness adjustment.
- * Standard items darken/lighten towards black/white, others towards destructive.
- */
 function getEndColor(isStandard: boolean, theme: "light" | "dark"): string {
   if (!isStandard) return "var(--destructive)";
   return theme === "light" ? "black" : "white";
 }
 
-/**
- * Calculates how much to darken based on price ratio.
- * Uses logarithmic scale for expensive items.
- */
 function getPriceDarkness(
   priceRatio: number | null,
   theme: "light" | "dark"
 ): number {
   const range =
-    theme === "light"
-      ? PRICE_DARKNESS_RANGE.light
-      : PRICE_DARKNESS_RANGE.dark;
+    theme === "light" ? PRICE_DARKNESS_RANGE.light : PRICE_DARKNESS_RANGE.dark;
   return logBracketScale(priceRatio ?? -1, range);
 }
 
-/**
- * Returns the contrast color for the theme.
- */
 function getContrastColor(theme: "light" | "dark"): string {
   return theme === "light" ? "white" : "black";
 }
@@ -99,7 +79,6 @@ export function EntryBackground({
       };
     }
 
-    // Default case - compute dynamic background with helper functions
     return adjustLightness(
       getBaseColor(isStandard, standardYear, theme),
       getEndColor(isStandard, theme),

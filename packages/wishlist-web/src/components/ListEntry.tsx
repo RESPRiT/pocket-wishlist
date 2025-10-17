@@ -6,7 +6,6 @@ import { EntryRibbon } from "./entry/EntryRibbon";
 import { EntryInfoSection } from "./entry/EntryInfoSection";
 import { EntryTiersSection } from "./entry/EntryTiersSection";
 import { EntryPriceSection } from "./entry/EntryPriceSection";
-import { YEAR_BASE } from "@/lib/colors";
 import { cn } from "@/lib/utils";
 
 export type ListEntryProps = {
@@ -45,7 +44,7 @@ function ListEntry({
 
   const yearPercent = useMemo(() => {
     const currentYear = new Date().getFullYear();
-    return Math.min(5 / 6, (currentYear - year) / (currentYear - YEAR_BASE));
+    return Math.min(5 / 6, (currentYear - year) / (currentYear - 2004));
   }, [year]);
 
   const wikiUrl = useMemo(

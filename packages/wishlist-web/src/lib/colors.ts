@@ -1,7 +1,5 @@
 import type { CSSProperties } from "react";
 
-// Constants
-export const YEAR_BASE = 2004;
 export const PRICE_BRACKETS = [
   [1, 2],
   [2, 3],
@@ -11,9 +9,6 @@ export const PRICE_BRACKETS = [
   [50, 12_500],
 ] as const;
 
-/**
- * Interpolates between destructive (red) and secondary colors
- */
 export function interpolateColorScale(percent: number): CSSProperties {
   return {
     backgroundColor: `color-mix(in srgb, var(--destructive) ${
@@ -22,9 +17,6 @@ export function interpolateColorScale(percent: number): CSSProperties {
   };
 }
 
-/**
- * Adjusts lightness by mixing with a contrast color
- */
 export function adjustLightness(
   startColor: string,
   endColor = "black",
@@ -40,9 +32,6 @@ export function adjustLightness(
   };
 }
 
-/**
- * Logarithmic scale with price brackets for darkening effect
- */
 export function logBracketScale(
   x: number,
   range: [number, number] = [0, -30],
