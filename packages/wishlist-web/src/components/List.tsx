@@ -24,6 +24,8 @@ function getUnboxedName(item: IOTM): string {
 }
 
 function List() {
+  "use no memo"; // react compiler breaks tanstack virtual
+
   const { currentOrder, currentSort } = useStore();
 
   // Fetch data using hooks
