@@ -917,7 +917,10 @@ function checkIOTMs() {
 function main() {
   (0, import_kolmafia5.print)("Checking IOTMs...");
   var data = {
-    user: (0, import_kolmafia5.myId)(),
+    player: {
+      id: Number.parseInt((0, import_kolmafia5.myId)()),
+      name: (0, import_kolmafia5.myName)()
+    },
     wishlist: checkIOTMs()
   }, crushed = encodeURIComponent(JSONCrush_default.crush(JSON.stringify(data))), link = "https://resprit--94d09ed2946611f08e910224a6c84d84.web.val.run/update-wishlist?d=".concat(crushed);
   (0, import_kolmafia5.visitUrl)(link, !1, !0), (0, import_kolmafia5.print)("Updated!");
