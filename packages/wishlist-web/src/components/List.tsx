@@ -1,73 +1,13 @@
-import ListEntry from "./ListEntry";
+import ListEntry, { ListEntryProps } from "./ListEntry";
 import { iotms } from "@/data";
 import type { IOTM } from "@/data";
 import { useCallback, useMemo, useRef } from "react";
-import type { ListEntryProps } from "./ListEntry";
 import { useStore } from "@/stores/userStore";
 import { useWindowVirtualizer } from "@tanstack/react-virtual";
 import { usePrices } from "@/hooks/usePrices";
 import { useMallPrices } from "@/hooks/useMallPrices";
 import { useWishlistContext } from "@/contexts/WishlistContext";
-
-function handleSort(
-  sort: string
-): (a: ListEntryProps, b: ListEntryProps) => number {
-  const priceSort = (
-    a: ListEntryProps,
-    b: ListEntryProps,
-    skipTie = false
-  ): number => {
-    const aLowest = Math.min(a.price || Infinity, a.lowestMall || Infinity);
-    const bLowest = Math.min(b.price || Infinity, b.lowestMall || Infinity);
-
-    // tie-breaker
-    if (aLowest === bLowest) {
-      return skipTie ? a.name.localeCompare(b.name) : dateSort(a, b, true);
-    }
-
-    return aLowest - bLowest;
-  };
-  const dateSort = (a: ListEntryProps, b: ListEntryProps, skipTie = false) => {
-    // compare years, bigger = "smaller" (newer)
-    if (a.year !== b.year) return b.year - a.year;
-
-    // compare months, monthless => bigger (so, 13 > 12)
-    if ((a.month ?? 13) !== (b.month ?? 13))
-      return (b.month ?? 13) - (a.month ?? 13);
-
-    // compare con and ioty status
-    if (a.isIOTY && !b.isIOTY) return -1;
-    if (!a.isIOTY && b.isIOTY) return 1;
-    if (a.isCon && !b.isCon) return -1;
-    if (!a.isCon && b.isCon) return 1;
-
-    if (skipTie) return a.name.localeCompare(b.name);
-
-    // tie-break
-    return priceSort(a, b, true);
-  };
-  const tierSort = (a: ListEntryProps, b: ListEntryProps) => {
-    const averageA =
-      ((a.speed !== undefined ? a.speed : 6) +
-        (a.farm !== undefined ? a.farm : 6)) /
-      2;
-    const averageB =
-      ((b.speed !== undefined ? b.speed : 6) +
-        (b.farm !== undefined ? b.farm : 6)) /
-      2;
-
-    return averageA - averageB !== 0 ? averageA - averageB : priceSort(a, b);
-  };
-
-  if (sort === "price") {
-    return priceSort;
-  } else if (sort === "tier") {
-    return tierSort;
-  }
-
-  // default to date
-  return dateSort;
-}
+import { getSortFunction } from "@/lib/sortWishlist";
 
 function getUnboxedName(item: IOTM): string {
   if (
@@ -126,25 +66,27 @@ function List() {
     () =>
       iotms
         .filter((item) => item.type !== "vip")
-        .map((item) => ({
-          img: item.img,
-          name: getUnboxedName(item),
-          packaged_name: item.packaged_name,
-          type: item.type,
-          year: item.year,
-          month: item.month,
-          speed: item.speed_tier,
-          farm: item.aftercore_tier,
-          isIOTY: item.is_ioty || false,
-          isCon: item.is_con || false,
-          ...getPrice(item.packaged_id),
-          mrAs, // don't love this here
-          status: wishlist.wishlist[item.packaged_id] || null,
-        })),
+        .map(
+          (item): ListEntryProps => ({
+            img: item.img,
+            name: getUnboxedName(item),
+            packaged_name: item.packaged_name,
+            type: item.type,
+            year: item.year,
+            month: item.month,
+            speed: item.speed_tier,
+            farm: item.aftercore_tier,
+            isIOTY: item.is_ioty || false,
+            isCon: item.is_con || false,
+            ...getPrice(item.packaged_id),
+            mrAs, // don't love this here
+            status: wishlist.wishlist[item.packaged_id] || null,
+          })
+        ),
     [mrAs, getPrice, wishlist]
   );
 
-  const sortedData = data.sort(handleSort(currentSort));
+  const sortedData = data.sort(getSortFunction(currentSort));
   const orderedData = currentOrder ? sortedData.reverse() : sortedData;
 
   const listRef = useRef<HTMLDivElement>(null);
