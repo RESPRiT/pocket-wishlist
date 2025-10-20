@@ -7,6 +7,8 @@ export type Price = {
 };
 
 export type WishStatus = {
-  lastUpdated: number;
+  username: string;
+  userId: number;
   wishlist: Record<number, "NONE" | "PACKAGED" | "OPENED">;
+  lastUpdated: number;
 };

@@ -9,13 +9,14 @@ import {
   Item,
   itemAmount,
   myId,
+  myName,
   print,
   Skill,
   storageAmount,
   visitUrl,
   xpath,
 } from "kolmafia";
-import { getFoldGroup, haveInCampground } from "libram";
+import { getFoldGroup, haveInCampground, Player } from "libram";
 import { IOTM, iotms } from "./data/index.js";
 import { getBoolean } from "libram/dist/property.js";
 import jsoncrush from "jsoncrush";
@@ -169,8 +170,15 @@ function checkIOTMs(): Record<number, string> {
 export function main(): void {
   print("Checking IOTMs...");
 
-  const data = {
-    user: myId(),
+  // TODO: abstract this data type; do validation
+  const data: {
+    player: Player;
+    wishlist: Record<number, string>;
+  } = {
+    player: {
+      id: Number.parseInt(myId()),
+      name: myName(),
+    },
     wishlist: checkIOTMs(),
   };
   const crushed = encodeURIComponent(jsoncrush.crush(JSON.stringify(data)));

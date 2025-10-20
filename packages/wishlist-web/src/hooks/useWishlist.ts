@@ -4,8 +4,10 @@ import { fetchWishlist } from "@/api/wishlist";
 
 export function useWishlist(userId?: string) {
   const [wishlist, setWishlist] = useState<WishStatus>({
-    lastUpdated: -1,
+    username: "",
+    userId: -1,
     wishlist: {},
+    lastUpdated: -1,
   });
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);

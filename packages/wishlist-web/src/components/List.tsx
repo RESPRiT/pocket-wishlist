@@ -7,7 +7,7 @@ import { useStore } from "@/stores/userStore";
 import { useWindowVirtualizer } from "@tanstack/react-virtual";
 import { usePrices } from "@/hooks/usePrices";
 import { useMallPrices } from "@/hooks/useMallPrices";
-import { useWishlist } from "@/hooks/useWishlist";
+import { useWishlistContext } from "@/contexts/WishlistContext";
 
 function handleSort(
   sort: string
@@ -93,7 +93,7 @@ function List() {
   );
   const { prices } = usePrices(itemIds);
   const { mallPrices: mall } = useMallPrices();
-  const { wishlist } = useWishlist();
+  const { wishlist } = useWishlistContext();
 
   const getPrice = useCallback(
     (itemId: number): { price: number | null; lowestMall: number | null } => {
