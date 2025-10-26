@@ -1,0 +1,22 @@
+{
+  "name": "wishlist-api",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "vt watch",
+    "dev-local-experimental": "deno run -A --watch src/main.ts",
+    "deploy": "vt push"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "deno": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "hono": "^4.10.3",
+    "jsoncrush": "^1.1.8"
+  }
+}

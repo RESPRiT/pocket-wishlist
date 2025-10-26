@@ -1,0 +1,14 @@
+.git
+.vscode
+.cursorrules
+.DS_Store
+node_modules
+vendor
+package.json
+tsconfig.json
+.gitignore
+bun.lock
+deno.json
+deno.lock
+.vtignore
+README.md

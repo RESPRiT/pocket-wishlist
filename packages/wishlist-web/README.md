@@ -5,14 +5,13 @@
 ## IN PROGRESS
 
 - [x] Remove data handling logic from List.tsx
-- [ ] Decompose ListEntry.tsx in simpler component
-- [ ] Remove color handling logic from ListEntry.tsx
+- [x] Decompose ListEntry.tsx in simpler component
+- [x] Remove color handling logic from ListEntry.tsx
+- [x] Price last updated indicator
+  - [ ] Add last updated field to mall-price
+- [x] Wishlist last updated indicator
 
 ## UP NEXT
-
-- [ ] Price last updated indicator
-  - [ ] Add last updated field to mall-price
-- [ ] Wishlist last updated indicator
 
 ## ON DECK
 
