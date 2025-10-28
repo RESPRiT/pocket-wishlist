@@ -4,6 +4,7 @@ import { useWishlistContext } from "@/contexts/WishlistContext";
 const LAST_UPDATED_KEY = "mallLastUpdated";
 
 const TIME_RANGES = {
+  secondsAgo: 60 * 1000,
   minutesAgo: 60 * 60 * 1000,
   hoursAgo: 24 * 60 * 60 * 1000,
   yesterday: 2 * 24 * 60 * 60 * 1000,
@@ -12,6 +13,7 @@ const TIME_RANGES = {
 } as const;
 
 const TIME_AMOUNTS = {
+  seconds: 1000,
   minutes: 60 * 1000,
   hours: 60 * 60 * 1000,
   days: 24 * 60 * 60 * 1000,
@@ -24,6 +26,7 @@ function Header() {
   const { wishlist } = useWishlistContext();
 
   useEffect(() => {
+    // TODO: Doesn't re-render when this value changes
     const stored = localStorage.getItem(LAST_UPDATED_KEY);
     if (stored) {
       setLastUpdated(Number.parseInt(stored));
@@ -33,8 +36,11 @@ function Header() {
   const formatTimeSince = (time: number) => {
     if (time <= 0) return "";
 
+    // TODO: Handle plurals
     const timeSince = Date.now() - time;
-    if (timeSince < TIME_RANGES.minutesAgo) {
+    if (timeSince < TIME_RANGES.secondsAgo) {
+      return `${Math.round(timeSince / TIME_AMOUNTS.seconds)} seconds ago`;
+    } else if (timeSince < TIME_RANGES.minutesAgo) {
       return `${Math.round(timeSince / TIME_AMOUNTS.minutes)} minutes ago`;
     } else if (timeSince < TIME_RANGES.hoursAgo) {
       return `${Math.round(timeSince / TIME_AMOUNTS.hours)} hours ago`;

@@ -7,12 +7,6 @@ import {
 } from "react";
 import type { WishStatus } from "@/types/data";
 import { fetchWishlist } from "@/api/wishlist";
-import { getCachedData, setCachedData, isCacheStale } from "@/lib/cache";
-
-const WISHLIST_KEY = "wishlist";
-const TIMESTAMP_KEY = "wishlistLastUpdated";
-const USERNAME_KEY = "wishlistUsername";
-const USER_ID_KEY = "wishlistUserId";
 
 interface WishlistContextType {
   wishlist: WishStatus;
@@ -41,46 +35,8 @@ export function WishlistProvider({
   useEffect(() => {
     async function loadWishlist() {
       try {
-        if (!isCacheStale(TIMESTAMP_KEY)) {
-          const cachedWishlist =
-            getCachedData<Record<number, "NONE" | "PACKAGED" | "OPENED">>(
-              WISHLIST_KEY
-            );
-          const cachedUsername = getCachedData<string>(USERNAME_KEY);
-          const cachedUserId = getCachedData<number>(USER_ID_KEY);
-          const cachedTimestamp = getCachedData<number>(TIMESTAMP_KEY);
-
-          if (
-            cachedWishlist &&
-            cachedUsername &&
-            cachedUserId &&
-            cachedTimestamp
-          ) {
-            setWishlist({
-              username: cachedUsername,
-              userId: cachedUserId,
-              wishlist: cachedWishlist,
-              lastUpdated: cachedTimestamp,
-            });
-            setIsLoading(false);
-            return;
-          }
-        }
-
         const data = await fetchWishlist(userId);
         setWishlist(data);
-
-        // Store each field separately in localStorage
-        setCachedData(
-          WISHLIST_KEY,
-          TIMESTAMP_KEY,
-          data.wishlist,
-          String(data.lastUpdated ?? Date.now())
-        );
-        // TODO: How do we feel about setCachedData? Awkward here
-        localStorage.setItem(USERNAME_KEY, JSON.stringify(data.username));
-        localStorage.setItem(USER_ID_KEY, JSON.stringify(data.userId));
-
         setIsLoading(false);
       } catch (err) {
         setError(
