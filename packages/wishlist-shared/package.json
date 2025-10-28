@@ -1,0 +1,17 @@
+{
+  "name": "wishlist-shared",
+  "private": true,
+  "devDependencies": {
+    "@types/bun": "latest",
+    "prettier": "3"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "zod": "^4.1.12"
+  },
+  "exports": {
+    "import": "./index.ts"
+  }
+}

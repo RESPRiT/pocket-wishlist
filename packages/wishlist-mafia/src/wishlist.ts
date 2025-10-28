@@ -17,7 +17,7 @@ import {
   xpath,
 } from "kolmafia";
 import { getFoldGroup, haveInCampground, Player } from "libram";
-import { IOTM, iotms } from "./data/index.js";
+import { IOTM, iotms } from "wishlist-shared";
 import { getBoolean } from "libram/dist/property.js";
 import jsoncrush from "jsoncrush";
 
@@ -163,7 +163,7 @@ function getStatus(iotm: IOTM) {
 
 function checkIOTMs(): Record<number, string> {
   return Object.fromEntries(
-    iotms.map((iotm) => [iotm.packaged_id, getStatus(iotm)])
+    iotms.map((iotm) => [iotm.packaged_id, getStatus(iotm as IOTM)])
   );
 }
 

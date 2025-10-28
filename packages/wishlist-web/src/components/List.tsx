@@ -1,6 +1,5 @@
 import ListEntry, { ListEntryProps } from "./ListEntry";
-import { iotms } from "@/data";
-import type { IOTM } from "@/data";
+import { IOTM, iotms } from "wishlist-shared";
 import { useCallback, useMemo, useRef } from "react";
 import { useStore } from "@/stores/userStore";
 import { useWindowVirtualizer } from "@tanstack/react-virtual";

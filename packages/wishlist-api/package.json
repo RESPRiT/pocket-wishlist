@@ -1,6 +1,5 @@
 {
   "name": "wishlist-api",
-  "module": "index.ts",
   "type": "module",
   "private": true,
   "scripts": {
