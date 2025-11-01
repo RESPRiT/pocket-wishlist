@@ -18423,8 +18423,17 @@ config(en_default());
 
 // ../wishlist-shared/schemas/api.ts
 var WishlistSchema = external_exports.object({
-  name: external_exports.string()
-});
+  username: external_exports.string(),
+  userId: external_exports.coerce.number(),
+  wishlist: external_exports.record(external_exports.coerce.number(), external_exports.literal(["NONE", "PACKAGED", "OPENED"])),
+  lastUpdated: external_exports.coerce.number()
+}), PriceGunSchema = external_exports.array(external_exports.object({
+  value: external_exports.number(),
+  volume: external_exports.number(),
+  date: external_exports.date(),
+  itemId: external_exports.number(),
+  tradeable: external_exports.optional(external_exports.boolean())
+}));
 
 // ../wishlist-shared/schemas/data.ts
 var IOTMSchema = external_exports.object({
