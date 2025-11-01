@@ -55,7 +55,7 @@ function Header() {
   };
 
   return (
-    <header className="flex justify-between mt-10 shrink-0">
+    <header className="flex justify-between items-end mt-10 shrink-0">
       <div className="flex items-end gap-2">
         <span className="font-medium text-4xl">{"pocket wishlist"}</span>
         <span className="text-sm">{``}</span>
@@ -66,7 +66,7 @@ function Header() {
         )}`}</span>
         <span className="text-md text-foreground">
           {`${wishlist.username}'s wishlist `}
-          <span className="text-sm font-playwrite">{"as of "}</span>
+          <span className="text-sm">{"as of "}</span>
           <b>{formatTimeSince(wishlist.lastUpdated)}</b>
         </span>
       </div>

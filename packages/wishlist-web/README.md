@@ -4,17 +4,18 @@
 
 ## IN PROGRESS
 
-- [x] Remove data handling logic from List.tsx
-- [x] Decompose ListEntry.tsx in simpler component
-- [x] Remove color handling logic from ListEntry.tsx
+- [ ] Data validation
+  - [ ] Write api schemas
+  - [ ] Implement on api
+  - [ ] Implement on web
 - [x] Price last updated indicator
   - [ ] Add last updated field to mall-price
-- [x] Wishlist last updated indicator
 
 ## UP NEXT
 
 ## ON DECK
 
+- [ ] Add labels to all sorts of text
 - [x] List all IOTMs via `iotm.json`
   - [ ] (stub) Use better data flow pattern
 - [x] Color scale for year badge
@@ -94,3 +95,8 @@
 ## TABLED
 
 ## DONE
+
+- [x] Remove data handling logic from List.tsx
+- [x] Decompose ListEntry.tsx in simpler component
+- [x] Remove color handling logic from ListEntry.tsx
+- [x] Wishlist last updated indicator

@@ -46,6 +46,3 @@ app.get("/get-wishlist", async (c) => {
 
 // for http trigger
 export default app.fetch;
-
-// for local testing
-Deno.serve(app.fetch);

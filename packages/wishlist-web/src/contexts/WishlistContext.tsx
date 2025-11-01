@@ -5,11 +5,11 @@ import {
   ReactNode,
   useContext,
 } from "react";
-import type { WishStatus } from "@/types/data";
 import { fetchWishlist } from "@/api/wishlist";
+import { WishlistSchema, type Wishlist } from "wishlist-shared";
 
 interface WishlistContextType {
-  wishlist: WishStatus;
+  wishlist: Wishlist;
   isLoading: boolean;
   error: Error | null;
 }
@@ -23,7 +23,7 @@ export function WishlistProvider({
   children: ReactNode;
   userId?: string;
 }) {
-  const [wishlist, setWishlist] = useState<WishStatus>({
+  const [wishlist, setWishlist] = useState<Wishlist>({
     username: "",
     userId: -1,
     wishlist: {},
@@ -36,12 +36,13 @@ export function WishlistProvider({
     async function loadWishlist() {
       try {
         const data = await fetchWishlist(userId);
-        setWishlist(data);
+        setWishlist(WishlistSchema.parse(data));
         setIsLoading(false);
       } catch (err) {
         setError(
           err instanceof Error ? err : new Error("Failed to fetch wishlist")
         );
+        console.error(err);
         setIsLoading(false);
       }
     }

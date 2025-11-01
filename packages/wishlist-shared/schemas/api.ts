@@ -1,7 +1,24 @@
 import { z } from "zod";
 
 export const WishlistSchema = z.object({
-  name: z.string(),
+  username: z.string(),
+  userId: z.coerce.number(),
+  wishlist: z.record(
+    z.coerce.number<number>(),
+    z.literal(["NONE", "PACKAGED", "OPENED"])
+  ),
+  lastUpdated: z.coerce.number(),
 });
 
+export const PriceGunSchema = z.array(
+  z.object({
+    value: z.number(),
+    volume: z.number(),
+    date: z.date(),
+    itemId: z.number(),
+    tradeable: z.optional(z.boolean()),
+  })
+);
+
 export type Wishlist = z.infer<typeof WishlistSchema>;
+export type PriceGun = z.infer<typeof PriceGunSchema>;

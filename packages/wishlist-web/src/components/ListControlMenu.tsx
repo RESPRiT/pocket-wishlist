@@ -14,8 +14,8 @@ function ListControlMenu() {
         <IconButton
           icon={
             currentSort === "date" && currentOrder === true
-              ? "arrow-up-short-wide"
-              : "arrow-down-wide-short"
+              ? "arrow-up-wide-short"
+              : "arrow-down-short-wide"
           }
           label="sort by date"
           color="text-primary"
@@ -32,8 +32,8 @@ function ListControlMenu() {
         <IconButton
           icon={
             currentSort === "tier" && currentOrder === true
-              ? "arrow-up-short-wide"
-              : "arrow-down-wide-short"
+              ? "arrow-up-wide-short"
+              : "arrow-down-short-wide"
           }
           label="sort by tier"
           color="text-primary"
@@ -50,8 +50,8 @@ function ListControlMenu() {
         <IconButton
           icon={
             currentSort === "price" && currentOrder === true
-              ? "arrow-up-short-wide"
-              : "arrow-down-wide-short"
+              ? "arrow-up-wide-short"
+              : "arrow-down-short-wide"
           }
           label="sort by price"
           color="text-primary"
