@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { useWishlistContext } from "@/contexts/WishlistContext";
+import { WishlistContext } from "@/contexts/WishlistContext";
+import { use, useEffect, useState } from "react";
 
 const LAST_UPDATED_KEY = "mallLastUpdated";
 
@@ -23,7 +23,7 @@ const TIME_AMOUNTS = {
 
 function Header() {
   const [lastUpdated, setLastUpdated] = useState<number>();
-  const { wishlist } = useWishlistContext();
+  const wishlist = use(WishlistContext);
 
   useEffect(() => {
     // TODO: Doesn't re-render when this value changes
@@ -54,6 +54,7 @@ function Header() {
     return `${Math.round(timeSince / TIME_AMOUNTS.months)} months ago`;
   };
 
+  // TODO: Fix the wishlist data schema because wtf lmao
   return (
     <header className="flex justify-between items-end mt-10 shrink-0">
       <div className="flex items-end gap-2">
@@ -65,9 +66,9 @@ function Header() {
           lastUpdated ?? -1
         )}`}</span>
         <span className="text-md text-foreground">
-          {`${wishlist.username}'s wishlist `}
+          {`${wishlist?.wishlist.username}'s wishlist `}
           <span className="text-sm">{"as of "}</span>
-          <b>{formatTimeSince(wishlist.lastUpdated)}</b>
+          <b>{formatTimeSince(wishlist?.wishlist.lastUpdated ?? 0)}</b>
         </span>
       </div>
     </header>

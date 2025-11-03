@@ -4,7 +4,7 @@ import "@/styles/textures.css";
 import { cn } from "@/lib/utils";
 
 type EntryBackgroundProps = {
-  status: "NONE" | "PACKAGED" | "OPENED";
+  status?: "NONE" | "PACKAGED" | "OPENED";
   isStandard: boolean;
   standardYear: number;
   priceRatio: number | null;

@@ -1,15 +1,17 @@
-import type { MallPrice } from "@/data";
+import { MallPricesSchema, type MallPrices } from "wishlist-shared";
 
 /**
  * Fetches lowest mall prices
  */
-export async function fetchMallPrices(): Promise<MallPrice[]> {
-  const url = "https://resprit--3e24629c912a11f0b6710224a6c84d84.web.val.run/lowest-mall";
+export async function fetchMallPrices(): Promise<MallPrices> {
+  const url =
+    "https://resprit--dd94f3deb77f11f08e0c0224a6c84d84.web.val.run/lowest-mall";
 
   const response = await fetch(url);
   if (!response.ok) {
     throw new Error(`Failed to fetch mall prices: ${response.statusText}`);
   }
 
-  return response.json();
+  const mallprices = await response.json();
+  return MallPricesSchema.parse(mallprices);
 }

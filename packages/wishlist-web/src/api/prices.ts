@@ -1,9 +1,9 @@
-import type { Price } from "@/types/data";
+import { PriceGun, PriceGunSchema } from "wishlist-shared";
 
 /**
  * Fetches prices from PriceGun API
  */
-export async function fetchPriceGun(itemIds: number[]): Promise<Price[]> {
+export async function fetchPriceGun(itemIds: number[]): Promise<PriceGun> {
   const url = `https://pricegun.loathers.net/api/${itemIds.join(",")}`;
 
   const response = await fetch(url);
@@ -11,5 +11,6 @@ export async function fetchPriceGun(itemIds: number[]): Promise<Price[]> {
     throw new Error(`Failed to fetch prices: ${response.statusText}`);
   }
 
-  return response.json();
+  const pricegun = await response.json();
+  return PriceGunSchema.parse(pricegun);
 }

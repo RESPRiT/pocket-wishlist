@@ -4,8 +4,6 @@ import { blob } from "https://esm.town/v/std/blob";
 
 const app = new Hono();
 
-app.get("/", (c) => c.text("howdy!"));
-
 app.on(["POST", "GET"], "/update-wishlist", async (c) => {
   const crushed = c.req.query("d");
   console.log(crushed);
@@ -41,8 +39,10 @@ app.get("/get-wishlist", async (c) => {
   if (user === undefined) return c.text("No user specified", 400);
 
   const wishlist = await blob.getJSON(`wish/${user}`);
+
+  if (!wishlist) return c.text(`Could not find wishlist for ${user}`, 400);
+
   return c.json(wishlist);
 });
 
-// for http trigger
-export default app.fetch;
+export default app;

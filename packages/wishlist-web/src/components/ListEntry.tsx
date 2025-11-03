@@ -22,7 +22,7 @@ export type ListEntryProps = {
   price: number | null;
   lowestMall: number | null;
   mrAs: number | null;
-  status: "NONE" | "PACKAGED" | "OPENED";
+  status?: "NONE" | "PACKAGED" | "OPENED";
 };
 
 function ListEntry({
