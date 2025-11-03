@@ -16,6 +16,9 @@ LICENSE
 *.md
 .gitignore
 components.json
+.claude
+.github
+README.md
 
 # Editor directories and files
 .vscode/*
