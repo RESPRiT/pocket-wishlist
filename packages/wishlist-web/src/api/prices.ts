@@ -1,9 +1,11 @@
-import { PriceGun, PriceGunSchema } from "wishlist-shared";
+import { PriceGunResponse, PriceGunResponseSchema } from "wishlist-shared";
 
 /**
  * Fetches prices from PriceGun API
  */
-export async function fetchPriceGun(itemIds: number[]): Promise<PriceGun> {
+export async function fetchPriceGun(
+  itemIds: number[]
+): Promise<PriceGunResponse> {
   const url = `https://pricegun.loathers.net/api/${itemIds.join(",")}`;
 
   const response = await fetch(url);
@@ -12,5 +14,5 @@ export async function fetchPriceGun(itemIds: number[]): Promise<PriceGun> {
   }
 
   const pricegun = await response.json();
-  return PriceGunSchema.parse(pricegun);
+  return PriceGunResponseSchema.parse(pricegun);
 }

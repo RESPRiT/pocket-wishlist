@@ -7,11 +7,12 @@ import { EntryInfoSection } from "./entry/EntryInfoSection";
 import { EntryTiersSection } from "./entry/EntryTiersSection";
 import { EntryPriceSection } from "./entry/EntryPriceSection";
 import { cn } from "@/lib/utils";
+import { PriceGun } from "../../../wishlist-shared/schemas/api";
 
 export type ListEntryProps = {
   img: string;
   name: string;
-  packaged_name: string;
+  packagedName: string;
   type: string;
   year: number;
   month?: number;
@@ -19,7 +20,7 @@ export type ListEntryProps = {
   farm?: number;
   isIOTY: boolean;
   isCon: boolean;
-  price: number | null;
+  price: PriceGun | null;
   lowestMall: number | null;
   mrAs: number | null;
   status?: "NONE" | "PACKAGED" | "OPENED";
@@ -28,7 +29,7 @@ export type ListEntryProps = {
 function ListEntry({
   img,
   name,
-  packaged_name,
+  packagedName,
   type,
   year,
   speed,
@@ -50,23 +51,23 @@ function ListEntry({
   const wikiUrl = useMemo(
     () =>
       `https://wiki.kingdomofloathing.com/${encodeURIComponent(
-        packaged_name
+        packagedName
           .charAt(0)
           .toUpperCase()
-          .concat(packaged_name.slice(1).replace(/ /g, "_"))
+          .concat(packagedName.slice(1).replace(/ /g, "_"))
       )}`,
-    [packaged_name]
+    [packagedName]
   );
 
   const standardYear = useMemo(() => {
     const currentYear = new Date().getFullYear();
-    if (packaged_name === "Clan VIP Lounge invitation") return 0;
+    if (packagedName === "Clan VIP Lounge invitation") return 0;
     return currentYear - year;
-  }, [year, packaged_name]);
+  }, [year, packagedName]);
 
   const mall =
     price || lowestMall
-      ? Math.min(price || Infinity, lowestMall || Infinity)
+      ? Math.min(price?.value || Infinity, lowestMall || Infinity)
       : null;
 
   const priceRatio = mall && mrAs ? mall / mrAs : null;
@@ -116,6 +117,7 @@ function ListEntry({
         mrAs={mrAs}
         price={price}
         lowestMall={lowestMall}
+        packagedName={packagedName}
       />
     </div>
   );

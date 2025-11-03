@@ -5,8 +5,14 @@ function priceSort(
   b: ListEntryProps,
   skipTie = false
 ): number {
-  const aLowest = Math.min(a.price || Infinity, a.lowestMall || Infinity);
-  const bLowest = Math.min(b.price || Infinity, b.lowestMall || Infinity);
+  const aLowest = Math.min(
+    a.price?.value || Infinity,
+    a.lowestMall || Infinity
+  );
+  const bLowest = Math.min(
+    b.price?.value || Infinity,
+    b.lowestMall || Infinity
+  );
 
   // tie-breaker
   if (aLowest === bLowest) {

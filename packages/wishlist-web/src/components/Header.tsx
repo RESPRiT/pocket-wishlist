@@ -66,9 +66,9 @@ function Header() {
           lastUpdated ?? -1
         )}`}</span>
         <span className="text-md text-foreground">
-          {`${wishlist?.wishlist.username}'s wishlist `}
+          {`${wishlist?.username}'s wishlist `}
           <span className="text-sm">{"as of "}</span>
-          <b>{formatTimeSince(wishlist?.wishlist.lastUpdated ?? 0)}</b>
+          <b>{formatTimeSince(wishlist?.lastUpdated ?? 0)}</b>
         </span>
       </div>
     </header>

@@ -1,12 +1,14 @@
 import EntryItem from "@/components/EntryItem";
 import ThemedImg from "@/components/ThemedImg";
 import { cn } from "@/lib/utils";
+import { PriceGun } from "../../../../wishlist-shared/schemas/api";
 
 type EntryPriceSectionProps = {
   mall: number | null;
   mrAs: number | null;
-  price: number | null;
+  price: PriceGun | null;
   lowestMall: number | null;
+  packagedName: string;
 };
 
 export function EntryPriceSection({
@@ -14,16 +16,26 @@ export function EntryPriceSection({
   mrAs,
   price,
   lowestMall,
+  packagedName,
 }: EntryPriceSectionProps) {
-  const getMallStatus = () => {
-    if (price === null && lowestMall === null)
-      return "Mall extinct, no recent sales data";
-    if (price === null) return "Based on lowest current mall listing";
-    if (lowestMall === null) return "Based on recent sales data";
-    return price < lowestMall
-      ? "Based on recent sales data"
-      : "Based on lowest current mall listing";
+  const mallStatus =
+    price === null && lowestMall === null
+      ? "extinct"
+      : price === null
+        ? "lowestMall"
+        : lowestMall === null
+          ? "recentSales"
+          : price?.value < lowestMall
+            ? "recentSales"
+            : "lowestMall";
+
+  const statusText = {
+    extinct: "Mall extinct, no recent sales data",
+    lowestMall: "Based on lowest mall listing",
+    recentSales: `Based on ${price?.volume} recent sale${(price?.volume ?? 1) !== 1 ? "s" : ""}`,
   };
+
+  const mafiaUrl = `http://127.0.0.1:60080/mall.php?didadv=0&pudnuggler=${encodeURIComponent(packagedName)}&category=allitems&food_sortitemsby=name&booze_sortitemsby=name&othercon_sortitemsby=name&consumable_byme=0&hats_sortitemsby=name&shirts_sortitemsby=name&pants_sortitemsby=name&weapons_sortitemsby=name&weaponattribute=3&weaponhands=3&acc_sortitemsby=name&offhand_sortitemsby=name&wearable_byme=0&famequip_sortitemsby=name&nolimits=0&justitems=0&sortresultsby=price&max_price=0&x_cheapest=200&consumable_tier_1=0&consumable_tier_2=0&consumable_tier_3=0&consumable_tier_4=0&consumable_tier_5=0`;
 
   const formatMeatPrice = () => {
     // Infinite if no prices found
@@ -57,8 +69,8 @@ export function EntryPriceSection({
   const fontClass = isInfinite
     ? "font-bold lg:text-2xl"
     : isExpensive
-    ? "lg:text-xl"
-    : "";
+      ? "lg:text-xl"
+      : "";
 
   return (
     <EntryItem label="est. mall price">
@@ -67,17 +79,31 @@ export function EntryPriceSection({
                    md:clamp-[gap,1.25,1.5,md,lg] clamp-[gap,0.5,1.25,20rem,sm]
                    md:clamp-[w,38,40,md,lg] lg:w-42 clamp-[w,31,38,20rem,sm]
                    font-roboto-mono font-normal md:clamp-[text,base,lg,md,lg] clamp-[text,sm,base,20rem,sm]"
-        title={getMallStatus()}
+        title={statusText[mallStatus]}
       >
-        <ThemedImg
-          src="itemimages/meat.gif"
-          alt="meat"
-          reColor="bg-foreground"
-          className="clamp-[size,5,6,20rem,sm]"
-        />
-        <span className={cn("text-primary-foreground", fontClass)}>
-          {formatMeatPrice()}
-        </span>
+        <div className="group flex items-center">
+          <ThemedImg
+            src="itemimages/meat.gif"
+            alt="meat"
+            reColor="bg-foreground"
+            className={`clamp-[size,5,6,20rem,sm] ${mallStatus === "lowestMall" && "group-hover:opacity-75"}`}
+          />
+          {mallStatus !== "lowestMall" ? (
+            <span className={cn("text-primary-foreground", fontClass)}>
+              {`${formatMeatPrice()}`}
+            </span>
+          ) : (
+            <a
+              href={mafiaUrl}
+              className={cn(
+                "text-primary-foreground underline underline-offset-2 group-hover:text-primary-foreground/80",
+                fontClass
+              )}
+            >
+              {formatMeatPrice()}
+            </a>
+          )}
+        </div>
 
         <span className="text-muted-foreground select-none">/</span>
 

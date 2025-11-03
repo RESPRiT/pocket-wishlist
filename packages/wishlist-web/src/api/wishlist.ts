@@ -1,4 +1,4 @@
-import { Wishlist, WishlistSchema } from "wishlist-shared";
+import { WishlistResponse, WishlistResponseSchema } from "wishlist-shared";
 
 /**
  * Fetches user wishlist status
@@ -6,7 +6,7 @@ import { Wishlist, WishlistSchema } from "wishlist-shared";
  */
 export async function fetchWishlist(
   userId: string = "1927026"
-): Promise<Wishlist> {
+): Promise<WishlistResponse> {
   const url = `https://resprit--dd94f3deb77f11f08e0c0224a6c84d84.web.val.run/get-wishlist?u=${userId}`;
 
   const response = await fetch(url);
@@ -15,5 +15,5 @@ export async function fetchWishlist(
   }
 
   const wishlist = await response.json();
-  return WishlistSchema.parse(wishlist);
+  return WishlistResponseSchema.parse(wishlist);
 }

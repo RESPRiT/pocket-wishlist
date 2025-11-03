@@ -1,5 +1,5 @@
 import ListEntry, { ListEntryProps } from "./ListEntry";
-import { IOTM, iotms } from "wishlist-shared";
+import { IOTM, iotms, PriceGun } from "wishlist-shared";
 import { use, useCallback, useMemo, useRef } from "react";
 import { useStore } from "@/stores/userStore";
 import { useWindowVirtualizer } from "@tanstack/react-virtual";
@@ -37,7 +37,7 @@ function List() {
   const wishlist = use(WishlistContext);
 
   const getPrice = useCallback(
-    (itemId: number): { price: number | null; lowestMall: number | null } => {
+    (itemId: number): { price: PriceGun | null; lowestMall: number | null } => {
       // this isn't strict equality because it's actually an evil lie:
       // JSON.parse() results in all object fields being strings,
       // so, fields that should be e.g. numbers are actually strings
@@ -46,7 +46,7 @@ function List() {
       const mallEntry = mall.find((price) => price.id == itemId);
 
       return {
-        price: priceEntry ? priceEntry.value : null,
+        price: priceEntry ?? null,
         lowestMall:
           mallEntry && mallEntry.lowestMall > 0 ? mallEntry.lowestMall : null,
       };
@@ -54,14 +54,11 @@ function List() {
     [prices, mall]
   );
 
-  const mrAs = useMemo(
-    () =>
-      Object.values(getPrice(194)).reduce(
-        (acc: number, v) => (v !== null ? Math.min(acc, v) : acc),
-        Infinity
-      ),
-    [getPrice]
-  );
+  const mrAs = useMemo(() => {
+    const { price, lowestMall } = getPrice(194);
+
+    return Math.min(price?.value ?? Infinity, lowestMall ?? Infinity);
+  }, [getPrice]);
 
   const data = useMemo(
     () =>
@@ -71,7 +68,7 @@ function List() {
           (item): ListEntryProps => ({
             img: item.img,
             name: getUnboxedName(item),
-            packaged_name: item.packaged_name,
+            packagedName: item.packaged_name,
             type: item.type,
             year: item.year,
             month: item.month,
@@ -82,7 +79,7 @@ function List() {
             ...getPrice(item.packaged_id),
             mrAs, // don't love this here
             // TODO: holy shit lol
-            status: wishlist?.wishlist.wishlist[item.packaged_id],
+            status: wishlist?.wishlist[item.packaged_id],
           })
         ),
     [mrAs, getPrice, wishlist]
@@ -98,7 +95,7 @@ function List() {
     estimateSize: () => 75,
     gap: 8,
     overscan: 5,
-    getItemKey: (item) => orderedData[item].packaged_name,
+    getItemKey: (item) => orderedData[item].packagedName,
   });
 
   const items = virtualizer.getVirtualItems();

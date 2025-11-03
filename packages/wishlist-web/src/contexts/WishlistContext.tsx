@@ -1,9 +1,12 @@
 import { createContext, useState, useEffect, ReactNode } from "react";
 import { fetchWishlist } from "@/api/wishlist";
-import { WishlistSchema, type Wishlist } from "wishlist-shared";
+import { WishlistResponse, type Wishlist } from "wishlist-shared";
 
 interface WishlistContextType {
   wishlist: Wishlist;
+  username: string;
+  userId: number;
+  lastUpdated: number;
   isLoading: boolean;
   error: Error | null;
 }
@@ -17,7 +20,7 @@ const WishlistProvider = ({
   children: ReactNode;
   userId?: string;
 }) => {
-  const [wishlist, setWishlist] = useState<Wishlist>({
+  const [wishlist, setWishlist] = useState<WishlistResponse>({
     username: "",
     userId: -1,
     wishlist: {},
@@ -30,7 +33,7 @@ const WishlistProvider = ({
     async function loadWishlist() {
       try {
         const data = await fetchWishlist(userId);
-        setWishlist(WishlistSchema.parse(data));
+        setWishlist(data);
         setIsLoading(false);
       } catch (err) {
         setError(
@@ -45,7 +48,7 @@ const WishlistProvider = ({
   }, [userId]);
 
   return (
-    <WishlistContext value={{ wishlist, isLoading, error }}>
+    <WishlistContext value={{ ...wishlist, isLoading, error }}>
       {children}
     </WishlistContext>
   );

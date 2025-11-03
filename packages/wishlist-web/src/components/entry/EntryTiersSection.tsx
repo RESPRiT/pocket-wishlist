@@ -18,7 +18,7 @@ function TierBadge({
   value?: number;
   className?: string;
 }) {
-  const percent = value !== undefined ? Math.max(0, (value - 1) / 6) : 1;
+  const percent = value !== undefined ? Math.max(0, (value - 1) / 6) : null;
   const displayValue = value !== undefined ? value : "?";
 
   return (
@@ -26,9 +26,11 @@ function TierBadge({
       <Badge
         className={cn(
           "md:clamp-[text,sm,base,md,lg] clamp-[text,xs,sm,20rem,sm] max-w-7 lg:max-w-full text-background",
+          value ??
+            "border-muted-foreground border-dashed text-muted-foreground font-light bg-background/0",
           className
         )}
-        style={interpolateColorScale(percent)}
+        style={percent !== null ? interpolateColorScale(percent) : undefined}
       >
         {displayValue}
       </Badge>
