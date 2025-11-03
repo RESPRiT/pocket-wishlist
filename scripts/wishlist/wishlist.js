@@ -18472,9 +18472,8 @@ var WishlistSchema = external_exports.record(external_exports.coerce.number(), e
 }), MallPriceResponseSchema = external_exports.array(MallPriceSchema), PriceGunSchema = external_exports.object({
   value: external_exports.number(),
   volume: external_exports.number(),
-  date: external_exports.date(),
-  itemId: external_exports.number(),
-  tradeable: external_exports.optional(external_exports.boolean())
+  date: external_exports.coerce.date(),
+  itemId: external_exports.number()
 }), PriceGunResponseSchema = external_exports.array(PriceGunSchema);
 
 // ../wishlist-shared/schemas/data.ts
