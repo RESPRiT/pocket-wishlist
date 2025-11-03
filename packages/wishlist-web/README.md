@@ -4,10 +4,6 @@
 
 ## IN PROGRESS
 
-- [ ] Data validation
-  - [ ] Write api schemas
-  - [ ] Implement on api
-  - [ ] Implement on web
 - [x] Price last updated indicator
   - [ ] Add last updated field to mall-price
 
@@ -100,3 +96,7 @@
 - [x] Decompose ListEntry.tsx in simpler component
 - [x] Remove color handling logic from ListEntry.tsx
 - [x] Wishlist last updated indicator
+- [x] Data validation
+  - [x] Write api schemas
+  - [x] Implement on api
+  - [x] Implement on web
