@@ -76,9 +76,9 @@ export function EntryPriceSection({
     <EntryItem label="est. mall price">
       <div
         className="flex justify-center items-center
-                   md:clamp-[gap,1.25,1.5,md,lg] clamp-[gap,0.5,1.25,20rem,sm]
-                   md:clamp-[w,38,40,md,lg] lg:w-42 clamp-[w,31,38,20rem,sm]
-                   font-roboto-mono font-normal md:clamp-[text,base,lg,md,lg] clamp-[text,sm,base,20rem,sm]"
+                   md:clamp-[gap,1.25,1.5,md,lg] clamp-[gap,0.5,1.25,xs,sm]
+                   md:clamp-[w,38,40,md,lg] lg:w-42 clamp-[w,31,38,xs,sm]
+                   font-roboto-mono font-normal md:clamp-[text,base,lg,md,lg] clamp-[text,sm,base,xs,sm]"
         title={statusText[mallStatus]}
       >
         <div className="group flex items-center">
@@ -86,7 +86,7 @@ export function EntryPriceSection({
             src="itemimages/meat.gif"
             alt="meat"
             reColor="bg-foreground"
-            className={`clamp-[size,5,6,20rem,sm] ${mallStatus === "lowestMall" && "group-hover:opacity-75"}`}
+            className={`clamp-[size,5,6,xs,sm] ${mallStatus === "lowestMall" && "group-hover:opacity-75"}`}
           />
           {mallStatus !== "lowestMall" ? (
             <span className={cn("text-primary-foreground", fontClass)}>
@@ -111,7 +111,7 @@ export function EntryPriceSection({
           src="itemimages/mracc.gif"
           alt="Mr. Accessories"
           reColor="bg-accent-foreground"
-          className="clamp-[size,6,7,20rem,sm] clamp-[mr,-0.6,-0.5,20rem,sm]"
+          className="clamp-[size,6,7,xs,sm] clamp-[mr,-0.6,-0.5,xs,sm]"
         />
         <span className={cn("text-accent-foreground", fontClass)}>
           {formatMrARatio()}

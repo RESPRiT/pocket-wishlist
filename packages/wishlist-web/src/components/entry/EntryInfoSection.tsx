@@ -41,7 +41,7 @@ export function EntryInfoSection({
       </a>
 
       <EntryItem label={type} className="clamp-[w,42,56,md,lg] -mt-0.5">
-        <span className="clamp-[text,sm,base,20rem,sm] font-normal text-primary-foreground text-center text-balance">
+        <span className="clamp-[text,sm,base,xs,sm] font-normal text-primary-foreground text-center text-balance">
           {name}
         </span>
       </EntryItem>

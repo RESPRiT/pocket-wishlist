@@ -19,7 +19,7 @@ export function EntryRibbon({ show, variant }: EntryRibbonProps) {
       )}
       style={{ writingMode: "sideways-lr" }}
     >
-      <span className="ml-0.25 md:clamp-[text,xs,sm,md,lg] clamp-[text,0.55rem,xs,20rem,sm] text-muted-foreground select-none">
+      <span className="ml-0.25 md:clamp-[text,xs,sm,md,lg] clamp-[text,0.55rem,xs,xs,sm] text-muted-foreground select-none">
         {label}
       </span>
     </div>

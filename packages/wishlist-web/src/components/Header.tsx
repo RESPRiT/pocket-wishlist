@@ -56,18 +56,19 @@ function Header() {
 
   // TODO: Fix the wishlist data schema because wtf lmao
   return (
-    <header className="flex justify-between items-end mt-10 shrink-0">
+    <header className="flex flex-col sm:flex-row justify-between sm:items-end clamp-[mt,4,10,xs,sm]">
       <div className="flex items-end gap-2">
-        <span className="font-medium text-4xl">{"pocket wishlist"}</span>
-        <span className="text-sm">{``}</span>
+        <span className="font-medium clamp-[text,2xl,4xl,xs,sm]">
+          {"pocket wishlist"}
+        </span>
       </div>
-      <div className="flex flex-col items-end">
+      <div className="flex flex-col sm:items-end">
         <span className="text-xs text-accent">{`prices updated: ${formatTimeSince(
           lastUpdated ?? -1
         )}`}</span>
-        <span className="text-md text-foreground">
+        <span className="clamp-[text,sm,base,xs,sm] text-foreground">
           {`${wishlist?.username}'s wishlist `}
-          <span className="text-sm">{"as of "}</span>
+          <span className="clamp-[text,xs,sm,xs,sm]">{"as of "}</span>
           <b>{formatTimeSince(wishlist?.lastUpdated ?? 0)}</b>
         </span>
       </div>

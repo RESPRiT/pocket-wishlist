@@ -7,6 +7,7 @@
 @theme {
   --font-sans: "Inter Variable", sans-serif;
   --font-roboto-mono: "Roboto Mono Variable", monospace;
+  --breakpoint-xs: 20rem;
 }
 
 @custom-variant dark (&:where([data-theme="dark"] *));
