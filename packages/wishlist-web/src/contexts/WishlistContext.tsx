@@ -39,7 +39,7 @@ const WishlistProvider = ({
         setError(
           err instanceof Error ? err : new Error("Failed to fetch wishlist")
         );
-        console.error(err);
+        console.error("Failed to fetch wishlist", err);
         setIsLoading(false);
       }
     }

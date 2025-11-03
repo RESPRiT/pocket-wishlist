@@ -24,9 +24,8 @@ export type MallPriceResponse = z.infer<typeof MallPriceResponseSchema>;
 export const PriceGunSchema = z.object({
   value: z.number(),
   volume: z.number(),
-  date: z.date(),
+  date: z.coerce.date(),
   itemId: z.number(),
-  tradeable: z.optional(z.boolean()),
 });
 export const PriceGunResponseSchema = z.array(PriceGunSchema);
 export type PriceGun = z.infer<typeof PriceGunSchema>;

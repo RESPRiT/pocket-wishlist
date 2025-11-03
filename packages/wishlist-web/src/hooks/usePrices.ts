@@ -1,13 +1,13 @@
 import { useState, useEffect } from "react";
-import type { Price } from "@/types/data";
 import { fetchPriceGun } from "@/api/prices";
 import { getCachedData, setCachedData, isCacheStale } from "@/lib/cache";
+import { PriceGun } from "wishlist-shared";
 
 const CACHE_KEY = "prices";
 const TIMESTAMP_KEY = "pricesLastUpdated";
 
 export function usePrices(itemIds: number[]) {
-  const [prices, setPrices] = useState<Price[]>([]);
+  const [prices, setPrices] = useState<PriceGun[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
@@ -15,7 +15,7 @@ export function usePrices(itemIds: number[]) {
     async function loadPrices() {
       try {
         if (!isCacheStale(TIMESTAMP_KEY)) {
-          const cached = getCachedData<Price[]>(CACHE_KEY);
+          const cached = getCachedData<PriceGun[]>(CACHE_KEY);
           if (cached) {
             setPrices(cached);
             setIsLoading(false);
@@ -31,6 +31,7 @@ export function usePrices(itemIds: number[]) {
         setError(
           err instanceof Error ? err : new Error("Failed to fetch prices")
         );
+        console.error("Failed to fetch PriceGun prices", err);
         setIsLoading(false);
       }
     }

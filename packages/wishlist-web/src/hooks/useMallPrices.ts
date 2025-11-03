@@ -31,6 +31,7 @@ export function useMallPrices() {
         setError(
           err instanceof Error ? err : new Error("Failed to fetch mall prices")
         );
+        console.error("Failed to fetch mall prices", err);
         setIsLoading(false);
       }
     }
