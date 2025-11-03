@@ -4213,6 +4213,45 @@ var iotms = [{
   tradeable: !1,
   type: "familiar",
   img: "hippotutu.gif"
+}, {
+  packaged_id: 11974,
+  packaged_name: "packaged Monodent of the Sea",
+  opened_ids: 11975,
+  opened_names: "Monodent of the Sea",
+  year: 2025,
+  month: 9,
+  speed_tier: 5,
+  aftercore_tier: 5,
+  tradeable: !1,
+  type: "item",
+  equipment_slot: "weapon",
+  img: "dentpackage.gif"
+}, {
+  packaged_id: 11986,
+  packaged_name: "lab-grown blood cubic zirconia",
+  opened_ids: 11987,
+  opened_names: "blood cubic zirconia",
+  year: 2025,
+  month: 10,
+  speed_tier: 1,
+  aftercore_tier: 1,
+  tradeable: !1,
+  type: "item",
+  equipment_slot: "accessory",
+  img: "cbz_box.gif"
+}, {
+  packaged_id: 12047,
+  packaged_name: "shrunken head in a duffel bag",
+  opened_ids: 12048,
+  opened_names: "shrunken head",
+  year: 2025,
+  month: 11,
+  speed_tier: void 0,
+  aftercore_tier: void 0,
+  tradeable: !1,
+  type: "item",
+  equipment_slot: "offhand",
+  img: "headbag.gif"
 }];
 
 // ../../node_modules/zod/v4/classic/external.js
@@ -18427,7 +18466,10 @@ var WishlistSchema = external_exports.object({
   userId: external_exports.coerce.number(),
   wishlist: external_exports.record(external_exports.coerce.number(), external_exports.literal(["NONE", "PACKAGED", "OPENED"])),
   lastUpdated: external_exports.coerce.number()
-}), PriceGunSchema = external_exports.array(external_exports.object({
+}), MallPricesSchema = external_exports.array(external_exports.object({
+  id: external_exports.coerce.number(),
+  lowestMall: external_exports.coerce.number()
+})), PriceGunSchema = external_exports.array(external_exports.object({
   value: external_exports.number(),
   volume: external_exports.number(),
   date: external_exports.date(),
