@@ -18461,21 +18461,21 @@ function date4(params) {
 config(en_default());
 
 // ../wishlist-shared/schemas/api.ts
-var WishlistSchema = external_exports.object({
+var WishlistSchema = external_exports.record(external_exports.coerce.number(), external_exports.literal(["NONE", "PACKAGED", "OPENED"])), WishlistResponseSchema = external_exports.object({
   username: external_exports.string(),
   userId: external_exports.coerce.number(),
-  wishlist: external_exports.record(external_exports.coerce.number(), external_exports.literal(["NONE", "PACKAGED", "OPENED"])),
+  wishlist: WishlistSchema,
   lastUpdated: external_exports.coerce.number()
-}), MallPricesSchema = external_exports.array(external_exports.object({
+}), MallPriceSchema = external_exports.object({
   id: external_exports.coerce.number(),
   lowestMall: external_exports.coerce.number()
-})), PriceGunSchema = external_exports.array(external_exports.object({
+}), MallPriceResponseSchema = external_exports.array(MallPriceSchema), PriceGunSchema = external_exports.object({
   value: external_exports.number(),
   volume: external_exports.number(),
   date: external_exports.date(),
   itemId: external_exports.number(),
   tradeable: external_exports.optional(external_exports.boolean())
-}));
+}), PriceGunResponseSchema = external_exports.array(PriceGunSchema);
 
 // ../wishlist-shared/schemas/data.ts
 var IOTMSchema = external_exports.object({
