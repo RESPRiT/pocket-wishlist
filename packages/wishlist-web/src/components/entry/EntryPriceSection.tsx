@@ -1,7 +1,7 @@
 import EntryItem from "@/components/EntryItem";
 import ThemedImg from "@/components/ThemedImg";
 import { cn } from "@/lib/utils";
-import { PriceGun } from "../../../../wishlist-shared/schemas/api";
+import { PriceGun } from "wishlist-shared";
 
 type EntryPriceSectionProps = {
   mall: number | null;

@@ -7,7 +7,7 @@ import { EntryInfoSection } from "./entry/EntryInfoSection";
 import { EntryTiersSection } from "./entry/EntryTiersSection";
 import { EntryPriceSection } from "./entry/EntryPriceSection";
 import { cn } from "@/lib/utils";
-import { PriceGun } from "../../../wishlist-shared/schemas/api";
+import { PriceGun } from "wishlist-shared";
 
 export type ListEntryProps = {
   img: string;

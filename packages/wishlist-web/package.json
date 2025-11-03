@@ -11,6 +11,7 @@
     "deploy": "tsc -b && vite build && gh-pages -d dist -b prod"
   },
   "dependencies": {
+    "wishlist-shared": "workspace:*",
     "@fontsource-variable/inter": "^5.2.6",
     "@fontsource-variable/roboto-mono": "^5.2.6",
     "@fortawesome/fontawesome-svg-core": "^7.0.0",

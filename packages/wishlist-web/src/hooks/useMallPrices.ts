@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
-import type { MallPrice } from "@/data";
 import { fetchMallPrices } from "@/api/mall";
 import { getCachedData, setCachedData, isCacheStale } from "@/lib/cache";
+import { MallPrice } from "wishlist-shared";
 
 const CACHE_KEY = "mall";
 const TIMESTAMP_KEY = "mallLastUpdated";
