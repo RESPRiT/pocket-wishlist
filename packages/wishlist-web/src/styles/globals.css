@@ -113,6 +113,7 @@
 @media (width < 768px) {
   ::view-transition-new(foreground-dark) {
     animation-duration: 300ms;
+    animation-timing-function: ease-in;
   }
 }
 

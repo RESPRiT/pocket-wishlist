@@ -7,7 +7,7 @@ type ThemeContextType = {
   theme: Theme;
   setTheme: (t: Theme) => void;
   toggleTheme: () => void;
-  isLoading: boolean;
+  isTransitioning: boolean;
 };
 
 // TODO: Un-hardcode theme colors and timing
@@ -22,7 +22,7 @@ const ThemeContext = createContext<ThemeContextType>({
   theme: system(),
   setTheme: () => null,
   toggleTheme: () => null,
-  isLoading: false,
+  isTransitioning: false,
 });
 
 const handleAnimateThemeColor = (
@@ -56,8 +56,7 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
   const [theme, setTheme] = useState<Theme>(
     (localStorage.getItem(KEY) as Theme) ?? system()
   );
-  const [isLoading, setIsLoading] = useState(false);
-
+  const [isTransitioning, setIsTransitioning] = useState(false);
   const metaTheme = document.querySelector(`meta[name="theme-color"]`);
 
   useEffect(() => {
@@ -66,29 +65,30 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
     localStorage.setItem(KEY, theme);
   }, [theme, metaTheme]);
 
-  const set = (t: Theme) => {
-    setIsLoading(true);
+  async function set(t: Theme) {
+    setIsTransitioning(true);
     if (!document.startViewTransition) {
       setTheme(t);
-      setIsLoading(false);
+      setIsTransitioning(false);
       return;
     }
 
     // animate theme color change for supported browsers (e.g. Safari)
     if (metaTheme) handleAnimateThemeColor(metaTheme, t);
 
-    document.startViewTransition(() => {
-      setTheme(t);
-      setIsLoading(false);
-    });
-  };
+    const transition = document.startViewTransition(() => setTheme(t));
+    await transition.finished;
+    setIsTransitioning(false);
+  }
 
   const toggleTheme = () => {
     set(theme === "light" ? "dark" : "light");
   };
 
   return (
-    <ThemeContext value={{ theme, setTheme: set, toggleTheme, isLoading }}>
+    <ThemeContext
+      value={{ theme, setTheme: set, toggleTheme, isTransitioning }}
+    >
       {children}
     </ThemeContext>
   );
