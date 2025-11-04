@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import EntrySpacer from "./EntrySpacer";
-import { useTheme } from "@/hooks/useTheme";
+import { useTheme } from "../hooks/useTheme.tsx";
 import { EntryBackground } from "./entry/EntryBackground";
 import { EntryRibbon } from "./entry/EntryRibbon";
 import { EntryInfoSection } from "./entry/EntryInfoSection";

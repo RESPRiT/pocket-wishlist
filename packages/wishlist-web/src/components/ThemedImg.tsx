@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useTheme } from "@/hooks/useTheme";
+import { useTheme } from "../hooks/useTheme.tsx";
 import { cn } from "@/lib/utils";
 
 function ThemedImg({

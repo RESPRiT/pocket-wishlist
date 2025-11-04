@@ -1,5 +1,6 @@
-import { WishlistContext } from "@/contexts/WishlistContext";
-import { use, useEffect, useState } from "react";
+import { useWishlist } from "@/contexts/WishlistContext.tsx";
+import { useTheme } from "../hooks/useTheme.tsx";
+import { useEffect, useState } from "react";
 
 const LAST_UPDATED_KEY = "mallLastUpdated";
 
@@ -23,7 +24,8 @@ const TIME_AMOUNTS = {
 
 function Header() {
   const [lastUpdated, setLastUpdated] = useState<number>();
-  const wishlist = use(WishlistContext);
+  const wishlist = useWishlist();
+  const { theme, setTheme } = useTheme();
 
   useEffect(() => {
     // TODO: Doesn't re-render when this value changes
@@ -39,28 +41,32 @@ function Header() {
     // TODO: Handle plurals
     const timeSince = Date.now() - time;
     if (timeSince < TIME_RANGES.secondsAgo) {
-      return `${Math.round(timeSince / TIME_AMOUNTS.seconds)} seconds ago`;
+      return `${Math.floor(timeSince / TIME_AMOUNTS.seconds)} seconds ago`;
     } else if (timeSince < TIME_RANGES.minutesAgo) {
-      return `${Math.round(timeSince / TIME_AMOUNTS.minutes)} minutes ago`;
+      return `${Math.floor(timeSince / TIME_AMOUNTS.minutes)} minutes ago`;
     } else if (timeSince < TIME_RANGES.hoursAgo) {
-      return `${Math.round(timeSince / TIME_AMOUNTS.hours)} hours ago`;
+      return `${Math.floor(timeSince / TIME_AMOUNTS.hours)} hours ago`;
     } else if (timeSince < TIME_RANGES.yesterday) {
       return "yesterday";
     } else if (timeSince < TIME_RANGES.daysAgo) {
-      return `${Math.round(timeSince / TIME_AMOUNTS.days)} days ago`;
+      return `${Math.floor(timeSince / TIME_AMOUNTS.days)} days ago`;
     } else if (timeSince < TIME_RANGES.weeksAgo) {
-      return `${Math.round(timeSince / TIME_AMOUNTS.weeks)} weeks ago`;
+      return `${Math.floor(timeSince / TIME_AMOUNTS.weeks)} weeks ago`;
     }
-    return `${Math.round(timeSince / TIME_AMOUNTS.months)} months ago`;
+    return `${Math.floor(timeSince / TIME_AMOUNTS.months)} months ago`;
   };
 
-  // TODO: Fix the wishlist data schema because wtf lmao
+  // TODO: Polish theme toggle
   return (
-    <header className="flex flex-col sm:flex-row justify-between sm:items-end clamp-[mt,4,10,xs,sm]">
-      <div className="flex items-end gap-2">
-        <span className="font-medium clamp-[text,2xl,4xl,xs,sm]">
+    <header className="flex flex-col gap-2 sm:flex-row justify-between sm:items-end clamp-[mt,4,10,xs,sm]">
+      <div className="flex items-baseline clamp-[gap,3,2,xs,sm]">
+        <span className="font-medium clamp-[text,3xl,4xl,xs,sm]">
           {"pocket wishlist"}
         </span>
+        <div
+          className="clamp-[h,6,4,xs,sm] clamp-[w,6,4,xs,sm] bg-accent cursor-pointer rounded-full hover:bg-foreground"
+          onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+        />
       </div>
       <div className="flex flex-col sm:items-end">
         <span className="text-xs text-accent">{`prices updated: ${formatTimeSince(

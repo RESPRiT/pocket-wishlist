@@ -1,12 +1,12 @@
 import ListEntry, { ListEntryProps } from "./ListEntry";
 import { IOTM, iotms, PriceGun } from "wishlist-shared";
-import { use, useCallback, useMemo, useRef } from "react";
+import { useCallback, useMemo, useRef } from "react";
 import { useStore } from "@/stores/userStore";
 import { useWindowVirtualizer } from "@tanstack/react-virtual";
 import { usePrices } from "@/hooks/usePrices";
 import { useMallPrices } from "@/hooks/useMallPrices";
 import { getSortFunction } from "@/lib/sortWishlist";
-import { WishlistContext } from "@/contexts/WishlistContext";
+import { useWishlist } from "@/contexts/WishlistContext";
 
 function getUnboxedName(item: IOTM): string {
   if (
@@ -34,7 +34,7 @@ function List() {
   );
   const { prices } = usePrices(itemIds);
   const { mallPrices: mall } = useMallPrices();
-  const wishlist = use(WishlistContext);
+  const wishlist = useWishlist();
 
   const getPrice = useCallback(
     (itemId: number): { price: PriceGun | null; lowestMall: number | null } => {
@@ -114,6 +114,7 @@ function List() {
         style={{
           position: "absolute",
           transform: `translateY(${virtualOffset}px)`,
+          viewTransitionName: "foreground",
         }}
       >
         {items.map((row) => (

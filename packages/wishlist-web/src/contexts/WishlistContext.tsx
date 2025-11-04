@@ -1,19 +1,26 @@
-import { createContext, useState, useEffect, ReactNode } from "react";
+import { createContext, useState, useEffect, ReactNode, use } from "react";
 import { fetchWishlist } from "@/api/wishlist";
 import { WishlistResponse, type Wishlist } from "wishlist-shared";
 
-interface WishlistContextType {
+type WishlistContextType = {
   wishlist: Wishlist;
   username: string;
   userId: number;
   lastUpdated: number;
   isLoading: boolean;
   error: Error | null;
-}
+};
 
-const WishlistContext = createContext<WishlistContextType | null>(null);
+const WishlistContext = createContext<WishlistContextType>({
+  wishlist: {},
+  username: "",
+  userId: -1,
+  lastUpdated: -1,
+  isLoading: false,
+  error: null,
+});
 
-const WishlistProvider = ({
+export const WishlistProvider = ({
   children,
   userId,
 }: {
@@ -54,4 +61,12 @@ const WishlistProvider = ({
   );
 };
 
-export { WishlistContext, WishlistProvider };
+export const useWishlist = () => {
+  const context = use(WishlistContext);
+
+  if (context === undefined) {
+    throw new Error("useWishlist used outside of a WishlistProvider");
+  }
+
+  return context;
+};

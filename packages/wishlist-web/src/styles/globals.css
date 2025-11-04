@@ -4,12 +4,72 @@
 @import "@fontsource-variable/roboto-mono";
 @plugin "tailwind-clamp";
 
+/* Custom variables */
 @theme {
   --font-sans: "Inter Variable", sans-serif;
   --font-roboto-mono: "Roboto Mono Variable", monospace;
   --breakpoint-xs: 20rem;
 }
 
+/* View transitions */
+@keyframes background-theme-change {
+  from {
+    opacity: 0%;
+  }
+
+  to {
+    opacity: 100%;
+  }
+}
+
+@keyframes foreground-theme-change {
+  from {
+    clip-path: rect(auto auto 0% auto);
+    /* clip-path: rect(auto 0% auto auto); */
+    /* clip-path: polygon(0% 0%, 0% 0%, 0% 0%); */
+  }
+
+  to {
+    clip-path: rect(auto auto 100% auto);
+    /* clip-path: rect(auto 100% auto auto); */
+    /* clip-path: polygon(0% 0%, 0% 200%, 200% 0%); */
+  }
+}
+
+/* 768px = md */
+@media (width < 768px) {
+  @keyframes foreground-theme-change {
+    from {
+      opacity: 0%;
+    }
+
+    to {
+      opacity: 100%;
+    }
+  }
+}
+
+::view-transition-group(root) {
+  animation-duration: 500ms;
+}
+
+::view-transition-old(foreground) {
+  animation: none;
+}
+
+::view-transition-new(foreground) {
+  animation-name: foreground-theme-change;
+  animation-timing-function: ease-in-out;
+  animation-duration: 600ms;
+}
+
+@media (width < 768px) {
+  ::view-transition-new(foreground) {
+    animation-duration: 300ms;
+  }
+}
+
+/* Dark mode */
 @custom-variant dark (&:where([data-theme="dark"] *));
 
 :root {
@@ -119,14 +179,7 @@
 }
 
 @layer base {
-  * {
-    @apply border-border outline-ring/50;
-  }
   body {
-    @apply bg-background text-foreground;
+    @apply text-foreground;
   }
-}
-
-.banknote[data-theme="dark"] {
-  filter: invert(100%);
 }

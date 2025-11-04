@@ -87,6 +87,7 @@
 - [ ] Featured "this month's IOTM"
 - [ ] Features "today's raffle IOTM"
 - [ ] (stub) a11y audit
+- [ ] Rehaul colors for better contrast consistency
 
 ## TABLED
 
