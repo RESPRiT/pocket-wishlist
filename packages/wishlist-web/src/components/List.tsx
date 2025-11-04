@@ -7,6 +7,7 @@ import { usePrices } from "@/hooks/usePrices";
 import { useMallPrices } from "@/hooks/useMallPrices";
 import { getSortFunction } from "@/lib/sortWishlist";
 import { useWishlist } from "@/contexts/WishlistContext";
+import { useTheme } from "../contexts/ThemeContext.tsx";
 
 function getUnboxedName(item: IOTM): string {
   if (
@@ -35,6 +36,7 @@ function List() {
   const { prices } = usePrices(itemIds);
   const { mallPrices: mall } = useMallPrices();
   const wishlist = useWishlist();
+  const { theme } = useTheme();
 
   const getPrice = useCallback(
     (itemId: number): { price: PriceGun | null; lowestMall: number | null } => {
@@ -78,7 +80,7 @@ function List() {
             isCon: item.is_con || false,
             ...getPrice(item.packaged_id),
             mrAs, // don't love this here
-            // TODO: holy shit lol
+            // TODO: wishlist.wishlist is weird
             status: wishlist?.wishlist[item.packaged_id],
           })
         ),
@@ -114,7 +116,7 @@ function List() {
         style={{
           position: "absolute",
           transform: `translateY(${virtualOffset}px)`,
-          viewTransitionName: "foreground",
+          viewTransitionName: `${theme === "light" ? "foreground-light" : "foreground-dark"}`,
         }}
       >
         {items.map((row) => (

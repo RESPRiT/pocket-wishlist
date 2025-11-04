@@ -22,15 +22,35 @@
   }
 }
 
-@keyframes foreground-theme-change {
+@keyframes foreground-theme-light {
   from {
     clip-path: rect(auto auto 0% auto);
+    opacity: 70%;
     /* clip-path: rect(auto 0% auto auto); */
     /* clip-path: polygon(0% 0%, 0% 0%, 0% 0%); */
   }
 
   to {
     clip-path: rect(auto auto 100% auto);
+    opacity: 100%;
+    /* clip-path: rect(auto 100% auto auto); */
+    /* clip-path: polygon(0% 0%, 0% 200%, 200% 0%); */
+  }
+}
+
+@keyframes foreground-theme-dark {
+  from {
+    clip-path: circle(200% at center 300%);
+    opacity: 70%;
+    /* clip-path: rect(100% auto auto auto); */
+    /* clip-path: rect(auto 0% auto auto); */
+    /* clip-path: polygon(0% 0%, 0% 0%, 0% 0%); */
+  }
+
+  to {
+    clip-path: circle(150% at center 100%);
+    opacity: 100%;
+    /* clip-path: rect(0% auto auto auto); */
     /* clip-path: rect(auto 100% auto auto); */
     /* clip-path: polygon(0% 0%, 0% 200%, 200% 0%); */
   }
@@ -38,7 +58,17 @@
 
 /* 768px = md */
 @media (width < 768px) {
-  @keyframes foreground-theme-change {
+  @keyframes foreground-theme-light {
+    from {
+      opacity: 0%;
+    }
+
+    to {
+      opacity: 100%;
+    }
+  }
+
+  @keyframes foreground-theme-dark {
     from {
       opacity: 0%;
     }
@@ -50,21 +80,38 @@
 }
 
 ::view-transition-group(root) {
-  animation-duration: 500ms;
+  animation-duration: 400ms;
 }
 
-::view-transition-old(foreground) {
+::view-transition-old(foreground-light) {
   animation: none;
 }
 
-::view-transition-new(foreground) {
-  animation-name: foreground-theme-change;
-  animation-timing-function: ease-in-out;
-  animation-duration: 600ms;
+::view-transition-new(foreground-light) {
+  animation-name: foreground-theme-light;
+  animation-timing-function: ease-in;
+  animation-duration: 300ms;
+  animation-delay: 20ms;
 }
 
 @media (width < 768px) {
-  ::view-transition-new(foreground) {
+  ::view-transition-new(foreground-light) {
+    animation-duration: 300ms;
+  }
+}
+
+::view-transition-old(foreground-dark) {
+  animation: none;
+}
+
+::view-transition-new(foreground-dark) {
+  animation-name: foreground-theme-dark;
+  animation-timing-function: ease-out;
+  animation-duration: 400ms;
+}
+
+@media (width < 768px) {
+  ::view-transition-new(foreground-dark) {
     animation-duration: 300ms;
   }
 }
@@ -180,6 +227,6 @@
 
 @layer base {
   body {
-    @apply text-foreground;
+    @apply bg-background text-foreground;
   }
 }

@@ -6,6 +6,7 @@ import { PriceGun } from "wishlist-shared";
 const CACHE_KEY = "prices";
 const TIMESTAMP_KEY = "pricesLastUpdated";
 
+// TODO: Change this error pattern - I would rather it just goes straight to stderr
 export function usePrices(itemIds: number[]) {
   const [prices, setPrices] = useState<PriceGun[]>([]);
   const [isLoading, setIsLoading] = useState(true);

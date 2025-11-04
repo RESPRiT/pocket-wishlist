@@ -6,6 +6,7 @@ import { MallPrice } from "wishlist-shared";
 const CACHE_KEY = "mall";
 const TIMESTAMP_KEY = "mallLastUpdated";
 
+// TODO: Change this error pattern - I would rather it just goes straight to stderr
 export function useMallPrices() {
   const [mallPrices, setMallPrices] = useState<MallPrice[]>([]);
   const [isLoading, setIsLoading] = useState(true);

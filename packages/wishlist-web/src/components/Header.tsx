@@ -1,5 +1,5 @@
 import { useWishlist } from "@/contexts/WishlistContext.tsx";
-import { useTheme } from "../hooks/useTheme.tsx";
+import { useTheme } from "../contexts/ThemeContext.tsx";
 import { useEffect, useState } from "react";
 
 const LAST_UPDATED_KEY = "mallLastUpdated";
@@ -59,12 +59,12 @@ function Header() {
   // TODO: Polish theme toggle
   return (
     <header className="flex flex-col gap-2 sm:flex-row justify-between sm:items-end clamp-[mt,4,10,xs,sm]">
-      <div className="flex items-baseline clamp-[gap,3,2,xs,sm]">
+      <div className="flex items-baseline gap-2.5">
         <span className="font-medium clamp-[text,3xl,4xl,xs,sm]">
           {"pocket wishlist"}
         </span>
         <div
-          className="clamp-[h,6,4,xs,sm] clamp-[w,6,4,xs,sm] bg-accent cursor-pointer rounded-full hover:bg-foreground"
+          className="clamp-[h,6,5,xs,sm] clamp-[w,6,5,xs,sm] bg-accent cursor-pointer rounded-full hover:bg-foreground"
           onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
         />
       </div>
