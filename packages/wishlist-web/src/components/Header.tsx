@@ -1,8 +1,9 @@
 import { useWishlist } from "@/contexts/WishlistContext.tsx";
 import { useTheme } from "../contexts/ThemeContext.tsx";
 import { useEffect, useState } from "react";
+import { cn } from "@/lib/utils.ts";
 
-const LAST_UPDATED_KEY = "mallLastUpdated";
+const LAST_UPDATED_KEY = "pricesLastUpdated";
 
 const TIME_RANGES = {
   secondsAgo: 60 * 1000,
@@ -25,13 +26,13 @@ const TIME_AMOUNTS = {
 function Header() {
   const [lastUpdated, setLastUpdated] = useState<number>();
   const wishlist = useWishlist();
-  const { theme, setTheme } = useTheme();
+  const { theme, setTheme, isTransitioning } = useTheme();
 
   useEffect(() => {
     // TODO: Doesn't re-render when this value changes
     const stored = localStorage.getItem(LAST_UPDATED_KEY);
     if (stored) {
-      setLastUpdated(Number.parseInt(stored));
+      setLastUpdated(new Date(stored).getTime());
     }
   }, []);
 
@@ -56,7 +57,7 @@ function Header() {
     return `${Math.floor(timeSince / TIME_AMOUNTS.months)} months ago`;
   };
 
-  // TODO: Polish theme toggle
+  // TODO: Polish theme toggle, more usable button
   return (
     <header className="flex flex-col gap-2 sm:flex-row justify-between sm:items-end clamp-[mt,4,10,xs,sm]">
       <div className="flex items-baseline gap-2.5">
@@ -64,7 +65,10 @@ function Header() {
           {"pocket wishlist"}
         </span>
         <div
-          className="clamp-[h,6,5,xs,sm] clamp-[w,6,5,xs,sm] bg-accent cursor-pointer rounded-full hover:bg-foreground"
+          className={cn(
+            "clamp-[h,6,5,xs,sm] clamp-[w,6,5,xs,sm] bg-accent cursor-pointer rounded-full hover:bg-foreground duration-100",
+            isTransitioning && "opacity-60"
+          )}
           onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
         />
       </div>

@@ -6,8 +6,14 @@
 
 - [x] Price last updated indicator
   - [ ] Add last updated field to mall-price
+- [x] Dark mode
+  - [x] Color pallette
+  - [x] Theming
+    - [o] Theme toggle
 
 ## UP NEXT
+
+- [ ] Much, much better price determination logic between pricegun and lowest mall
 
 ## ON DECK
 
@@ -24,11 +30,9 @@
 - [x] Get and cache pricegun data
 - [x] Un-hardcore Mr. A cost calculation
 - [x] Add basic responsiveness to List
-  - [ ] Move ribbon label to top for small sizes
   - [x] Add clamping for scaling
     - [ ] Fix virtualization for rows of 2 items at mid-sizes (lanes option)
 - [x] Darken at price
-- [ ] Darken at the bottom of year; lighten at the top of tier;
 - [ ] (stub) Implement ListControlMenu
   - [x] Sorting options
     - [x] (!!!) Implement lazy loading to prevent rendering lag (especially on sort)
@@ -58,7 +62,7 @@
   - [x] Item type indicator/replace item label with type
   - [x] Ownership indicator
   - [ ] Tradeable indicator
-  - [ ] Price estimate type indicator
+  - [x] Price estimate type indicator
     - [x] Hover text
 - [ ] (stub) Get data for:
   - [ ] Summary descriptions
@@ -80,16 +84,18 @@
 - [ ] Click name to copy to clipboard
 - [ ] Click price to link to mall
   - [ ] Mafia/KOL toggle
-- [o] Dark mode
-  - [o] Theming
 - [ ] "Minimap" view
 - [ ] Back to top button
 - [ ] Featured "this month's IOTM"
 - [ ] Features "today's raffle IOTM"
 - [ ] (stub) a11y audit
 - [ ] Rehaul colors for better contrast consistency
+- [ ] Update prettier config/plugins for Tailwind classes
 
 ## TABLED
+
+- [ ] Move ribbon label to top for small sizes
+- [ ] Darken at the bottom of year; lighten at the top of tier;
 
 ## DONE
 

@@ -1,6 +1,6 @@
-import { z } from "zod";
+import { z } from "npm:zod@4";
 
-// TODO: Don't copy to wishlist-api
+// TODO: Copy from wishlist-shared in build/dev script instead of separate copy
 export const WishlistSchema = z.record(
   z.coerce.number<number>(), // JSON keys are strings
   z.literal(["NONE", "PACKAGED", "OPENED"])

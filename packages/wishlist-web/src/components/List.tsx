@@ -1,9 +1,8 @@
 import ListEntry, { ListEntryProps } from "./ListEntry";
-import { IOTM, iotms, PriceGun } from "wishlist-shared";
-import { useCallback, useMemo, useRef } from "react";
+import { IOTM, iotms } from "wishlist-shared";
+import { useMemo, useRef } from "react";
 import { useStore } from "@/stores/userStore";
 import { useWindowVirtualizer } from "@tanstack/react-virtual";
-import { usePrices } from "@/hooks/usePrices";
 import { useMallPrices } from "@/hooks/useMallPrices";
 import { getSortFunction } from "@/lib/sortWishlist";
 import { useWishlist } from "@/contexts/WishlistContext";
@@ -29,38 +28,9 @@ function List() {
   const { currentOrder, currentSort } = useStore();
 
   // Fetch data using hooks
-  const itemIds = useMemo(
-    () => iotms.map((item) => item.packaged_id).concat([194]), // include Mr. A
-    []
-  );
-  const { prices } = usePrices(itemIds);
-  const { mallPrices: mall } = useMallPrices();
+  const { mallPrices } = useMallPrices();
   const wishlist = useWishlist();
   const { theme } = useTheme();
-
-  const getPrice = useCallback(
-    (itemId: number): { price: PriceGun | null; lowestMall: number | null } => {
-      // this isn't strict equality because it's actually an evil lie:
-      // JSON.parse() results in all object fields being strings,
-      // so, fields that should be e.g. numbers are actually strings
-      // (Zod would help fix this)
-      const priceEntry = prices.find((price) => price.itemId == itemId);
-      const mallEntry = mall.find((price) => price.id == itemId);
-
-      return {
-        price: priceEntry ?? null,
-        lowestMall:
-          mallEntry && mallEntry.lowestMall > 0 ? mallEntry.lowestMall : null,
-      };
-    },
-    [prices, mall]
-  );
-
-  const mrAs = useMemo(() => {
-    const { price, lowestMall } = getPrice(194);
-
-    return Math.min(price?.value ?? Infinity, lowestMall ?? Infinity);
-  }, [getPrice]);
 
   const data = useMemo(
     () =>
@@ -78,13 +48,13 @@ function List() {
             farm: item.aftercore_tier,
             isIOTY: item.is_ioty || false,
             isCon: item.is_con || false,
-            ...getPrice(item.packaged_id),
-            mrAs, // don't love this here
+            price: mallPrices[item.packaged_id] ?? null,
+            mrAs: mallPrices[194]?.value ?? Infinity, // don't love this here
             // TODO: wishlist.wishlist is weird
             status: wishlist?.wishlist[item.packaged_id],
           })
         ),
-    [mrAs, getPrice, wishlist]
+    [mallPrices, wishlist]
   );
 
   const sortedData = data.sort(getSortFunction(currentSort));

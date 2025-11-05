@@ -1,14 +1,14 @@
 import { useState, useEffect } from "react";
 import { fetchMallPrices } from "@/api/mall";
 import { getCachedData, setCachedData, isCacheStale } from "@/lib/cache";
-import { MallPrice } from "wishlist-shared";
+import { CombinedPrice } from "wishlist-shared";
 
-const CACHE_KEY = "mall";
-const TIMESTAMP_KEY = "mallLastUpdated";
+const CACHE_KEY = "prices";
+const TIMESTAMP_KEY = "pricesLastUpdated";
 
 // TODO: Change this error pattern - I would rather it just goes straight to stderr
 export function useMallPrices() {
-  const [mallPrices, setMallPrices] = useState<MallPrice[]>([]);
+  const [mallPrices, setMallPrices] = useState<CombinedPrice>({});
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
@@ -16,7 +16,7 @@ export function useMallPrices() {
     async function loadMallPrices() {
       try {
         if (!isCacheStale(TIMESTAMP_KEY)) {
-          const cached = getCachedData<MallPrice[]>(CACHE_KEY);
+          const cached = getCachedData<CombinedPrice>(CACHE_KEY);
           if (cached) {
             setMallPrices(cached);
             setIsLoading(false);
@@ -25,8 +25,13 @@ export function useMallPrices() {
         }
 
         const data = await fetchMallPrices();
-        setMallPrices(data);
-        setCachedData(CACHE_KEY, TIMESTAMP_KEY, data);
+        setMallPrices(data.prices);
+        setCachedData(
+          CACHE_KEY,
+          TIMESTAMP_KEY,
+          data.prices,
+          String(data.lastUpdated)
+        );
         setIsLoading(false);
       } catch (err) {
         setError(

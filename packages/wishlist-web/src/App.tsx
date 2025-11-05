@@ -9,6 +9,7 @@ function App() {
   const { isTransitioning } = useTheme();
 
   // TODO: Disable scroll on mobile
+  // TODO: Fix reset to top on scroll disable
   return (
     <main className="flex justify-center selection:bg-select">
       <div className="fixed -z-50 w-full h-full invert striped" />

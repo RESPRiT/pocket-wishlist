@@ -7,7 +7,7 @@ import { EntryInfoSection } from "./entry/EntryInfoSection";
 import { EntryTiersSection } from "./entry/EntryTiersSection";
 import { EntryPriceSection } from "./entry/EntryPriceSection";
 import { cn } from "@/lib/utils";
-import { PriceGun } from "wishlist-shared";
+import { Price } from "wishlist-shared";
 
 export type ListEntryProps = {
   img: string;
@@ -20,9 +20,8 @@ export type ListEntryProps = {
   farm?: number;
   isIOTY: boolean;
   isCon: boolean;
-  price: PriceGun | null;
-  lowestMall: number | null;
-  mrAs: number | null;
+  price: Price | null;
+  mrAs: number;
   status?: "NONE" | "PACKAGED" | "OPENED";
 };
 
@@ -37,7 +36,6 @@ function ListEntry({
   isIOTY,
   isCon,
   price,
-  lowestMall,
   mrAs,
   status,
 }: ListEntryProps) {
@@ -66,8 +64,8 @@ function ListEntry({
   }, [year, packagedName]);
 
   const mall =
-    price || lowestMall
-      ? Math.min(price?.value || Infinity, lowestMall || Infinity)
+    price?.value || price?.lowestMall
+      ? Math.min(price?.value ?? Infinity, price?.lowestMall ?? Infinity)
       : null;
 
   const priceRatio = mall && mrAs ? mall / mrAs : null;
@@ -113,10 +111,8 @@ function ListEntry({
       <EntrySpacer />
 
       <EntryPriceSection
-        mall={mall}
         mrAs={mrAs}
         price={price}
-        lowestMall={lowestMall}
         packagedName={packagedName}
       />
     </div>

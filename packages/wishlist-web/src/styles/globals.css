@@ -81,6 +81,7 @@
 
 ::view-transition-group(root) {
   animation-duration: 400ms;
+  z-index: 0;
 }
 
 ::view-transition-old(foreground-light) {
@@ -115,6 +116,11 @@
     animation-duration: 300ms;
     animation-timing-function: ease-in;
   }
+}
+
+::view-transition-group(none) {
+  animation: none;
+  z-index: 50;
 }
 
 /* Dark mode */

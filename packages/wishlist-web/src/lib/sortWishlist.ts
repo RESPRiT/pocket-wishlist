@@ -7,11 +7,11 @@ function priceSort(
 ): number {
   const aLowest = Math.min(
     a.price?.value || Infinity,
-    a.lowestMall || Infinity
+    a.price?.lowestMall === -1 ? Infinity : a.price?.lowestMall || Infinity
   );
   const bLowest = Math.min(
     b.price?.value || Infinity,
-    b.lowestMall || Infinity
+    b.price?.lowestMall === -1 ? Infinity : b.price?.lowestMall || Infinity
   );
 
   // tie-breaker

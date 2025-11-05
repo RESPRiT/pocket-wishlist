@@ -8,7 +8,7 @@ import {
  */
 export async function fetchMallPrices(): Promise<MallPriceResponse> {
   const url =
-    "https://resprit--dd94f3deb77f11f08e0c0224a6c84d84.web.val.run/lowest-mall";
+    "https://resprit--dd94f3deb77f11f08e0c0224a6c84d84.web.val.run/get-prices";
 
   const response = await fetch(url);
   if (!response.ok) {
