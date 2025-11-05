@@ -18461,20 +18461,34 @@ function date4(params) {
 config(en_default());
 
 // ../wishlist-shared/schemas/api.ts
-var WishlistSchema = external_exports.record(external_exports.coerce.number(), external_exports.literal(["NONE", "PACKAGED", "OPENED"])), WishlistResponseSchema = external_exports.object({
+var WishlistSchema = external_exports.record(
+  external_exports.coerce.number(),
+  // JSON keys are strings
+  external_exports.literal(["NONE", "PACKAGED", "OPENED"])
+), WishlistResponseSchema = external_exports.object({
   username: external_exports.string(),
-  userId: external_exports.coerce.number(),
+  userId: external_exports.number(),
   wishlist: WishlistSchema,
-  lastUpdated: external_exports.coerce.number()
-}), MallPriceSchema = external_exports.object({
-  id: external_exports.coerce.number(),
-  lowestMall: external_exports.coerce.number()
-}), MallPriceResponseSchema = external_exports.array(MallPriceSchema), PriceGunSchema = external_exports.object({
+  lastUpdated: external_exports.number()
+}), PriceGunSchema = external_exports.object({
+  // value across ALL transactions, not just past 2 weeks
   value: external_exports.number(),
+  // volume across the past 2 weeks
   volume: external_exports.number(),
+  // last time the price value was calculated by PriceGun
   date: external_exports.coerce.date(),
+  // JSON dates are strings
   itemId: external_exports.number()
-}), PriceGunResponseSchema = external_exports.array(PriceGunSchema);
+}), PriceGunResponseSchema = external_exports.array(PriceGunSchema), MallPriceSchema = external_exports.record(external_exports.coerce.number(), external_exports.number()), PriceSchema = external_exports.object({
+  // from lowest mall
+  lowestMall: external_exports.number(),
+  // from pricegun
+  value: external_exports.number().optional(),
+  volume: external_exports.number().optional()
+}), CombinedPriceSchema = external_exports.record(external_exports.coerce.number(), PriceSchema), MallPriceResponseSchema = external_exports.object({
+  prices: CombinedPriceSchema,
+  lastUpdated: external_exports.coerce.date()
+});
 
 // ../wishlist-shared/schemas/data.ts
 var IOTMSchema = external_exports.object({
