@@ -89,7 +89,7 @@ export function EntryPriceSection({
             src="itemimages/meat.gif"
             alt="meat"
             reColor="bg-foreground"
-            className={`clamp-[size,5,6,xs,sm] ${mallStatus === "lowestMall" && "group-hover:opacity-75"}`}
+            className={`clamp-[size,5,6,xs,sm] ${mallStatus === "lowestMall" && "group-hover:opacity-70"}`}
           />
           {mallStatus !== "lowestMall" ? (
             <span className={cn("text-primary-foreground", fontClass)}>

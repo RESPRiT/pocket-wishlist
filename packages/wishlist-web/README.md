@@ -91,6 +91,7 @@
 - [ ] (stub) a11y audit
 - [ ] Rehaul colors for better contrast consistency
 - [ ] Update prettier config/plugins for Tailwind classes
+- [ ] Standardize date/time units
 
 ## TABLED
 

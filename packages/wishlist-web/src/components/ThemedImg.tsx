@@ -57,19 +57,17 @@ function ThemedImg({
         <></>
       )}
       <div
-        className={cn(`${className} col-start-1 row-start-1`, {
-          "mix-blend-lighten": theme === "dark",
-          invert: theme === "dark",
-        })}
+        className={cn(
+          `${className} col-start-1 row-start-1`,
+          `${theme === "dark" ? "mix-blend-lighten invert" : "mix-blend-multiply"}`
+        )}
       >
         {imgSrc ? (
           <img
             src={imgSrc}
             alt={alt}
             style={style}
-            className={cn("w-full h-full object-cover mix-blend-multiply", {
-              "mix-blend-normal": theme === "dark",
-            })}
+            className={cn("w-full h-full object-cover")}
           />
         ) : (
           <Skeleton className="w-full h-full" />
