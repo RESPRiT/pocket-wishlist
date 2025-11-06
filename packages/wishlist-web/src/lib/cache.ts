@@ -5,10 +5,10 @@ export function isCacheStale(
   const lastUpdated = localStorage.getItem(lastUpdatedKey);
   if (!lastUpdated) return true;
 
-  const timestamp = parseInt(lastUpdated);
-  if (isNaN(timestamp)) return true;
+  const timestamp = new Date(lastUpdated);
+  if (!timestamp) return true;
 
-  return Date.now() - timestamp > maxAge;
+  return Date.now() - timestamp.getTime() > maxAge;
 }
 
 export function getCachedData<T>(cacheKey: string): T | null {

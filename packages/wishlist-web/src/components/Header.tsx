@@ -1,9 +1,7 @@
 import { useWishlist } from "@/contexts/WishlistContext.tsx";
 import { useTheme } from "../contexts/ThemeContext.tsx";
-import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils.ts";
-
-const LAST_UPDATED_KEY = "pricesLastUpdated";
+import { useMallPrices } from "@/hooks/useMallPrices.ts";
 
 const TIME_RANGES = {
   secondsAgo: 60 * 1000,
@@ -24,17 +22,10 @@ const TIME_AMOUNTS = {
 } as const;
 
 function Header() {
-  const [lastUpdated, setLastUpdated] = useState<number>();
   const wishlist = useWishlist();
+  // don't love that this re-calls
+  const { mallPricesLastUpdated } = useMallPrices();
   const { theme, setTheme, isTransitioning } = useTheme();
-
-  useEffect(() => {
-    // TODO: Doesn't re-render when this value changes
-    const stored = localStorage.getItem(LAST_UPDATED_KEY);
-    if (stored) {
-      setLastUpdated(new Date(stored).getTime());
-    }
-  }, []);
 
   const formatTimeSince = (time: number) => {
     if (time <= 0) return "";
@@ -74,7 +65,7 @@ function Header() {
       </div>
       <div className="flex flex-col sm:items-end">
         <span className="text-xs text-accent">{`prices updated: ${formatTimeSince(
-          lastUpdated ?? -1
+          mallPricesLastUpdated ?? -1
         )}`}</span>
         <span className="clamp-[text,sm,base,xs,sm] text-foreground">
           {`${wishlist?.username}'s wishlist `}

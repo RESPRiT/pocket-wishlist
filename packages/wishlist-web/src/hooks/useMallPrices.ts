@@ -9,6 +9,7 @@ const TIMESTAMP_KEY = "pricesLastUpdated";
 // TODO: Change this error pattern - I would rather it just goes straight to stderr
 export function useMallPrices() {
   const [mallPrices, setMallPrices] = useState<CombinedPrice>({});
+  const [mallPricesLastUpdated, setMallPricesLastUpdated] = useState(-1);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
@@ -19,6 +20,9 @@ export function useMallPrices() {
           const cached = getCachedData<CombinedPrice>(CACHE_KEY);
           if (cached) {
             setMallPrices(cached);
+            setMallPricesLastUpdated(
+              new Date(localStorage.getItem(TIMESTAMP_KEY) ?? -1).getTime()
+            );
             setIsLoading(false);
             return;
           }
@@ -26,6 +30,7 @@ export function useMallPrices() {
 
         const data = await fetchMallPrices();
         setMallPrices(data.prices);
+        setMallPricesLastUpdated(data.lastUpdated.getTime());
         setCachedData(
           CACHE_KEY,
           TIMESTAMP_KEY,
@@ -45,5 +50,5 @@ export function useMallPrices() {
     loadMallPrices();
   }, []);
 
-  return { mallPrices, isLoading, error };
+  return { mallPrices, mallPricesLastUpdated, isLoading, error };
 }
