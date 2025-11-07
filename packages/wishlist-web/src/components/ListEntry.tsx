@@ -43,6 +43,7 @@ function ListEntry({
 
   const yearPercent = useMemo(() => {
     const currentYear = new Date().getFullYear();
+    // why capped at 5/6? idk, I like that color range better
     return Math.min(5 / 6, (currentYear - year) / (currentYear - 2004));
   }, [year]);
 
@@ -78,9 +79,9 @@ function ListEntry({
         md:clamp-[gap-x,2.25,6,md,lg] clamp-[gap-x,1.5,2.25,xs,sm] gap-y-2
         clamp-[px,5,6,xs,sm] py-3 h-full min-w-[290px] lg:w-full
         overflow-hidden
-        rounded-md hover:outline-foreground-muted hover:outline-2`,
+        rounded-md hover:outline-foreground/50 hover:outline-2`,
         {
-          "outline-secondary": isStandard,
+          "hover:outline-secondary": isStandard,
         }
       )}
     >

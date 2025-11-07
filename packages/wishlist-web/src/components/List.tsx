@@ -7,6 +7,7 @@ import { useMallPrices } from "@/hooks/useMallPrices";
 import { getSortFunction } from "@/lib/sortWishlist";
 import { useWishlist } from "@/contexts/WishlistContext";
 import { useTheme } from "../contexts/ThemeContext.tsx";
+import ListMiniMap from "./ListMiniMap.tsx";
 
 function getUnboxedName(item: IOTM): string {
   if (
@@ -29,9 +30,10 @@ function List() {
 
   // Fetch data using hooks
   const { mallPrices } = useMallPrices();
-  const wishlist = useWishlist();
+  const { wishlist } = useWishlist();
   const { theme } = useTheme();
 
+  // TODO: just put data in a context
   const data = useMemo(
     () =>
       iotms
@@ -50,15 +52,14 @@ function List() {
             isCon: item.is_con || false,
             price: mallPrices[item.packaged_id] ?? null,
             mrAs: mallPrices[194]?.value ?? Infinity, // don't love this here
-            // TODO: wishlist.wishlist is weird
-            status: wishlist?.wishlist[item.packaged_id],
+            status: wishlist[item.packaged_id],
           })
         ),
     [mallPrices, wishlist]
   );
 
-  const sortedData = data.sort(getSortFunction(currentSort));
-  const orderedData = currentOrder ? sortedData.reverse() : sortedData;
+  const sortedData = data.slice().sort(getSortFunction(currentSort));
+  const orderedData = currentOrder ? sortedData.slice().reverse() : sortedData;
 
   const listRef = useRef<HTMLDivElement>(null);
 
@@ -81,6 +82,8 @@ function List() {
         height: `${virtualizer.getTotalSize()}px`,
       }}
     >
+      {/* TODO: Move this out of List and into ListView once data is in a context */}
+      <ListMiniMap entries={orderedData} height={virtualizer.getTotalSize()} />
       <div
         className="absolute flex flex-wrap gap-2 w-full items-stretch"
         style={{

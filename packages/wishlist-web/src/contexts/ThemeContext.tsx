@@ -1,7 +1,7 @@
 import { createContext, ReactNode, use, useEffect, useState } from "react";
 import * as Color from "color-bits";
 
-type Theme = "light" | "dark";
+export type Theme = "light" | "dark";
 
 type ThemeContextType = {
   theme: Theme;

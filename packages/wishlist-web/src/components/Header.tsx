@@ -22,7 +22,7 @@ const TIME_AMOUNTS = {
 } as const;
 
 function Header() {
-  const wishlist = useWishlist();
+  const { username, lastUpdated } = useWishlist();
   // don't love that this re-calls
   const { mallPricesLastUpdated } = useMallPrices();
   const { theme, setTheme, isTransitioning } = useTheme();
@@ -68,9 +68,9 @@ function Header() {
           mallPricesLastUpdated ?? -1
         )}`}</span>
         <span className="clamp-[text,sm,base,xs,sm] text-foreground">
-          {`${wishlist?.username}'s wishlist `}
+          {`${username}'s wishlist `}
           <span className="clamp-[text,xs,sm,xs,sm]">{"as of "}</span>
-          <b>{formatTimeSince(wishlist?.lastUpdated ?? 0)}</b>
+          <b>{formatTimeSince(lastUpdated ?? 0)}</b>
         </span>
       </div>
     </header>
