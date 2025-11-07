@@ -28,7 +28,7 @@ const ThemeContext = createContext<ThemeContextType>({
 const handleAnimateThemeColor = (
   metaTheme: Element,
   theme: Theme,
-  progress = 0
+  progress = 0,
 ) => {
   if (progress > 1) return;
 
@@ -54,7 +54,7 @@ const handleAnimateThemeColor = (
 
 export const ThemeProvider = ({ children }: { children: ReactNode }) => {
   const [theme, setTheme] = useState<Theme>(
-    (localStorage.getItem(KEY) as Theme) ?? system()
+    (localStorage.getItem(KEY) as Theme) ?? system(),
   );
   const [isTransitioning, setIsTransitioning] = useState(false);
   const metaTheme = document.querySelector(`meta[name="theme-color"]`);

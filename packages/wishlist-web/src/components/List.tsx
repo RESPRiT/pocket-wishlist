@@ -53,9 +53,9 @@ function List() {
             price: mallPrices[item.packaged_id] ?? null,
             mrAs: mallPrices[194]?.value ?? Infinity, // don't love this here
             status: wishlist[item.packaged_id],
-          })
+          }),
         ),
-    [mallPrices, wishlist]
+    [mallPrices, wishlist],
   );
 
   const sortedData = data.slice().sort(getSortFunction(currentSort));
@@ -77,7 +77,7 @@ function List() {
   return (
     <div
       ref={listRef}
-      className="relative w-full mb-12"
+      className="relative mb-12 w-full"
       style={{
         height: `${virtualizer.getTotalSize()}px`,
       }}
@@ -85,7 +85,7 @@ function List() {
       {/* TODO: Move this out of List and into ListView once data is in a context */}
       <ListMiniMap entries={orderedData} height={virtualizer.getTotalSize()} />
       <div
-        className="absolute flex flex-wrap gap-2 w-full items-stretch"
+        className="absolute flex w-full flex-wrap items-stretch gap-2"
         style={{
           position: "absolute",
           transform: `translateY(${virtualOffset}px)`,

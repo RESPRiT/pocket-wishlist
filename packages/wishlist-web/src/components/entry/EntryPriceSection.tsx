@@ -47,7 +47,7 @@ export function EntryPriceSection({
         `${millions}m`
       : // Use 1 digit for sub-10 billion, whole beyond
         `${Math.min(price.lowestMall / 1_000_000_000, 999).toFixed(
-          millions < 10_000 ? 1 : 0
+          millions < 10_000 ? 1 : 0,
         )}b`;
   };
 
@@ -78,10 +78,10 @@ export function EntryPriceSection({
   return (
     <EntryItem label="est. mall price">
       <div
-        className="flex justify-center items-center
-                   md:clamp-[gap,1.25,1.5,md,lg] clamp-[gap,0.5,1.25,xs,sm]
-                   md:clamp-[w,38,40,md,lg] lg:w-42 clamp-[w,31,38,xs,sm]
-                   font-roboto-mono font-normal md:clamp-[text,base,lg,md,lg] clamp-[text,sm,base,xs,sm]"
+        className="flex clamp-[w,31,38,xs,sm] items-center justify-center
+          clamp-[gap,0.5,1.25,xs,sm] font-roboto-mono clamp-[text,sm,base,xs,sm]
+          font-normal md:clamp-[w,38,40,md,lg] md:clamp-[gap,1.25,1.5,md,lg]
+          md:clamp-[text,base,lg,md,lg] lg:w-42"
         title={statusText[mallStatus]}
       >
         <div className="group flex items-center">
@@ -89,7 +89,8 @@ export function EntryPriceSection({
             src="itemimages/meat.gif"
             alt="meat"
             reColor="bg-foreground"
-            className={`clamp-[size,5,6,xs,sm] ${mallStatus === "lowestMall" && "group-hover:opacity-70"}`}
+            className={`clamp-[size,5,6,xs,sm]
+              ${mallStatus === "lowestMall" && "group-hover:opacity-70"}`}
           />
           {mallStatus !== "lowestMall" ? (
             <span className={cn("text-primary-foreground", fontClass)}>
@@ -99,8 +100,9 @@ export function EntryPriceSection({
             <a
               href={mafiaUrl}
               className={cn(
-                "text-primary-foreground underline underline-offset-2 group-hover:text-primary-foreground/80",
-                fontClass
+                `text-primary-foreground underline underline-offset-2
+                  group-hover:text-primary-foreground/80`,
+                fontClass,
               )}
             >
               {formatMeatPrice()}
@@ -114,7 +116,7 @@ export function EntryPriceSection({
           src="itemimages/mracc.gif"
           alt="Mr. Accessories"
           reColor="bg-accent-foreground"
-          className="clamp-[size,6,7,xs,sm] clamp-[mr,-0.6,-0.5,xs,sm]"
+          className="clamp-[mr,-0.6,-0.5,xs,sm] clamp-[size,6,7,xs,sm]"
         />
         <span className={cn("text-accent-foreground", fontClass)}>
           {formatMrARatio()}

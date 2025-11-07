@@ -29,9 +29,8 @@ function IconButton({
   return (
     <Button
       variant="link"
-      className={`${
-        selected ? accent : color
-      } ${hover} ${scale} font-normal clamp-[text,base,xl,sm,md] clamp-[gap,0.5,1.5,sm,md]`}
+      className={`${selected ? accent : color} ${hover} ${scale}
+        clamp-[gap,0.5,1.5,sm,md] clamp-[text,base,xl,sm,md] font-normal`}
       {...props}
     >
       {selected || filled ? (

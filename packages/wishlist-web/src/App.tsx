@@ -12,12 +12,12 @@ function App() {
   // TODO: Fix reset to top on scroll disable
   return (
     <main className="flex justify-center selection:bg-select">
-      <div className="fixed -z-50 w-full h-full invert striped" />
+      <div className="striped fixed -z-50 h-full w-full invert" />
       <div
         className={cn(
-          `flex flex-col clamp-[px,4,10,md,lg] w-full lg:max-w-5xl`,
+          "flex w-full flex-col clamp-[px,4,10,md,lg] lg:max-w-5xl",
           // disable scroll while changing theme
-          isTransitioning && "overflow-y-hidden h-screen"
+          isTransitioning && "h-screen overflow-y-hidden",
         )}
       >
         <WishlistProvider>

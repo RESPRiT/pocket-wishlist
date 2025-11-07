@@ -24,7 +24,7 @@ const PRICE_DARKNESS_RANGE = {
 function getBaseColor(
   isStandard: boolean,
   standardYear: number,
-  theme: "light" | "dark"
+  theme: "light" | "dark",
 ): string {
   if (!isStandard) return "var(--primary)";
 
@@ -48,7 +48,7 @@ function getEndColor(isStandard: boolean, theme: "light" | "dark"): string {
 
 function getPriceDarkness(
   priceRatio: number | null,
-  theme: "light" | "dark"
+  theme: "light" | "dark",
 ): number {
   const range =
     theme === "light" ? PRICE_DARKNESS_RANGE.light : PRICE_DARKNESS_RANGE.dark;
@@ -81,7 +81,7 @@ export function useEntryBackgroundColor({
       getBaseColor(isStandard, standardYear, theme),
       getEndColor(isStandard, theme),
       getPriceDarkness(priceRatio, theme),
-      getContrastColor(theme)
+      getContrastColor(theme),
     );
   }, [status, isStandard, standardYear, priceRatio, theme]);
 

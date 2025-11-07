@@ -14,12 +14,15 @@ export function EntryRibbon({ show, variant }: EntryRibbonProps) {
   return (
     <div
       className={cn(
-        "absolute flex justify-center items-center h-full left-0 rounded-l-md",
-        bgClass
+        "absolute left-0 flex h-full items-center justify-center rounded-l-md",
+        bgClass,
       )}
       style={{ writingMode: "sideways-lr" }}
     >
-      <span className="ml-0.25 md:clamp-[text,xs,sm,md,lg] clamp-[text,0.55rem,xs,xs,sm] text-muted-foreground select-none">
+      <span
+        className="ml-0.25 clamp-[text,0.55rem,xs,xs,sm] text-muted-foreground
+          select-none md:clamp-[text,xs,sm,md,lg]"
+      >
         {label}
       </span>
     </div>

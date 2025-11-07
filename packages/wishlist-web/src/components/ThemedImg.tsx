@@ -59,7 +59,7 @@ function ThemedImg({
       <div
         className={cn(
           `${className} col-start-1 row-start-1`,
-          `${theme === "dark" ? "mix-blend-lighten invert" : "mix-blend-multiply"}`
+          `${theme === "dark" ? "mix-blend-lighten invert" : "mix-blend-multiply"}`,
         )}
       >
         {imgSrc ? (
@@ -67,10 +67,10 @@ function ThemedImg({
             src={imgSrc}
             alt={alt}
             style={style}
-            className={cn("w-full h-full object-cover")}
+            className={cn("h-full w-full object-cover")}
           />
         ) : (
-          <Skeleton className="w-full h-full" />
+          <Skeleton className="h-full w-full" />
         )}
       </div>
       <div

@@ -41,7 +41,7 @@ function MiniMapEntry({
     entry.price?.value || entry.price?.lowestMall
       ? Math.min(
           entry.price?.value ?? Infinity,
-          entry.price?.lowestMall ?? Infinity
+          entry.price?.lowestMall ?? Infinity,
         )
       : null;
 
@@ -141,7 +141,7 @@ function ListMiniMap({
         entries.length * ENTRY_HEIGHT_PX - maxScrollHeight;
       const _scrollPosition = Math.min(
         Math.max(initialScrollPosition + e.clientY - initialScrollY, 0),
-        maxScrollAmount
+        maxScrollAmount,
       );
       setScrollPosition(_scrollPosition);
 
@@ -162,7 +162,7 @@ function ListMiniMap({
         entries.length * ENTRY_HEIGHT_PX - maxScrollHeight;
       const jumpY = Math.min(
         Math.max(e.clientY - TOP_OFFSET - maxScrollHeight / 2, 0),
-        maxScrollAmount
+        maxScrollAmount,
       );
       // jump to center of pointer + scroll to position
       setScrollPosition(jumpY);
@@ -170,7 +170,7 @@ function ListMiniMap({
 
       if (!scrollWindowRef.current) {
         throw new Error(
-          "Could not find scroll window element (and we really should!)"
+          "Could not find scroll window element (and we really should!)",
         );
       }
 
@@ -188,10 +188,10 @@ function ListMiniMap({
   };
 
   return (
-    <div className="absolute -right-6 select-none group">
+    <div className="group absolute -right-6 select-none">
       {/* Extra hover padding */}
       <div
-        className="top-0 fixed h-full"
+        className="fixed top-0 h-full"
         style={{
           width: miniMapWidth * HOVER_PADDING_MULTIPLIER,
           // shift by half of extra size to center
@@ -201,8 +201,10 @@ function ListMiniMap({
       {/* Minimap */}
       <div
         className={cn(
-          "z-0 fixed rounded-xs outline-1 outline-foreground/50 bg-background/0 opacity-25 duration-200 transition-opacity group-hover:opacity-100",
-          isActive && "opacity-100"
+          `fixed z-0 rounded-xs bg-background/0 opacity-25 outline-1
+          outline-foreground/50 transition-opacity duration-200
+          group-hover:opacity-100`,
+          isActive && "opacity-100",
         )}
         style={{ width: miniMapWidth, top: TOP_OFFSET }}
         onPointerDown={handleJumpPointerDown}
@@ -215,10 +217,12 @@ function ListMiniMap({
       <div
         ref={scrollWindowRef}
         className={cn(
-          `z-10 fixed outline-2 outline-foreground hover:bg-background/20 opacity-10 group-hover:opacity-100 duration-200 transition-opacity
-          hover:outline-foreground/50 hover:cursor-pointer`,
+          `fixed z-10 opacity-10 outline-2 outline-foreground transition-opacity
+          duration-200 group-hover:opacity-100 hover:cursor-pointer
+          hover:bg-background/20 hover:outline-foreground/50`,
           isActive &&
-            "opacity-100 hover:bg-background/50 hover:outline-foreground/25 hover:cursor-grabbing"
+            `opacity-100 hover:cursor-grabbing hover:bg-background/50
+            hover:outline-foreground/25`,
         )}
         style={{
           width: miniMapWidth,

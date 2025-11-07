@@ -3,7 +3,7 @@ import ListControlMenu from "./ListControlMenu";
 
 function ListView() {
   return (
-    <div className="flex flex-col w-full">
+    <div className="flex w-full flex-col">
       <ListControlMenu />
       <List />
     </div>

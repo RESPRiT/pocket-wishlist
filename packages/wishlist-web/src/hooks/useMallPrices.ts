@@ -21,7 +21,7 @@ export function useMallPrices() {
           if (cached) {
             setMallPrices(cached);
             setMallPricesLastUpdated(
-              new Date(localStorage.getItem(TIMESTAMP_KEY) ?? -1).getTime()
+              new Date(localStorage.getItem(TIMESTAMP_KEY) ?? -1).getTime(),
             );
             setIsLoading(false);
             return;
@@ -35,12 +35,12 @@ export function useMallPrices() {
           CACHE_KEY,
           TIMESTAMP_KEY,
           data.prices,
-          String(data.lastUpdated)
+          String(data.lastUpdated),
         );
         setIsLoading(false);
       } catch (err) {
         setError(
-          err instanceof Error ? err : new Error("Failed to fetch mall prices")
+          err instanceof Error ? err : new Error("Failed to fetch mall prices"),
         );
         console.error("Failed to fetch mall prices", err);
         setIsLoading(false);

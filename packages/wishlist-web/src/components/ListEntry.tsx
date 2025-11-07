@@ -53,9 +53,9 @@ function ListEntry({
         packagedName
           .charAt(0)
           .toUpperCase()
-          .concat(packagedName.slice(1).replace(/ /g, "_"))
+          .concat(packagedName.slice(1).replace(/ /g, "_")),
       )}`,
-    [packagedName]
+    [packagedName],
   );
 
   const standardYear = useMemo(() => {
@@ -75,14 +75,14 @@ function ListEntry({
   return (
     <div
       className={cn(
-        `relative flex flex-wrap lg:flex-nowrap items-center justify-center
-        md:clamp-[gap-x,2.25,6,md,lg] clamp-[gap-x,1.5,2.25,xs,sm] gap-y-2
-        clamp-[px,5,6,xs,sm] py-3 h-full min-w-[290px] lg:w-full
-        overflow-hidden
-        rounded-md hover:outline-foreground/50 hover:outline-2`,
+        `relative flex h-full min-w-[290px] flex-wrap items-center
+        justify-center clamp-[gap-x,1.5,2.25,xs,sm] gap-y-2 overflow-hidden
+        rounded-md clamp-[px,5,6,xs,sm] py-3 hover:outline-2
+        hover:outline-foreground/50 md:clamp-[gap-x,2.25,6,md,lg] lg:w-full
+        lg:flex-nowrap`,
         {
           "hover:outline-secondary": isStandard,
-        }
+        },
       )}
     >
       <EntryBackground

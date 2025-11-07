@@ -1,6 +1,6 @@
 export function isCacheStale(
   lastUpdatedKey: string,
-  maxAge: number = 24 * 60 * 60 * 1000 // 24 hours default
+  maxAge: number = 24 * 60 * 60 * 1000, // 24 hours default
 ): boolean {
   const lastUpdated = localStorage.getItem(lastUpdatedKey);
   if (!lastUpdated) return true;
@@ -27,7 +27,7 @@ export function setCachedData<T>(
   cacheKey: string,
   timestampKey: string,
   data: T,
-  timestamp?: string
+  timestamp?: string,
 ): void {
   try {
     localStorage.setItem(cacheKey, JSON.stringify(data));

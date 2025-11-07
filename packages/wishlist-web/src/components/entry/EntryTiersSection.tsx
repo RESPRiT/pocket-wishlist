@@ -25,10 +25,12 @@ function TierBadge({
     <EntryItem label={label}>
       <Badge
         className={cn(
-          "md:clamp-[text,sm,base,md,lg] clamp-[text,xs,sm,xs,sm] max-w-7 lg:max-w-full text-background",
+          `max-w-7 clamp-[text,xs,sm,xs,sm] text-background
+          md:clamp-[text,sm,base,md,lg] lg:max-w-full`,
           value ??
-            "border-muted-foreground border-dashed text-muted-foreground font-light bg-background/0",
-          className
+            `border-dashed border-muted-foreground bg-background/0 font-light
+            text-muted-foreground`,
+          className,
         )}
         style={percent !== null ? interpolateColorScale(percent) : undefined}
       >
@@ -44,9 +46,9 @@ export function EntryTiersSection({ speed, farm }: EntryTiersSectionProps) {
 
   return (
     <EntrySection
-      className="md:clamp-[w,32,36,md,lg] clamp-[w,26,32,xs,sm]
-                 md:clamp-[gap,3.5,5,md,lg] clamp-[gap,2.5,3.5,xs,sm]
-                 clamp-[mr,1,1.5,xs,sm] lg:mr-0"
+      className="clamp-[mr,1,1.5,xs,sm] clamp-[w,26,32,xs,sm]
+        clamp-[gap,2.5,3.5,xs,sm] md:clamp-[w,32,36,md,lg]
+        md:clamp-[gap,3.5,5,md,lg] lg:mr-0"
     >
       <TierBadge label="speed" value={speed} />
       <TierBadge label="freed" value={farm} />

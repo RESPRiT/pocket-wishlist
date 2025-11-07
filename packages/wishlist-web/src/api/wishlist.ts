@@ -5,7 +5,7 @@ import { WishlistResponse, WishlistResponseSchema } from "wishlist-shared";
  * TODO: Un-hardcode user ID
  */
 export async function fetchWishlist(
-  userId: string = "1927026"
+  userId: string = "1927026",
 ): Promise<WishlistResponse> {
   const url = `https://resprit--dd94f3deb77f11f08e0c0224a6c84d84.web.val.run/get-wishlist?u=${userId}`;
 

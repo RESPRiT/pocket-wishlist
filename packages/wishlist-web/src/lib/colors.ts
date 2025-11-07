@@ -21,7 +21,7 @@ export function adjustLightness(
   startColor: string,
   endColor = "black",
   percent: number,
-  contrastColor = "white"
+  contrastColor = "white",
 ): CSSProperties {
   const adjustedColor = `color-mix(in oklch, ${startColor} ${
     100 - Math.abs(percent)
@@ -35,11 +35,11 @@ export function adjustLightness(
 export function logBracketScale(
   x: number,
   range: [number, number] = [0, -30],
-  brackets = PRICE_BRACKETS
+  brackets = PRICE_BRACKETS,
 ): number {
   const bracketNum = brackets.findIndex(
     (bracket) =>
-      Math.ceil(x - 0.8) >= bracket[0] && Math.ceil(x - 0.8) < bracket[1]
+      Math.ceil(x - 0.8) >= bracket[0] && Math.ceil(x - 0.8) < bracket[1],
   );
 
   if (bracketNum === -1) return range[1];

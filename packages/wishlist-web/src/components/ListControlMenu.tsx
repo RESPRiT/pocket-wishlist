@@ -6,10 +6,10 @@ function ListControlMenu() {
 
   // TODO: Definitely some not-DRY shenanigans going on here...
   return (
-    <div className="flex justify-center sticky top-2 z-30">
+    <div className="sticky top-2 z-30 flex justify-center">
       <div
-        className="flex flex-wrap justify-center items-center gap-0 bg-background/95
-        min-w-min m-2 p-1 rounded-md"
+        className="m-2 flex min-w-min flex-wrap items-center justify-center
+          gap-0 rounded-md bg-background/95 p-1"
       >
         <IconButton
           icon={

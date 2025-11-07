@@ -44,7 +44,7 @@ export const WishlistProvider = ({
         setIsLoading(false);
       } catch (err) {
         setError(
-          err instanceof Error ? err : new Error("Failed to fetch wishlist")
+          err instanceof Error ? err : new Error("Failed to fetch wishlist"),
         );
         console.error("Failed to fetch wishlist", err);
         setIsLoading(false);

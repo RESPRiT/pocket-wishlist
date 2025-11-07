@@ -19,6 +19,6 @@ export const useStore = create<ControlStore>()(
     }),
     {
       name: "wishlist-store", // in localStorage by default
-    }
-  )
+    },
+  ),
 );

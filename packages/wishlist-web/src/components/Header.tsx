@@ -50,22 +50,26 @@ function Header() {
 
   // TODO: Polish theme toggle, more usable button
   return (
-    <header className="flex flex-col gap-2 sm:flex-row justify-between sm:items-end clamp-[mt,4,10,xs,sm]">
+    <header
+      className="clamp-[mt,4,10,xs,sm] flex flex-col justify-between gap-2
+        sm:flex-row sm:items-end"
+    >
       <div className="flex items-baseline gap-2.5">
-        <span className="font-medium clamp-[text,3xl,4xl,xs,sm]">
+        <span className="clamp-[text,3xl,4xl,xs,sm] font-medium">
           {"pocket wishlist"}
         </span>
         <div
           className={cn(
-            "clamp-[h,6,5,xs,sm] clamp-[w,6,5,xs,sm] bg-accent cursor-pointer rounded-full hover:bg-foreground duration-100",
-            isTransitioning && "opacity-60"
+            `clamp-[h,6,5,xs,sm] clamp-[w,6,5,xs,sm] cursor-pointer rounded-full
+            bg-accent duration-100 hover:bg-foreground`,
+            isTransitioning && "opacity-60",
           )}
           onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
         />
       </div>
       <div className="flex flex-col sm:items-end">
         <span className="text-xs text-accent">{`prices updated: ${formatTimeSince(
-          mallPricesLastUpdated ?? -1
+          mallPricesLastUpdated ?? -1,
         )}`}</span>
         <span className="clamp-[text,sm,base,xs,sm] text-foreground">
           {`${username}'s wishlist `}

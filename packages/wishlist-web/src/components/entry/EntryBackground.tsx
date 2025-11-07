@@ -24,8 +24,8 @@ export function EntryBackground({
 
   return (
     <>
-      <div className="-z-20 absolute w-full h-full" style={bgStyle} />
-      <div className={cn("-z-10 absolute w-full h-full", textureClass)} />
+      <div className="absolute -z-20 h-full w-full" style={bgStyle} />
+      <div className={cn("absolute -z-10 h-full w-full", textureClass)} />
     </>
   );
 }

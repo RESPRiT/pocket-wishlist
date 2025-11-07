@@ -5,7 +5,7 @@ function EntrySection({
   className = "gap-5",
 }: React.ComponentPropsWithoutRef<"div">) {
   return (
-    <div className={`flex justify-center items-center ${className}`}>
+    <div className={`flex items-center justify-center ${className}`}>
       {children}
     </div>
   );

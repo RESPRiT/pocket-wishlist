@@ -26,22 +26,26 @@ export function EntryInfoSection({
   const yearLabel = isStandard ? "standard" : "hardcore";
 
   return (
-    <EntrySection className="gap-5 w-0 lg:w-auto basis-full lg:basis-auto">
+    <EntrySection className="w-0 basis-full gap-5 lg:w-auto lg:basis-auto">
       <a
         href={wikiUrl}
-        className="min-w-fit min-h-fit rounded-sm overflow-hidden hover:outline-2 outline-foreground"
+        className="min-h-fit min-w-fit overflow-hidden rounded-sm
+          outline-foreground hover:outline-2"
       >
         <ThemedImg
           src={`itemimages/${img}`}
           alt={name}
           reColor="bg-foreground"
           bgColor="bg-background"
-          className="clamp-[size,6,7,sm,md] m-2"
+          className="m-2 clamp-[size,6,7,sm,md]"
         />
       </a>
 
-      <EntryItem label={type} className="clamp-[w,42,56,md,lg] -mt-0.5">
-        <span className="clamp-[text,sm,base,xs,sm] font-normal text-primary-foreground text-center text-balance">
+      <EntryItem label={type} className="-mt-0.5 clamp-[w,42,56,md,lg]">
+        <span
+          className="text-center clamp-[text,sm,base,xs,sm] font-normal
+            text-balance text-primary-foreground"
+        >
           {name}
         </span>
       </EntryItem>

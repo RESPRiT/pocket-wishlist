@@ -3,15 +3,15 @@ import type { ListEntryProps } from "@/components/ListEntry";
 function priceSort(
   a: ListEntryProps,
   b: ListEntryProps,
-  skipTie = false
+  skipTie = false,
 ): number {
   const aLowest = Math.min(
     a.price?.value || Infinity,
-    a.price?.lowestMall === -1 ? Infinity : a.price?.lowestMall || Infinity
+    a.price?.lowestMall === -1 ? Infinity : a.price?.lowestMall || Infinity,
   );
   const bLowest = Math.min(
     b.price?.value || Infinity,
-    b.price?.lowestMall === -1 ? Infinity : b.price?.lowestMall || Infinity
+    b.price?.lowestMall === -1 ? Infinity : b.price?.lowestMall || Infinity,
   );
 
   // tie-breaker
@@ -56,7 +56,7 @@ function tierSort(a: ListEntryProps, b: ListEntryProps) {
 }
 
 export function getSortFunction(
-  sort: string
+  sort: string,
 ): (a: ListEntryProps, b: ListEntryProps) => number {
   if (sort === "price") {
     return priceSort;

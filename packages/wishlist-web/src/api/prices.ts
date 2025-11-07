@@ -4,7 +4,7 @@ import { PriceGunResponse, PriceGunResponseSchema } from "wishlist-shared";
  * Fetches prices from PriceGun API
  */
 export async function fetchPriceGun(
-  itemIds: number[]
+  itemIds: number[],
 ): Promise<PriceGunResponse> {
   const url = `https://pricegun.loathers.net/api/${itemIds.join(",")}`;
 
