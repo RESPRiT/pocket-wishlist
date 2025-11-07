@@ -4,24 +4,24 @@
 
 ## IN PROGRESS
 
-- [x] Price last updated indicator
-  - [ ] Add last updated field to mall-price
-- [x] Dark mode
-  - [x] Color pallette
-  - [x] Theming
-    - [o] Theme toggle
-
 ## UP NEXT
 
 - [ ] Much, much better price determination logic between pricegun and lowest mall
 
 ## ON DECK
 
+### Minimap
+
+- [ ] Add year/tier data to minimap
+- [ ] Consider using canvas instead of <div>s
+- [ ] Use additional contast in minimap colors
+
+### Else
+
+- [o] Better semantics for theme toggle
 - [ ] Add labels to all sorts of text
 - [x] List all IOTMs via `iotm.json`
   - [ ] (stub) Use better data flow pattern
-- [x] Color scale for year badge
-- [x] Color scale for tier badge
 - [x] Get and cache images from KOL.com
   - [ ] Add familiar images to `iotm.json`
   - [ ] Add opened images to `iotm.json`
@@ -84,7 +84,6 @@
 - [ ] Click name to copy to clipboard
 - [ ] Click price to link to mall
   - [ ] Mafia/KOL toggle
-- [ ] "Minimap" view
 - [ ] Back to top button
 - [ ] Featured "this month's IOTM"
 - [ ] Features "today's raffle IOTM"
@@ -100,6 +99,12 @@
 
 ## DONE
 
+### Minimap
+
+- [x] Click anywhere to jump
+
+### Else
+
 - [x] Remove data handling logic from List.tsx
 - [x] Decompose ListEntry.tsx in simpler component
 - [x] Remove color handling logic from ListEntry.tsx
@@ -108,3 +113,10 @@
   - [x] Write api schemas
   - [x] Implement on api
   - [x] Implement on web
+- [x] Price last updated indicator
+  - [x] Add last updated field to mall-price
+- [x] Dark mode
+  - [x] Color pallette
+  - [x] Theming
+- [x] Color scale for year badge
+- [x] Color scale for tier badge

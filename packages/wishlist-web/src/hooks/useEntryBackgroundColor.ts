@@ -1,5 +1,4 @@
 import { useMemo } from "react";
-import type { CSSProperties } from "react";
 import { adjustLightness, logBracketScale } from "@/lib/colors";
 
 export type EntryBackgroundColorProps = {

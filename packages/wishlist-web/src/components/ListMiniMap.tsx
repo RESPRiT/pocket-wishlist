@@ -46,7 +46,8 @@ function MiniMapEntry({
 }
 
 // TODO: Consider how code can be made more performant/readable
-// - e.g. could probably cut scrollFactor from state
+//   e.g. could probably cut scrollFactor from state
+//   also -- lots of reuse between functions that could be helpers
 function ListMiniMap({
   entries,
   height,
@@ -62,6 +63,9 @@ function ListMiniMap({
   const [initialScrollPosition, setInitialScrollPosition] = useState(0);
   const [initialScrollY, setInitialScrollY] = useState<number | null>(null);
   const [isActive, setIsActive] = useState(false);
+
+  // TODO: Unhardcode
+  const TOP_OFFSET = 24 as const;
 
   // Update scroll factor when height changes
   useEffect(() => {
@@ -108,6 +112,7 @@ function ListMiniMap({
     };
   }, [height, initialScrollY, scrollFactor]);
 
+  // Event handlers
   const handlePointerDown: PointerEventHandler<HTMLDivElement> = (e) => {
     e.currentTarget.setPointerCapture(e.pointerId);
     setInitialScrollY(e.clientY);
@@ -123,6 +128,7 @@ function ListMiniMap({
       setScrollHeight((window.innerHeight - unscrolled) / scrollFactor);
 
       const maxScrollHeight = window.innerHeight / scrollFactor;
+      // TODO: Unhardcode entry height (2 = h-1)
       const maxScrollAmount = entries.length * 2 - maxScrollHeight;
       const _scrollPosition = Math.min(
         Math.max(initialScrollPosition + e.clientY - initialScrollY, 0),
@@ -137,26 +143,63 @@ function ListMiniMap({
   const handlePointerUp: PointerEventHandler<HTMLDivElement> = (e) => {
     e.currentTarget.releasePointerCapture(e.pointerId);
     setInitialScrollY(null);
-    setTimeout(() => setIsActive(false), 200);
+    setIsActive(false);
+  };
+
+  const handleJumpPointerDown: PointerEventHandler<HTMLDivElement> = (e) => {
+    if (initialScrollY === null) {
+      const maxScrollHeight = window.innerHeight / scrollFactor;
+      const maxScrollAmount = entries.length * 2 - maxScrollHeight;
+      const jumpY = Math.min(
+        Math.max(e.clientY - TOP_OFFSET - maxScrollHeight / 2, 0),
+        maxScrollAmount
+      );
+      // jump to center of pointer + scroll to position
+      setScrollPosition(jumpY);
+      window.scroll(0, jumpY * scrollFactor);
+
+      const windowEl =
+        e.currentTarget.nextElementSibling ??
+        document.querySelector("#scroll-window");
+      if (windowEl === null)
+        throw new Error(
+          "Could not find scroll window element (and we really should!)"
+        );
+
+      // focus scrol window
+      windowEl.setPointerCapture(e.pointerId);
+      setInitialScrollY(e.clientY);
+      setInitialScrollPosition(jumpY);
+
+      // resize as needed
+      const totalHeight = document.body.getBoundingClientRect().height;
+      const excessHeight = totalHeight - height;
+      const unscrolled = Math.max(excessHeight - window.scrollY, 0);
+      setScrollHeight((window.innerHeight - unscrolled) / scrollFactor);
+
+      setIsActive(true);
+    }
   };
 
   return (
-    <div className="absolute -right-6 group">
+    <div className="absolute -right-6 select-none group">
       {/* Extra hover padding */}
       <div
         className="top-0 fixed h-full"
         style={{
           width: miniMapWidth * 1.5, // 25% extra on each end, TODO: unhardcode
-          transform: `translateX(-${(miniMapWidth * 0.5) / 2}px)`,
+          // shift by half of extra size (150% - 100% = 50%) to center
+          transform: `translateX(-${(miniMapWidth * (1.5 - 1)) / 2}px)`,
         }}
       />
       {/* Minimap */}
       <div
         className={cn(
-          "z-0 fixed top-6 rounded-xs outline-1 outline-foreground/50 bg-background/0 opacity-25 duration-200 transition-opacity group-hover:opacity-100",
+          "z-0 fixed rounded-xs outline-1 outline-foreground/50 bg-background/0 opacity-25 duration-200 transition-opacity group-hover:opacity-100",
           isActive && "opacity-100"
         )}
-        style={{ width: miniMapWidth }}
+        style={{ width: miniMapWidth, top: TOP_OFFSET }}
+        onPointerDown={handleJumpPointerDown}
       >
         {entries.map((entry, index) => (
           <MiniMapEntry key={index} entry={entry} theme={theme} />
@@ -164,15 +207,17 @@ function ListMiniMap({
       </div>
       {/* Scroll window */}
       <div
+        id="scroll-window"
         className={cn(
           `z-10 fixed outline-2 outline-foreground hover:bg-background/20 opacity-10 group-hover:opacity-100 duration-200 transition-opacity
-          hover:outline-foreground/50 hover:cursor-pointer active:cursor-grabbing active:bg-background/50 active:outline-foreground/25`,
-          isActive && "opacity-100"
+          hover:outline-foreground/50 hover:cursor-pointer`,
+          isActive &&
+            "opacity-100 hover:bg-background/50 hover:outline-foreground/25 hover:cursor-grabbing"
         )}
         style={{
           width: miniMapWidth,
-          // TODO: unhardcode this (top-6 = 24px)
-          top: 24 + scrollPosition,
+          // TODO: Better offset handling
+          top: TOP_OFFSET + scrollPosition,
           height: scrollHeight,
         }}
         onPointerDown={handlePointerDown}
