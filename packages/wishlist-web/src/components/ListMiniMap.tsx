@@ -1,8 +1,27 @@
-import { PointerEventHandler, useEffect, useMemo, useState } from "react";
+import {
+  PointerEventHandler,
+  useEffect,
+  useRef,
+  useMemo,
+  useState,
+} from "react";
 import { ListEntryProps } from "./ListEntry";
 import { Theme, useTheme } from "@/contexts/ThemeContext";
 import { useEntryBackgroundColor } from "@/hooks/useEntryBackgroundColor";
 import { cn } from "@/lib/utils";
+
+// Constants
+const ENTRY_HEIGHT_PX = 2; // h-0.5 class = 2px
+const HOVER_PADDING_MULTIPLIER = 1.5;
+const TOP_OFFSET = 24; // top-6 class = 24px
+
+// Helper functions
+function calculateScrollMetrics(height: number) {
+  const totalHeight = document.body.getBoundingClientRect().height;
+  const excessHeight = totalHeight - height;
+  const unscrolled = Math.max(excessHeight - window.scrollY, 0);
+  return { totalHeight, excessHeight, unscrolled };
+}
 
 function MiniMapEntry({
   entry,
@@ -46,8 +65,6 @@ function MiniMapEntry({
 }
 
 // TODO: Consider how code can be made more performant/readable
-//   e.g. could probably cut scrollFactor from state
-//   also -- lots of reuse between functions that could be helpers
 function ListMiniMap({
   entries,
   height,
@@ -56,6 +73,7 @@ function ListMiniMap({
   height: number;
 }) {
   const { theme, isTransitioning } = useTheme();
+  const scrollWindowRef = useRef<HTMLDivElement>(null);
   const [miniMapWidth, setMiniMapWidth] = useState(0);
   const [scrollHeight, setScrollHeight] = useState(0);
   const [scrollPosition, setScrollPosition] = useState(0);
@@ -64,23 +82,18 @@ function ListMiniMap({
   const [initialScrollY, setInitialScrollY] = useState<number | null>(null);
   const [isActive, setIsActive] = useState(false);
 
-  // TODO: Unhardcode
-  const TOP_OFFSET = 24 as const;
-
   // Update scroll factor when height changes
   useEffect(() => {
-    if (isTransitioning) return;
-
-    const totalHeight = document.body.getBoundingClientRect().height;
-    setScrollFactor(totalHeight / (entries.length * 2));
-  }, [entries, height, isTransitioning]);
+    if (!isTransitioning) {
+      const { totalHeight } = calculateScrollMetrics(height);
+      setScrollFactor(totalHeight / (entries.length * ENTRY_HEIGHT_PX));
+    }
+  }, [entries.length, height, isTransitioning]);
 
   // Setup resize event handler
   useEffect(() => {
     const handleWindowResize = () => {
-      const totalHeight = document.body.getBoundingClientRect().height;
-      const excessHeight = totalHeight - height;
-      const unscrolled = Math.max(excessHeight - window.scrollY, 0);
+      const { unscrolled } = calculateScrollMetrics(height);
 
       setMiniMapWidth(window.innerWidth / scrollFactor);
       setScrollHeight((window.innerHeight - unscrolled) / scrollFactor);
@@ -97,9 +110,7 @@ function ListMiniMap({
   useEffect(() => {
     const handleScroll = () => {
       if (initialScrollY === null) {
-        const totalHeight = document.body.getBoundingClientRect().height;
-        const excessHeight = totalHeight - height;
-        const unscrolled = Math.max(excessHeight - window.scrollY, 0);
+        const { unscrolled } = calculateScrollMetrics(height);
 
         setScrollHeight((window.innerHeight - unscrolled) / scrollFactor);
         setScrollPosition(window.scrollY / scrollFactor);
@@ -122,14 +133,12 @@ function ListMiniMap({
 
   const handlePointerMove: PointerEventHandler<HTMLDivElement> = (e) => {
     if (initialScrollY !== null) {
-      const totalHeight = document.body.getBoundingClientRect().height;
-      const excessHeight = totalHeight - height;
-      const unscrolled = Math.max(excessHeight - window.scrollY, 0);
+      const { unscrolled } = calculateScrollMetrics(height);
       setScrollHeight((window.innerHeight - unscrolled) / scrollFactor);
 
       const maxScrollHeight = window.innerHeight / scrollFactor;
-      // TODO: Unhardcode entry height (2 = h-1)
-      const maxScrollAmount = entries.length * 2 - maxScrollHeight;
+      const maxScrollAmount =
+        entries.length * ENTRY_HEIGHT_PX - maxScrollHeight;
       const _scrollPosition = Math.min(
         Math.max(initialScrollPosition + e.clientY - initialScrollY, 0),
         maxScrollAmount
@@ -149,7 +158,8 @@ function ListMiniMap({
   const handleJumpPointerDown: PointerEventHandler<HTMLDivElement> = (e) => {
     if (initialScrollY === null) {
       const maxScrollHeight = window.innerHeight / scrollFactor;
-      const maxScrollAmount = entries.length * 2 - maxScrollHeight;
+      const maxScrollAmount =
+        entries.length * ENTRY_HEIGHT_PX - maxScrollHeight;
       const jumpY = Math.min(
         Math.max(e.clientY - TOP_OFFSET - maxScrollHeight / 2, 0),
         maxScrollAmount
@@ -158,23 +168,19 @@ function ListMiniMap({
       setScrollPosition(jumpY);
       window.scroll(0, jumpY * scrollFactor);
 
-      const windowEl =
-        e.currentTarget.nextElementSibling ??
-        document.querySelector("#scroll-window");
-      if (windowEl === null)
+      if (!scrollWindowRef.current) {
         throw new Error(
           "Could not find scroll window element (and we really should!)"
         );
+      }
 
-      // focus scrol window
-      windowEl.setPointerCapture(e.pointerId);
+      // focus scroll window
+      scrollWindowRef.current.setPointerCapture(e.pointerId);
       setInitialScrollY(e.clientY);
       setInitialScrollPosition(jumpY);
 
       // resize as needed
-      const totalHeight = document.body.getBoundingClientRect().height;
-      const excessHeight = totalHeight - height;
-      const unscrolled = Math.max(excessHeight - window.scrollY, 0);
+      const { unscrolled } = calculateScrollMetrics(height);
       setScrollHeight((window.innerHeight - unscrolled) / scrollFactor);
 
       setIsActive(true);
@@ -187,9 +193,9 @@ function ListMiniMap({
       <div
         className="top-0 fixed h-full"
         style={{
-          width: miniMapWidth * 1.5, // 25% extra on each end, TODO: unhardcode
-          // shift by half of extra size (150% - 100% = 50%) to center
-          transform: `translateX(-${(miniMapWidth * (1.5 - 1)) / 2}px)`,
+          width: miniMapWidth * HOVER_PADDING_MULTIPLIER,
+          // shift by half of extra size to center
+          transform: `translateX(-${(miniMapWidth * (HOVER_PADDING_MULTIPLIER - 1)) / 2}px)`,
         }}
       />
       {/* Minimap */}
@@ -207,7 +213,7 @@ function ListMiniMap({
       </div>
       {/* Scroll window */}
       <div
-        id="scroll-window"
+        ref={scrollWindowRef}
         className={cn(
           `z-10 fixed outline-2 outline-foreground hover:bg-background/20 opacity-10 group-hover:opacity-100 duration-200 transition-opacity
           hover:outline-foreground/50 hover:cursor-pointer`,
@@ -216,7 +222,6 @@ function ListMiniMap({
         )}
         style={{
           width: miniMapWidth,
-          // TODO: Better offset handling
           top: TOP_OFFSET + scrollPosition,
           height: scrollHeight,
         }}
