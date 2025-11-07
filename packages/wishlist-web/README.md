@@ -89,7 +89,6 @@
 - [ ] Features "today's raffle IOTM"
 - [ ] (stub) a11y audit
 - [ ] Rehaul colors for better contrast consistency
-- [ ] Update prettier config/plugins for Tailwind classes
 - [ ] Standardize date/time units
 
 ## TABLED
@@ -105,6 +104,7 @@
 
 ### Else
 
+- [x] Update prettier config/plugins for Tailwind classes
 - [x] Remove data handling logic from List.tsx
 - [x] Decompose ListEntry.tsx in simpler component
 - [x] Remove color handling logic from ListEntry.tsx

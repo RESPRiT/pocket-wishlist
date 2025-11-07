@@ -25,10 +25,7 @@ function getUnboxedName(item: IOTM): string {
 
 function List() {
   "use no memo"; // react compiler breaks tanstack virtual
-
   const { currentOrder, currentSort } = useStore();
-
-  // Fetch data using hooks
   const { mallPrices } = useMallPrices();
   const { wishlist } = useWishlist();
   const { theme } = useTheme();
@@ -61,6 +58,7 @@ function List() {
   const sortedData = data.slice().sort(getSortFunction(currentSort));
   const orderedData = currentOrder ? sortedData.slice().reverse() : sortedData;
 
+  // Setup virtualizer
   const listRef = useRef<HTMLDivElement>(null);
 
   const virtualizer = useWindowVirtualizer({

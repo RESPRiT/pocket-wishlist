@@ -14,6 +14,7 @@ import { cn } from "@/lib/utils";
 const ENTRY_HEIGHT_PX = 2; // h-0.5 class = 2px
 const HOVER_PADDING_MULTIPLIER = 1.5;
 const TOP_OFFSET = 24; // top-6 class = 24px
+const MIN_WIDTH = 1080;
 
 // Helper functions
 function calculateScrollMetrics(height: number) {
@@ -81,6 +82,7 @@ function ListMiniMap({
   const [initialScrollPosition, setInitialScrollPosition] = useState(0);
   const [initialScrollY, setInitialScrollY] = useState<number | null>(null);
   const [isActive, setIsActive] = useState(false);
+  const [showMiniMap, setShowMiniMap] = useState(true);
 
   // Update scroll factor when height changes
   useEffect(() => {
@@ -97,6 +99,7 @@ function ListMiniMap({
 
       setMiniMapWidth(window.innerWidth / scrollFactor);
       setScrollHeight((window.innerHeight - unscrolled) / scrollFactor);
+      setShowMiniMap(window.innerWidth >= MIN_WIDTH);
     };
 
     handleWindowResize();
@@ -187,7 +190,7 @@ function ListMiniMap({
     }
   };
 
-  return (
+  return showMiniMap ? (
     <div className="group absolute -right-6 select-none">
       {/* Extra hover padding */}
       <div
@@ -202,8 +205,8 @@ function ListMiniMap({
       <div
         className={cn(
           `fixed z-0 rounded-xs bg-background/0 opacity-25 outline-1
-          outline-foreground/50 transition-opacity duration-200
-          group-hover:opacity-100`,
+            outline-foreground/50 transition-opacity duration-200
+            group-hover:opacity-100`,
           isActive && "opacity-100",
         )}
         style={{ width: miniMapWidth, top: TOP_OFFSET }}
@@ -218,11 +221,11 @@ function ListMiniMap({
         ref={scrollWindowRef}
         className={cn(
           `fixed z-10 opacity-10 outline-2 outline-foreground transition-opacity
-          duration-200 group-hover:opacity-100 hover:cursor-pointer
-          hover:bg-background/20 hover:outline-foreground/50`,
+            duration-200 group-hover:opacity-100 hover:cursor-pointer
+            hover:bg-background/20 hover:outline-foreground/50`,
           isActive &&
             `opacity-100 hover:cursor-grabbing hover:bg-background/50
-            hover:outline-foreground/25`,
+              hover:outline-foreground/25`,
         )}
         style={{
           width: miniMapWidth,
@@ -234,6 +237,8 @@ function ListMiniMap({
         onPointerUp={handlePointerUp}
       ></div>
     </div>
+  ) : (
+    <></>
   );
 }
 
