@@ -16,10 +16,13 @@ const DARK = "oklch(26.7% 0.048517 219.8)";
 const LIGHT = "oklch(97.4% 0.026053 90.1)";
 const DURATION = 250;
 const system = () =>
-  window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+  typeof window !== "undefined" &&
+  window.matchMedia("(prefers-color-scheme: dark)").matches
+    ? "dark"
+    : "light";
 
 const ThemeContext = createContext<ThemeContextType>({
-  theme: system(),
+  theme: "light", // Default for SSR
   setTheme: () => null,
   toggleTheme: () => null,
   isTransitioning: false,
@@ -53,11 +56,15 @@ const handleAnimateThemeColor = (
 };
 
 export const ThemeProvider = ({ children }: { children: ReactNode }) => {
-  const [theme, setTheme] = useState<Theme>(
-    (localStorage.getItem(KEY) as Theme) ?? system(),
-  );
+  const [theme, setTheme] = useState<Theme>(() => {
+    if (typeof window === "undefined") return "light"; // SSR default
+    return (localStorage.getItem(KEY) as Theme) ?? system();
+  });
   const [isTransitioning, setIsTransitioning] = useState(false);
-  const metaTheme = document.querySelector(`meta[name="theme-color"]`);
+  const metaTheme =
+    typeof document !== "undefined"
+      ? document.querySelector(`meta[name="theme-color"]`)
+      : null;
 
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", theme);
@@ -67,7 +74,10 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
 
   async function set(t: Theme) {
     setIsTransitioning(true);
-    if (!document.startViewTransition) {
+    if (
+      typeof document === "undefined" ||
+      !document.startViewTransition
+    ) {
       setTheme(t);
       setIsTransitioning(false);
       return;

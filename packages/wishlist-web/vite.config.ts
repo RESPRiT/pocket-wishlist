@@ -1,13 +1,11 @@
 import { defineConfig } from "vite";
 import { resolve } from "path";
-import devServer from "@hono/vite-dev-server";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
-    devServer(),
     react({
       babel: {
         plugins: ["babel-plugin-react-compiler"],
@@ -21,4 +19,14 @@ export default defineConfig({
     },
   },
   base: "",
+  // SSR Configuration
+  ssr: {
+    external: ["react", "react-dom"],
+    noExternal: [
+      "@fortawesome/fontawesome-svg-core",
+      "@fortawesome/react-fontawesome",
+      "@fortawesome/free-solid-svg-icons",
+      "@fortawesome/free-regular-svg-icons",
+    ],
+  },
 });
