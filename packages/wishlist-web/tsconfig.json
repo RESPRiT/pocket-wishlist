@@ -29,5 +29,6 @@
       "wishlist-shared": ["../wishlist-shared/*"]
     }
   },
-  "include": ["src"]
+  "include": ["src"],
+  "references": [{ "path": "./tsconfig.node.json" }]
 }
