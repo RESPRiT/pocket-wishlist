@@ -13,7 +13,7 @@ RUN bun install
 
 WORKDIR /home/bun/app/packages/wishlist-web
 RUN bun run build
-EXPOSE 3000
+EXPOSE 80
 
 # Serve via SSR script
 CMD ["bun", "run", "start"]
