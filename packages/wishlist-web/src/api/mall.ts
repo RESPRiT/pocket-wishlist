@@ -1,3 +1,4 @@
+import { queryOptions } from "@tanstack/react-query";
 import {
   MallPriceResponseSchema,
   type MallPriceResponse,
@@ -18,3 +19,16 @@ export async function fetchMallPrices(): Promise<MallPriceResponse> {
   const mallprices = await response.json();
   return MallPriceResponseSchema.parse(mallprices);
 }
+
+export const mallPricesQuery = queryOptions({
+  queryKey: ["mallPrices"],
+  queryFn: fetchMallPrices,
+  staleTime: (query) => {
+    const lastUpdated = query.state.data?.lastUpdated;
+    if (lastUpdated !== undefined) {
+      const sinceLastUpdated = Date.now() - lastUpdated.getTime();
+      return 24 * 60 * 60 * 1000 - sinceLastUpdated;
+    }
+    return 0;
+  },
+});

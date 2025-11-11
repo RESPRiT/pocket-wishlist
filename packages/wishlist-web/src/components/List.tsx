@@ -8,6 +8,7 @@ import { getSortFunction } from "@/lib/sortWishlist";
 import { useWishlist } from "@/contexts/WishlistContext";
 import { useTheme } from "../contexts/ThemeContext.tsx";
 import ListMiniMap from "./ListMiniMap.tsx";
+import { ClientOnly } from "@tanstack/react-router";
 
 function getUnboxedName(item: IOTM): string {
   if (
@@ -81,7 +82,12 @@ function List() {
       }}
     >
       {/* TODO: Move this out of List and into ListView once data is in a context */}
-      <ListMiniMap entries={orderedData} height={virtualizer.getTotalSize()} />
+      <ClientOnly>
+        <ListMiniMap
+          entries={orderedData}
+          height={virtualizer.getTotalSize()}
+        />
+      </ClientOnly>
       <div
         className="absolute flex w-full flex-wrap items-stretch gap-2"
         style={{
@@ -92,7 +98,7 @@ function List() {
       >
         {items.map((row) => (
           <div
-            className="flex-grow-1"
+            className="grow"
             key={row.key}
             data-index={row.index}
             ref={virtualizer.measureElement}

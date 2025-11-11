@@ -1,13 +1,14 @@
-import { createContext, useState, useEffect, ReactNode, use } from "react";
-import { fetchWishlist } from "@/api/wishlist";
-import { WishlistResponse, type Wishlist } from "wishlist-shared";
+import { wishlistQuery } from "@/api/wishlist";
+import { useQuery } from "@tanstack/react-query";
+import { createContext, ReactNode, use } from "react";
+import { type Wishlist } from "wishlist-shared";
 
 type WishlistContextType = {
   wishlist: Wishlist;
   username: string;
   userId: number;
   lastUpdated: number;
-  isLoading: boolean;
+  isPending: boolean;
   error: Error | null;
 };
 
@@ -16,49 +17,26 @@ const WishlistContext = createContext<WishlistContextType>({
   username: "",
   userId: -1,
   lastUpdated: -1,
-  isLoading: false,
+  isPending: false,
   error: null,
 });
 
 export const WishlistProvider = ({
   children,
-  userId,
+  userId = 1927026,
 }: {
   children: ReactNode;
-  userId?: string;
+  userId?: number;
 }) => {
-  const [wishlist, setWishlist] = useState<WishlistResponse>({
-    username: "",
-    userId: -1,
-    wishlist: {},
-    lastUpdated: -1,
-  });
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<Error | null>(null);
+  const { data, isPending, error } = useQuery(wishlistQuery(userId));
 
-  useEffect(() => {
-    async function loadWishlist() {
-      try {
-        const data = await fetchWishlist(userId);
-        setWishlist(data);
-        setIsLoading(false);
-      } catch (err) {
-        setError(
-          err instanceof Error ? err : new Error("Failed to fetch wishlist"),
-        );
-        console.error("Failed to fetch wishlist", err);
-        setIsLoading(false);
-      }
-    }
+  const value = {
+    ...(data ?? { username: "", userId: -1, wishlist: {}, lastUpdated: -1 }),
+    isPending,
+    error,
+  };
 
-    loadWishlist();
-  }, [userId]);
-
-  return (
-    <WishlistContext value={{ ...wishlist, isLoading, error }}>
-      {children}
-    </WishlistContext>
-  );
+  return <WishlistContext value={value}>{children}</WishlistContext>;
 };
 
 export const useWishlist = () => {

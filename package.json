@@ -1,8 +1,11 @@
 {
-  "workspaces": [
-    "packages/*"
-  ],
   "scripts": {
     "dev": "bun run --filter '*' dev"
+  },
+  "private": true,
+  "workspaces": {
+    "packages": [
+      "packages/*"
+    ]
   }
 }

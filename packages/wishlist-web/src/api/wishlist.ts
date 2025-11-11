@@ -1,3 +1,4 @@
+import { queryOptions } from "@tanstack/react-query";
 import { WishlistResponse, WishlistResponseSchema } from "wishlist-shared";
 
 /**
@@ -5,7 +6,7 @@ import { WishlistResponse, WishlistResponseSchema } from "wishlist-shared";
  * TODO: Un-hardcode user ID
  */
 export async function fetchWishlist(
-  userId: string = "1927026",
+  userId: number = 1927026,
 ): Promise<WishlistResponse> {
   const url = `https://resprit--dd94f3deb77f11f08e0c0224a6c84d84.web.val.run/get-wishlist?u=${userId}`;
 
@@ -17,3 +18,9 @@ export async function fetchWishlist(
   const wishlist = await response.json();
   return WishlistResponseSchema.parse(wishlist);
 }
+
+export const wishlistQuery = (userId: number) =>
+  queryOptions({
+    queryKey: ["wishlist", userId],
+    queryFn: () => fetchWishlist(userId),
+  });

@@ -1,0 +1,9 @@
+{
+  "files": [],
+  "references": [
+    { "path": "./packages/wishlist-web" },
+    { "path": "./packages/wishlist-api" },
+    { "path": "./packages/wishlist-shared" },
+    { "path": "./packages/wishlist-mafia" }
+  ]
+}

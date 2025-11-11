@@ -1,5 +1,6 @@
 import { createContext, ReactNode, use, useEffect, useState } from "react";
 import * as Color from "color-bits";
+import { useLocalStorage } from "usehooks-ts";
 
 export type Theme = "light" | "dark";
 
@@ -16,7 +17,10 @@ const DARK = "oklch(26.7% 0.048517 219.8)";
 const LIGHT = "oklch(97.4% 0.026053 90.1)";
 const DURATION = 250;
 const system = () =>
-  window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+  typeof window !== "undefined" &&
+  window.matchMedia("(prefers-color-scheme: dark)").matches
+    ? "dark"
+    : "light";
 
 const ThemeContext = createContext<ThemeContextType>({
   theme: system(),
@@ -53,17 +57,21 @@ const handleAnimateThemeColor = (
 };
 
 export const ThemeProvider = ({ children }: { children: ReactNode }) => {
-  const [theme, setTheme] = useState<Theme>(
-    (localStorage.getItem(KEY) as Theme) ?? system(),
-  );
+  const [theme, setTheme] = useLocalStorage<Theme>(KEY, "light", {
+    serializer: (s) => s,
+    deserializer: (s) => s as Theme,
+  });
   const [isTransitioning, setIsTransitioning] = useState(false);
-  const metaTheme = document.querySelector(`meta[name="theme-color"]`);
+  const metaTheme =
+    typeof document !== "undefined"
+      ? document.querySelector(`meta[name="theme-color"]`)
+      : null;
 
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", theme);
     metaTheme?.setAttribute("content", theme === "light" ? LIGHT : DARK);
-    localStorage.setItem(KEY, theme);
-  }, [theme, metaTheme]);
+    //setTheme(preTheme); // set the theme if not currently in storage
+  }, [theme, setTheme, metaTheme]);
 
   async function set(t: Theme) {
     setIsTransitioning(true);
