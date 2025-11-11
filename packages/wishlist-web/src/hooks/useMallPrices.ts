@@ -6,7 +6,7 @@ export function useMallPrices() {
 
   return {
     mallPrices: data ? data.prices : {},
-    mallPricesLastUpdated: data ? data.lastUpdated : -1,
+    mallPricesLastUpdated: data ? data.lastUpdated : new Date(),
     isPending,
     error,
   };

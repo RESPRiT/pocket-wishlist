@@ -6,7 +6,6 @@ import { useWindowVirtualizer } from "@tanstack/react-virtual";
 import { useMallPrices } from "@/hooks/useMallPrices";
 import { getSortFunction } from "@/lib/sortWishlist";
 import { useWishlist } from "@/contexts/WishlistContext";
-import { useTheme } from "../contexts/ThemeContext.tsx";
 import ListMiniMap from "./ListMiniMap.tsx";
 import { ClientOnly } from "@tanstack/react-router";
 
@@ -29,7 +28,6 @@ function List() {
   const { currentOrder, currentSort } = useStore();
   const { mallPrices } = useMallPrices();
   const { wishlist } = useWishlist();
-  const { theme } = useTheme();
 
   // TODO: just put data in a context
   const data = useMemo(
@@ -93,7 +91,7 @@ function List() {
         style={{
           position: "absolute",
           transform: `translateY(${virtualOffset}px)`,
-          viewTransitionName: `${theme === "light" ? "foreground-light" : "foreground-dark"}`,
+          viewTransitionName: "foreground",
         }}
       >
         {items.map((row) => (

@@ -12,17 +12,8 @@
 }
 
 /* View transitions */
-@keyframes background-theme-change {
-  from {
-    opacity: 0%;
-  }
-
-  to {
-    opacity: 100%;
-  }
-}
-
-@keyframes foreground-theme-light {
+/* "Blinds" Transition to Dark Mode */
+@keyframes foreground-theme-dark {
   from {
     clip-path: rect(auto auto 0% auto);
     opacity: 70%;
@@ -38,7 +29,8 @@
   }
 }
 
-@keyframes foreground-theme-dark {
+/* "Sunrise" Transition to Light Mode */
+@keyframes foreground-theme-light {
   from {
     clip-path: circle(200% at center 300%);
     opacity: 70%;
@@ -57,6 +49,7 @@
 }
 
 /* 768px = md */
+/* Default fade transition on mobile (others are laggy) */
 @media (width < 768px) {
   @keyframes foreground-theme-light {
     from {
@@ -84,47 +77,30 @@
   z-index: 0;
 }
 
-::view-transition-old(foreground-light) {
+::view-transition-old(foreground) {
   animation: none;
 }
 
-::view-transition-new(foreground-light) {
-  animation-name: foreground-theme-light;
+:root[data-theme="dark"]::view-transition-new(foreground) {
+  animation-name: foreground-theme-dark;
   animation-timing-function: ease-in;
   animation-duration: 300ms;
   animation-delay: 20ms;
 }
 
-@media (width < 768px) {
-  ::view-transition-new(foreground-light) {
-    animation-duration: 300ms;
-  }
-}
-
-::view-transition-old(foreground-dark) {
-  animation: none;
-}
-
-::view-transition-new(foreground-dark) {
-  animation-name: foreground-theme-dark;
+::view-transition-new(foreground) {
+  animation-name: foreground-theme-light;
   animation-timing-function: ease-out;
   animation-duration: 400ms;
 }
 
 @media (width < 768px) {
-  ::view-transition-new(foreground-dark) {
+  ::view-transition-new(foreground) {
     animation-duration: 300ms;
+    animation-delay: 0ms;
     animation-timing-function: ease-in;
   }
 }
-
-::view-transition-group(none) {
-  animation: none;
-  z-index: 50;
-}
-
-/* Dark mode */
-@custom-variant dark (&:where([data-theme="dark"] *));
 
 :root {
   --color-background: oklch(97.4% 0.026053 90.1);
@@ -175,6 +151,9 @@
   --sidebar-border: oklch(0.92 0.004 286.32);
   --sidebar-ring: oklch(0.705 0.015 286.067);
 }
+
+/* Dark mode */
+@custom-variant dark (&:where([data-theme="dark"] *));
 
 :root[data-theme="dark"] {
   --color-background: oklch(26.7% 0.048517 219.8);

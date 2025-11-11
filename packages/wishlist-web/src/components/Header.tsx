@@ -69,7 +69,7 @@ function Header() {
       </div>
       <div className="flex flex-col sm:items-end">
         <span className="text-xs text-accent">{`prices updated: ${formatTimeSince(
-          mallPricesLastUpdated ?? -1,
+          mallPricesLastUpdated.getTime(),
         )}`}</span>
         <span className="clamp-[text,sm,base,xs,sm] text-foreground">
           {`${username}'s wishlist `}

@@ -10,11 +10,12 @@ import {
 
 import globalsCss from "@/styles/globals.css?url";
 import texturesCss from "@/styles/textures.css?url";
-import { library } from "@fortawesome/fontawesome-svg-core";
+import { library, config } from "@fortawesome/fontawesome-svg-core";
 import { fas } from "@fortawesome/free-solid-svg-icons";
 import { far } from "@fortawesome/free-regular-svg-icons";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { QueryClient } from "@tanstack/react-query";
+config.autoAddCss = false; // https://stackoverflow.com/a/59429852
 
 // add font-awesome icons
 library.add(fas, far);
@@ -43,10 +44,11 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       ],
       scripts: [
         {
+          // set the page theme based on client settings (server always renders light)
           children: `
           (function() {
             const theme = localStorage.getItem("theme") 
-              || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+              || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
             document.documentElement.setAttribute("data-theme", theme);
           })();
         `,
@@ -71,7 +73,7 @@ function RootComponent() {
 
 function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
   return (
-    <html data-theme="light">
+    <html suppressHydrationWarning>
       <head>
         <HeadContent />
       </head>
