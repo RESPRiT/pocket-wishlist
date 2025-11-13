@@ -42,7 +42,7 @@ export const CombinedPriceSchema = z.record(
 );
 export const MallPriceResponseSchema = z.object({
   prices: CombinedPriceSchema,
-  lastUpdated: z.coerce.date(),
+  lastUpdated: z.coerce.date<string>(),
 });
 export type MallPrice = z.infer<typeof MallPriceSchema>;
 export type Price = z.infer<typeof PriceSchema>;

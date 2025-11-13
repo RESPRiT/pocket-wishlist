@@ -24,9 +24,11 @@ export const mallPricesQuery = queryOptions({
   queryKey: ["mallPrices"],
   queryFn: fetchMallPrices,
   staleTime: (query) => {
-    const lastUpdated = query.state.data?.lastUpdated;
-    if (lastUpdated !== undefined) {
-      const sinceLastUpdated = Date.now() - lastUpdated.getTime();
+    // We must re-validate data in case it came from storage
+    const result = MallPriceResponseSchema.safeParse(query.state.data);
+
+    if (result.success) {
+      const sinceLastUpdated = Date.now() - result.data.lastUpdated.getTime();
       return 24 * 60 * 60 * 1000 - sinceLastUpdated;
     }
     return 0;

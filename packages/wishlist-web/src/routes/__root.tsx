@@ -6,6 +6,7 @@ import {
   HeadContent,
   Scripts,
   createRootRouteWithContext,
+  useRouter,
 } from "@tanstack/react-router";
 
 import globalsCss from "@/styles/globals.css?url";
@@ -15,6 +16,8 @@ import { fas } from "@fortawesome/free-solid-svg-icons";
 import { far } from "@fortawesome/free-regular-svg-icons";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { QueryClient } from "@tanstack/react-query";
+import { PersistQueryClientProvider } from "@tanstack/react-query-persist-client";
+import { createAsyncStoragePersister } from "@tanstack/query-async-storage-persister";
 config.autoAddCss = false; // https://stackoverflow.com/a/59429852
 
 // add font-awesome icons
@@ -60,12 +63,31 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 );
 
 function RootComponent() {
+  const router = useRouter();
+  const queryClient = router.options.context.queryClient;
+  const persister = createAsyncStoragePersister({
+    storage: typeof window !== "undefined" ? window.localStorage : undefined,
+  });
+
   return (
     <RootDocument>
       <StrictMode>
-        <ThemeProvider>
-          <Outlet />
-        </ThemeProvider>
+        <PersistQueryClientProvider
+          client={queryClient}
+          persistOptions={{
+            persister,
+            dehydrateOptions: {
+              // only persist these keys (prices and images)
+              // see: https://github.com/TanStack/query/discussions/7131
+              shouldDehydrateQuery: (query) =>
+                ["img", "mallPrices"].includes(query.queryKey[0] as string),
+            },
+          }}
+        >
+          <ThemeProvider>
+            <Outlet />
+          </ThemeProvider>
+        </PersistQueryClientProvider>
       </StrictMode>
     </RootDocument>
   );

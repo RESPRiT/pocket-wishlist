@@ -7,6 +7,7 @@ import "@/styles/globals.css";
 
 export function getRouter() {
   const queryClient = new QueryClient();
+
   const router = createRouter({
     routeTree,
     // optionally expose the QueryClient via router context
@@ -20,7 +21,7 @@ export function getRouter() {
     queryClient,
     // optional:
     // handleRedirects: true,
-    // wrapQueryClient: true,
+    wrapQueryClient: false, // wrapped in __root.tsx
   });
 
   return router;

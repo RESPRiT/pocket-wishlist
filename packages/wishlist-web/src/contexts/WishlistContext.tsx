@@ -1,5 +1,5 @@
 import { wishlistQuery } from "@/api/wishlist";
-import { useQuery } from "@tanstack/react-query";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { createContext, ReactNode, use } from "react";
 import { type Wishlist } from "wishlist-shared";
 
@@ -21,6 +21,8 @@ const WishlistContext = createContext<WishlistContextType>({
   error: null,
 });
 
+// TODO: Even though this should be resolved by the time
+// we get it via SSR, we should re-validate persisted data
 export const WishlistProvider = ({
   children,
   userId = 1927026,
@@ -28,7 +30,7 @@ export const WishlistProvider = ({
   children: ReactNode;
   userId?: number;
 }) => {
-  const { data, isPending, error } = useQuery(wishlistQuery(userId));
+  const { data, isPending, error } = useSuspenseQuery(wishlistQuery(userId));
 
   const value = {
     ...(data ?? { username: "", userId: -1, wishlist: {}, lastUpdated: -1 }),

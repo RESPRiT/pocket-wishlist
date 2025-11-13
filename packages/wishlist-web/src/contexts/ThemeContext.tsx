@@ -1,6 +1,5 @@
 import { createContext, ReactNode, use, useEffect, useState } from "react";
 import * as Color from "color-bits";
-import { useLocalStorage } from "usehooks-ts";
 
 export type Theme = "light" | "dark";
 
@@ -57,10 +56,7 @@ const handleAnimateThemeColor = (
 };
 
 export const ThemeProvider = ({ children }: { children: ReactNode }) => {
-  const [theme, setTheme] = useLocalStorage<Theme>(KEY, system(), {
-    serializer: (s) => s ?? "",
-    deserializer: (s) => s as Theme,
-  });
+  const [theme, setTheme] = useState<Theme>(system());
   const [isTransitioning, setIsTransitioning] = useState(false);
   const metaTheme =
     typeof document !== "undefined"
@@ -68,11 +64,20 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
       : null;
 
   useEffect(() => {
-    document.documentElement.setAttribute("data-theme", theme);
-    metaTheme?.setAttribute("content", theme === "light" ? LIGHT : DARK);
+    const cachedTheme = localStorage.getItem(KEY) as Theme;
+    setTheme(cachedTheme ?? system());
+    document.documentElement.setAttribute(
+      "data-theme",
+      cachedTheme ?? system(),
+    );
+    metaTheme?.setAttribute(
+      "content",
+      (cachedTheme ?? system()) === "light" ? LIGHT : DARK,
+    );
+
     // set the theme if not currently in storage
-    if (localStorage.getItem(KEY) === null) setTheme(system());
-  }, [theme, setTheme, metaTheme]);
+    if (cachedTheme === null) localStorage.setItem(KEY, system());
+  }, [metaTheme]);
 
   async function set(t: Theme) {
     setIsTransitioning(true);
@@ -86,7 +91,10 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
     if (metaTheme) handleAnimateThemeColor(metaTheme, t);
 
     // this call back fires _before_ the transition starts
-    const transition = document.startViewTransition(() => setTheme(t));
+    const transition = document.startViewTransition(() => {
+      document.documentElement.setAttribute("data-theme", t);
+      setTheme(t);
+    });
     await transition.finished;
     setIsTransitioning(false);
   }

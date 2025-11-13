@@ -75,8 +75,11 @@ function ListMiniMap({
 }) {
   const { theme, isTransitioning } = useTheme();
   const scrollWindowRef = useRef<HTMLDivElement>(null);
+  const scrollThrottle = useRef(false);
   const [miniMapWidth, setMiniMapWidth] = useState(0);
   const [scrollHeight, setScrollHeight] = useState(0);
+  // TODO: handle these initial values/initial updates so that scroll window
+  // does not always start at the top (i.e. we reload and are mid-scroll)
   const [scrollPosition, setScrollPosition] = useState(0);
   const [scrollFactor, setScrollFactor] = useState(45);
   const [initialScrollPosition, setInitialScrollPosition] = useState(0);
@@ -86,7 +89,9 @@ function ListMiniMap({
 
   // Update scroll factor when height changes
   useEffect(() => {
-    if (!isTransitioning) {
+    // a bit hacky to throttle this based on scroll, but height will
+    // most often be changing due to scrolling
+    if (!isTransitioning && !scrollThrottle.current) {
       const { totalHeight } = calculateScrollMetrics(height);
       setScrollFactor(totalHeight / (entries.length * ENTRY_HEIGHT_PX));
     }
@@ -112,11 +117,18 @@ function ListMiniMap({
   // Setup scroll event handler
   useEffect(() => {
     const handleScroll = () => {
-      if (initialScrollY === null) {
+      if (initialScrollY === null && !scrollThrottle.current) {
         const { unscrolled } = calculateScrollMetrics(height);
 
         setScrollHeight((window.innerHeight - unscrolled) / scrollFactor);
         setScrollPosition(window.scrollY / scrollFactor);
+
+        // throttle scroll event; 5ms cuts down a lot of events,
+        // but still results in smooth ~144hz animation
+        scrollThrottle.current = true;
+        setTimeout(() => {
+          scrollThrottle.current = false;
+        }, 5);
       }
     };
 

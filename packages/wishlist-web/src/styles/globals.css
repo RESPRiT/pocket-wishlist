@@ -114,6 +114,10 @@
   --color-confirm: oklch(77.9% 0.170945 144.3);
   --color-destructive: oklch(58.6% 0.206442 27.1);
 
+  --image-blend: multiply;
+  --image-overlay-blend: lighten;
+  --image-filter: invert(0%);
+
   --select: var(--color-select);
   --radius: 0.625rem;
   --background: var(--color-background);
@@ -168,6 +172,10 @@
   --color-confirm: oklch(52.2% 0.080764 176);
   --color-destructive: oklch(58.6% 0.206442 27.1);
   --muted-foreground: oklch(from var(--color-foreground) l c h / 0.65);
+
+  --image-blend: lighten;
+  --image-overlay-blend: darken;
+  --image-filter: invert(100%);
 }
 
 @theme inline {

@@ -1,7 +1,7 @@
 import ListEntry, { ListEntryProps } from "./ListEntry";
 import { IOTM, iotms } from "wishlist-shared";
 import { useMemo, useRef } from "react";
-import { useStore } from "@/stores/userStore";
+import { useHydratedSettingsStore } from "@/stores/useSettingsStore.ts";
 import { useWindowVirtualizer } from "@tanstack/react-virtual";
 import { useMallPrices } from "@/hooks/useMallPrices";
 import { getSortFunction } from "@/lib/sortWishlist";
@@ -25,7 +25,7 @@ function getUnboxedName(item: IOTM): string {
 
 function List() {
   "use no memo"; // react compiler breaks tanstack virtual
-  const { currentOrder, currentSort } = useStore();
+  const { currentOrder, currentSort } = useHydratedSettingsStore();
   const { mallPrices } = useMallPrices();
   const { wishlist } = useWishlist();
 
@@ -65,6 +65,11 @@ function List() {
     estimateSize: () => 75,
     gap: 8,
     overscan: 5,
+    // size of the window during SSR
+    initialRect: {
+      height: 15 * (75 + 8),
+      width: (64 - 5) * 16,
+    },
     getItemKey: (item) => orderedData[item].packagedName,
   });
 

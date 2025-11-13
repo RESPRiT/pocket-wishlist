@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useTheme } from "../contexts/ThemeContext.tsx";
 import { cn } from "@/lib/utils";
+import { ClientOnly } from "@tanstack/react-router";
+import { useCachedImage } from "@/hooks/useCachedImage";
 
 function ThemedImg({
   className,
@@ -17,37 +18,7 @@ function ThemedImg({
   reColor: string;
   bgColor?: string;
 }) {
-  const [imgSrc, setImgSrc] = useState(localStorage.getItem(src));
-  const { theme } = useTheme();
-
-  useEffect(() => {
-    if (imgSrc) {
-      return;
-    }
-
-    const url = `https://s3.amazonaws.com/images.kingdomofloathing.com/${src}`;
-
-    async function storeImage() {
-      try {
-        const image = await fetch(url);
-        if (!image.ok) throw new Error(`${image.status}`);
-        const blob = await image.blob();
-        const base64 = await new Promise<string>((resolve, reject) => {
-          const reader = new FileReader();
-          reader.onloadend = () => resolve(reader.result as string);
-          reader.onerror = () => reject;
-          reader.readAsDataURL(blob);
-        });
-
-        localStorage.setItem(src, base64);
-        setImgSrc(base64);
-      } catch (error) {
-        console.warn("Couldn't store image at", url, error);
-      }
-    }
-
-    storeImage();
-  }, [src, imgSrc]);
+  const { imgSrc } = useCachedImage(src);
 
   return (
     <div className="grid select-none" {...props}>
@@ -58,25 +29,29 @@ function ThemedImg({
       )}
       <div
         className={cn(
-          `${className} col-start-1 row-start-1`,
-          `${theme === "dark" ? "mix-blend-lighten invert" : "mix-blend-multiply"}`,
+          className,
+          `col-start-1 row-start-1 [mix-blend-mode:var(--image-blend)]
+          filter-(--image-filter)`,
         )}
       >
-        {imgSrc ? (
-          <img
-            src={imgSrc}
-            alt={alt}
-            style={style}
-            className={cn("h-full w-full object-cover")}
-          />
-        ) : (
-          <Skeleton className="h-full w-full" />
-        )}
+        <ClientOnly>
+          {imgSrc ? (
+            <img
+              src={imgSrc}
+              alt={alt}
+              style={style}
+              className={cn("h-full w-full object-cover")}
+            />
+          ) : (
+            <Skeleton className="h-full w-full" />
+          )}
+        </ClientOnly>
       </div>
       <div
-        className={cn(`col-start-1 row-start-1 ${reColor} mix-blend-lighten`, {
-          "mix-blend-darken": theme === "dark",
-        })}
+        className={cn(
+          reColor,
+          "col-start-1 row-start-1 [mix-blend-mode:var(--image-overlay-blend)]",
+        )}
       ></div>
     </div>
   );

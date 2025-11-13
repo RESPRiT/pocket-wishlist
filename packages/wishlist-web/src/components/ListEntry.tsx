@@ -1,6 +1,5 @@
 import { useMemo } from "react";
 import EntrySpacer from "./EntrySpacer";
-import { useTheme } from "../contexts/ThemeContext.tsx";
 import { EntryBackground } from "./entry/EntryBackground";
 import { EntryRibbon } from "./entry/EntryRibbon";
 import { EntryInfoSection } from "./entry/EntryInfoSection";
@@ -39,8 +38,6 @@ function ListEntry({
   mrAs,
   status,
 }: ListEntryProps) {
-  const { theme } = useTheme();
-
   const yearPercent = useMemo(() => {
     const currentYear = new Date().getFullYear();
     // why capped at 5/6? idk, I like that color range better
@@ -90,7 +87,6 @@ function ListEntry({
         isStandard={isStandard}
         standardYear={standardYear}
         priceRatio={priceRatio}
-        theme={theme}
       />
 
       <EntryRibbon show={isIOTY || isCon} variant={isIOTY ? "ioty" : "con"} />

@@ -23,4 +23,6 @@ export const wishlistQuery = (userId: number) =>
   queryOptions({
     queryKey: ["wishlist", userId],
     queryFn: () => fetchWishlist(userId),
+    staleTime: 5000, // prevent client for immiediately refetching
+    refetchOnWindowFocus: false, // a bit much
   });
