@@ -83,6 +83,7 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
     setIsTransitioning(true);
     if (!document.startViewTransition) {
       setTheme(t);
+      localStorage.setItem(KEY, t);
       setIsTransitioning(false);
       return;
     }
@@ -94,6 +95,7 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
     const transition = document.startViewTransition(() => {
       document.documentElement.setAttribute("data-theme", t);
       setTheme(t);
+      localStorage.setItem(KEY, t);
     });
     await transition.finished;
     setIsTransitioning(false);
