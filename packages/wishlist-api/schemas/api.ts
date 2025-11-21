@@ -14,15 +14,24 @@ export const WishlistResponseSchema = z.object({
 export type Wishlist = z.infer<typeof WishlistSchema>;
 export type WishlistResponse = z.infer<typeof WishlistResponseSchema>;
 
-// need to coerce all of them from strings
+// data for a specific date
+export const PriceGunHistoricalDataSchema = z.object({
+  itemId: z.number(),
+  date: z.coerce.date(),
+  volume: z.number(),
+  price: z.number(),
+});
 export const PriceGunSchema = z.object({
   // value across ALL transactions, not just past 2 weeks
-  value: z.coerce.number(),
+  value: z.number(),
   // volume across the past 2 weeks
-  volume: z.coerce.number(),
+  volume: z.number(),
   // last time the price value was calculated by PriceGun
-  date: z.coerce.date(),
-  itemId: z.coerce.number(),
+  date: z.coerce.date(), // JSON dates are strings
+  itemId: z.number(),
+  name: z.string(),
+  image: z.string(),
+  history: z.array(PriceGunHistoricalDataSchema),
 });
 export const PriceGunResponseSchema = z.array(PriceGunSchema);
 export type PriceGun = z.infer<typeof PriceGunSchema>;
@@ -43,7 +52,7 @@ export const CombinedPriceSchema = z.record(
 );
 export const MallPriceResponseSchema = z.object({
   prices: CombinedPriceSchema,
-  lastUpdated: z.coerce.date(),
+  lastUpdated: z.coerce.date<string>(),
 });
 export type MallPrice = z.infer<typeof MallPriceSchema>;
 export type Price = z.infer<typeof PriceSchema>;
