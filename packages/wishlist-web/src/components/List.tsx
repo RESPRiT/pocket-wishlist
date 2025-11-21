@@ -1,6 +1,6 @@
 import ListEntry, { ListEntryProps } from "./ListEntry";
 import { IOTM, iotms } from "wishlist-shared";
-import { useMemo, useRef } from "react";
+import { useCallback, useMemo, useRef } from "react";
 import { useHydratedSettingsStore } from "@/stores/useSettingsStore.ts";
 import { useWindowVirtualizer } from "@tanstack/react-virtual";
 import { useMallPrices } from "@/hooks/useMallPrices";
@@ -60,11 +60,28 @@ function List() {
   // Setup virtualizer
   const listRef = useRef<HTMLDivElement>(null);
 
+  // Cache/memoize element measurements
+  const elHeights = useRef(new Map<string, number>());
+  const measureElement = useCallback((el: Element) => {
+    const index = el.getAttribute("data-index");
+    if (index === null)
+      throw new Error("You need to set the `data-index` attribute");
+
+    const cache = elHeights.current.get(index);
+    if (cache !== undefined) return cache;
+
+    const measuredHeight = el.clientHeight;
+    elHeights.current.set(index, measuredHeight);
+
+    return el.clientHeight;
+  }, []);
+
   const virtualizer = useWindowVirtualizer({
     count: orderedData.length,
     estimateSize: () => 75,
     gap: 8,
-    overscan: 5,
+    overscan: 8,
+    measureElement,
     // size of the window during SSR
     initialRect: {
       height: 15 * (75 + 8),
