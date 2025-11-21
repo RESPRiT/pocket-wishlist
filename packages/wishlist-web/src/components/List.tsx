@@ -2,7 +2,6 @@ import ListEntry, { ListEntryProps } from "./ListEntry";
 import { IOTM, iotms } from "wishlist-shared";
 import { useMemo, useRef } from "react";
 import { useHydratedSettingsStore } from "@/stores/useSettingsStore.ts";
-import { useWindowVirtualizer } from "@tanstack/react-virtual";
 import { useMallPrices } from "@/hooks/useMallPrices";
 import { getSortFunction } from "@/lib/sortWishlist";
 import { useWishlist } from "@/contexts/WishlistContext";
@@ -24,7 +23,6 @@ function getUnboxedName(item: IOTM): string {
 }
 
 function List() {
-  "use no memo"; // react compiler breaks tanstack virtual
   const { currentOrder, currentSort } = useHydratedSettingsStore();
   const { mallPrices } = useMallPrices();
   const { wishlist } = useWishlist();
@@ -57,56 +55,25 @@ function List() {
   const sortedData = data.slice().sort(getSortFunction(currentSort));
   const orderedData = currentOrder ? sortedData.slice().reverse() : sortedData;
 
-  // Setup virtualizer
   const listRef = useRef<HTMLDivElement>(null);
 
-  const virtualizer = useWindowVirtualizer({
-    count: orderedData.length,
-    estimateSize: () => 75,
-    gap: 8,
-    overscan: 5,
-    // size of the window during SSR
-    initialRect: {
-      height: 15 * (75 + 8),
-      width: (64 - 5) * 16,
-    },
-    getItemKey: (item) => orderedData[item].packagedName,
-  });
-
-  const items = virtualizer.getVirtualItems();
-  const virtualOffset = items[0] ? items[0].start : 0;
-
   return (
-    <div
-      ref={listRef}
-      className="relative mb-12 w-full"
-      style={{
-        height: `${virtualizer.getTotalSize()}px`,
-      }}
-    >
+    <div ref={listRef} className="relative mb-12 w-full">
       {/* TODO: Move this out of List and into ListView once data is in a context */}
       <ClientOnly>
         <ListMiniMap
           entries={orderedData}
-          height={virtualizer.getTotalSize()}
+          height={listRef.current?.clientHeight ?? 1080}
         />
       </ClientOnly>
-      <div
-        className="absolute flex w-full flex-wrap items-stretch gap-2"
-        style={{
-          position: "absolute",
-          transform: `translateY(${virtualOffset}px)`,
-          viewTransitionName: "foreground",
-        }}
-      >
-        {items.map((row) => (
+      <div className="w-full space-y-2 [view-transition-name:foreground]">
+        {orderedData.map((row) => (
           <div
-            className="grow"
-            key={row.key}
-            data-index={row.index}
-            ref={virtualizer.measureElement}
+            className="inline-block w-full"
+            key={row.name}
+            data-index={row.name}
           >
-            <ListEntry {...orderedData[row.index]} />
+            <ListEntry {...row} />
           </div>
         ))}
       </div>
