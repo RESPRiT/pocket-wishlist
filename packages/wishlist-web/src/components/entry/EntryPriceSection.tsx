@@ -9,6 +9,7 @@ type EntryPriceSectionProps = {
   packagedName: string;
 };
 
+// TODO: Refactor evil pricing hacks
 export function EntryPriceSection({
   mrAs,
   price,
@@ -23,6 +24,13 @@ export function EntryPriceSection({
           ? "recentSales"
           : "lowestMall";
 
+  const lowestPrice =
+    (mallStatus === "lowestMall"
+      ? price?.lowestMall
+      : mallStatus === "recentSales"
+        ? price?.value
+        : -1) ?? -1;
+
   const statusText = {
     extinct: "Mall extinct, no recent sales data",
     lowestMall: "Based on lowest mall listing",
@@ -35,18 +43,14 @@ export function EntryPriceSection({
     if (price === null) return "x";
 
     // Infinite if no prices found
-    if (
-      price.lowestMall === -1 &&
-      (price.volume === undefined || price.volume === 0)
-    )
-      return "∞";
+    if (mallStatus === "extinct") return "∞";
     // Round to nearest million; why not toFixed? idk why I didn't
-    const millions = Math.round(price.lowestMall / 1_000_000);
+    const millions = Math.round(lowestPrice / 1_000_000);
     return millions < 1000
       ? // Use whole millions below billion
         `${millions}m`
       : // Use 1 digit for sub-10 billion, whole beyond
-        `${Math.min(price.lowestMall / 1_000_000_000, 999).toFixed(
+        `${Math.min(lowestPrice / 1_000_000_000, 999).toFixed(
           millions < 10_000 ? 1 : 0,
         )}b`;
   };
@@ -55,10 +59,10 @@ export function EntryPriceSection({
     if (price === null) return "x";
 
     // Infinite if no prices found (or something went wrong?)
-    if (price.lowestMall === -1) return "∞";
-    const ratio = price.lowestMall / mrAs;
+    if (mallStatus === "extinct") return "∞";
+    const ratio = lowestPrice / mrAs;
     // Use 1 digit for sub-100 Mr. As
-    if (price.lowestMall < mrAs * 100) return ratio.toFixed(1);
+    if (lowestPrice < mrAs * 100) return ratio.toFixed(1);
     // Use whole numbers for sub-1000
     if (ratio < 1000) return Math.round(ratio).toString();
     // Use thousands (k's) past 1000
@@ -66,8 +70,8 @@ export function EntryPriceSection({
   };
 
   const isExpensive =
-    price?.lowestMall && Math.round(price.lowestMall / 1_000_000) >= 1000;
-  const isInfinite = price?.lowestMall === -1;
+    lowestPrice && Math.round(lowestPrice / 1_000_000) >= 1000;
+  const isInfinite = lowestPrice === -1;
 
   const fontClass = isInfinite
     ? "font-bold lg:text-2xl"
