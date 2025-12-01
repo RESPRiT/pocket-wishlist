@@ -80,8 +80,10 @@ async function extractAndTransformPriceGun(itemIds: number[]) {
     // Store combined data
     blob.setJSON("prices", prices);
     blob.setJSON("pricesLastUpdate", new Date());
-  } catch {
-    console.error("Couldn't get prices from Pricegun");
+
+    console.log("Combined data stored successfully!");
+  } catch (error) {
+    console.error("Couldn't get prices from Pricegun", error);
 
     // Fallback to just lowestmall if pricegun errors
     const prices = itemIds.reduce((acc, id) => {
