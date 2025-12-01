@@ -18470,11 +18470,16 @@ var WishlistSchema = external_exports.record(
   userId: external_exports.number(),
   wishlist: WishlistSchema,
   lastUpdated: external_exports.number()
+}), PriceGunSalesDataSchema = external_exports.object({
+  date: external_exports.coerce.date(),
+  unitPrice: external_exports.number(),
+  quantity: external_exports.number()
 }), PriceGunHistoricalDataSchema = external_exports.object({
   itemId: external_exports.number(),
   date: external_exports.coerce.date(),
   volume: external_exports.number(),
-  price: external_exports.number()
+  price: external_exports.coerce.number()
+  // TODO: this coercion is to get around a type bug with pricegun
 }), PriceGunSchema = external_exports.object({
   // value across ALL transactions, not just past 2 weeks
   value: external_exports.number(),
@@ -18486,6 +18491,7 @@ var WishlistSchema = external_exports.record(
   itemId: external_exports.number(),
   name: external_exports.string(),
   image: external_exports.string(),
+  sales: external_exports.array(PriceGunSalesDataSchema),
   history: external_exports.array(PriceGunHistoricalDataSchema)
 }), PriceGunResponseSchema = external_exports.array(PriceGunSchema), MallPriceSchema = external_exports.record(external_exports.coerce.number(), external_exports.number()), PriceSchema = external_exports.object({
   // from lowest mall
