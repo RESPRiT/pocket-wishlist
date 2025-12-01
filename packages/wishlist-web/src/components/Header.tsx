@@ -2,6 +2,7 @@ import { useWishlist } from "@/contexts/WishlistContext.tsx";
 import { useTheme } from "../contexts/ThemeContext.tsx";
 import { cn } from "@/lib/utils.ts";
 import { useMallPrices } from "@/hooks/useMallPrices.ts";
+import ThemedImg from "./ThemedImg.tsx";
 
 const TIME_RANGES = {
   secondsAgo: 60 * 1000,
@@ -54,8 +55,21 @@ function Header() {
       className="clamp-[mt,4,10,xs,sm] flex flex-col justify-between gap-2
         sm:flex-row sm:items-end"
     >
-      <div className="flex items-baseline gap-2.5">
-        <span className="clamp-[text,3xl,4xl,xs,sm] font-medium">
+      <div className="flex items-center gap-2.5">
+        <a
+          href="https://wiki.kingdomofloathing.com/Pocket_wish"
+          className="min-h-fit min-w-fit overflow-hidden rounded-sm outline-1
+            outline-foreground/20 hover:outline-2 hover:outline-foreground"
+        >
+          <ThemedImg
+            src={`itemimages/whitecard.gif`}
+            alt={"pocket wish"}
+            reColor="bg-foreground"
+            bgColor="bg-background"
+            className="m-2 clamp-[size,4,5,sm,md]"
+          />
+        </a>
+        <span className="ml-1 clamp-[text,3xl,4xl,xs,sm] font-medium">
           {"pocket wishlist"}
         </span>
         <div
