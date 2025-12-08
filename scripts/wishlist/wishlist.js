@@ -4233,7 +4233,7 @@ var iotms = [{
   opened_names: "blood cubic zirconia",
   year: 2025,
   month: 10,
-  speed_tier: 1,
+  speed_tier: 0,
   aftercore_tier: 1,
   tradeable: !1,
   type: "item",
@@ -4252,6 +4252,18 @@ var iotms = [{
   type: "item",
   equipment_slot: "offhand",
   img: "headbag.gif"
+}, {
+  packaged_id: 12049,
+  packaged_name: "stocking full of bones",
+  familiar_ids: 326,
+  familiar_names: "Skeleton of Crimbo Past",
+  year: 2025,
+  month: 12,
+  speed_tier: void 0,
+  aftercore_tier: void 0,
+  tradeable: !1,
+  type: "familiar",
+  img: "skeletonocp.gif"
 }];
 
 // ../../node_modules/zod/v4/classic/external.js
