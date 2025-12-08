@@ -11,7 +11,6 @@
     "build": "node build.mjs",
     "format": "prettier --write .",
     "lint": "pnpm run eslint && pnpm run prettier --check .",
-    "test": "vitest",
     "dev": "node build.mjs --watch"
   },
   "dependencies": {
@@ -40,7 +39,6 @@
     "eslint-plugin-libram": "^0.4.28",
     "prettier": "^3.6.2",
     "typescript": "^5.8.3",
-    "typescript-eslint": "^8.36.0",
-    "vitest": "^3.2.4"
+    "typescript-eslint": "^8.36.0"
   }
 }

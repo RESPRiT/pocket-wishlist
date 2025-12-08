@@ -14,6 +14,19 @@ export const WishlistResponseSchema = z.object({
 export type Wishlist = z.infer<typeof WishlistSchema>;
 export type WishlistResponse = z.infer<typeof WishlistResponseSchema>;
 
+// most recent sales data
+export const PriceGunSalesDataSchema = z.object({
+  date: z.coerce.date(),
+  unitPrice: z.number(),
+  quantity: z.number(),
+});
+// data for a specific date
+export const PriceGunHistoricalDataSchema = z.object({
+  itemId: z.number(),
+  date: z.coerce.date(),
+  volume: z.number(),
+  price: z.coerce.number(), // TODO: this coercion is to get around a type bug with pricegun
+});
 export const PriceGunSchema = z.object({
   // value across ALL transactions, not just past 2 weeks
   value: z.number(),
@@ -22,6 +35,10 @@ export const PriceGunSchema = z.object({
   // last time the price value was calculated by PriceGun
   date: z.coerce.date(), // JSON dates are strings
   itemId: z.number(),
+  name: z.string(),
+  image: z.string(),
+  sales: z.array(PriceGunSalesDataSchema),
+  history: z.array(PriceGunHistoricalDataSchema),
 });
 export const PriceGunResponseSchema = z.array(PriceGunSchema);
 export type PriceGun = z.infer<typeof PriceGunSchema>;
@@ -42,7 +59,7 @@ export const CombinedPriceSchema = z.record(
 );
 export const MallPriceResponseSchema = z.object({
   prices: CombinedPriceSchema,
-  lastUpdated: z.coerce.date(),
+  lastUpdated: z.coerce.date<string>(),
 });
 export type MallPrice = z.infer<typeof MallPriceSchema>;
 export type Price = z.infer<typeof PriceSchema>;

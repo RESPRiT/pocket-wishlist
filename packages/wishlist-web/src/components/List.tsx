@@ -1,13 +1,13 @@
 import ListEntry, { ListEntryProps } from "./ListEntry";
 import { IOTM, iotms } from "wishlist-shared";
-import { useMemo, useRef } from "react";
-import { useStore } from "@/stores/userStore";
+import { useCallback, useMemo, useRef } from "react";
+import { useHydratedSettingsStore } from "@/stores/useSettingsStore.ts";
 import { useWindowVirtualizer } from "@tanstack/react-virtual";
 import { useMallPrices } from "@/hooks/useMallPrices";
 import { getSortFunction } from "@/lib/sortWishlist";
 import { useWishlist } from "@/contexts/WishlistContext";
-import { useTheme } from "../contexts/ThemeContext.tsx";
 import ListMiniMap from "./ListMiniMap.tsx";
+import { ClientOnly } from "@tanstack/react-router";
 
 function getUnboxedName(item: IOTM): string {
   if (
@@ -25,10 +25,9 @@ function getUnboxedName(item: IOTM): string {
 
 function List() {
   "use no memo"; // react compiler breaks tanstack virtual
-  const { currentOrder, currentSort } = useStore();
+  const { currentOrder, currentSort } = useHydratedSettingsStore();
   const { mallPrices } = useMallPrices();
   const { wishlist } = useWishlist();
-  const { theme } = useTheme();
 
   // TODO: just put data in a context
   const data = useMemo(
@@ -61,11 +60,33 @@ function List() {
   // Setup virtualizer
   const listRef = useRef<HTMLDivElement>(null);
 
+  // Cache/memoize element measurements
+  const elHeights = useRef(new Map<string, number>());
+  const measureElement = useCallback((el: Element) => {
+    const index = el.getAttribute("data-index");
+    if (index === null)
+      throw new Error("You need to set the `data-index` attribute");
+
+    const cache = elHeights.current.get(index);
+    if (cache !== undefined) return cache;
+
+    const measuredHeight = el.clientHeight;
+    elHeights.current.set(index, measuredHeight);
+
+    return el.clientHeight;
+  }, []);
+
   const virtualizer = useWindowVirtualizer({
     count: orderedData.length,
     estimateSize: () => 75,
     gap: 8,
-    overscan: 5,
+    overscan: 8,
+    measureElement,
+    // size of the window during SSR
+    initialRect: {
+      height: 15 * (75 + 8),
+      width: (64 - 5) * 16,
+    },
     getItemKey: (item) => orderedData[item].packagedName,
   });
 
@@ -81,18 +102,23 @@ function List() {
       }}
     >
       {/* TODO: Move this out of List and into ListView once data is in a context */}
-      <ListMiniMap entries={orderedData} height={virtualizer.getTotalSize()} />
+      <ClientOnly>
+        <ListMiniMap
+          entries={orderedData}
+          height={virtualizer.getTotalSize()}
+        />
+      </ClientOnly>
       <div
         className="absolute flex w-full flex-wrap items-stretch gap-2"
         style={{
           position: "absolute",
           transform: `translateY(${virtualOffset}px)`,
-          viewTransitionName: `${theme === "light" ? "foreground-light" : "foreground-dark"}`,
+          viewTransitionName: "foreground",
         }}
       >
         {items.map((row) => (
           <div
-            className="flex-grow-1"
+            className="grow"
             key={row.key}
             data-index={row.index}
             ref={virtualizer.measureElement}

@@ -13,8 +13,7 @@ RUN bun install
 
 WORKDIR /home/bun/app/packages/wishlist-web
 RUN bun run build
-
-# Serve
-FROM nginx:bookworm
-COPY --from=build /home/bun/app/packages/wishlist-web/dist /usr/share/nginx/html
 EXPOSE 80
+
+# Serve via SSR script
+CMD ["bun", "run", "start"]

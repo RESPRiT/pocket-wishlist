@@ -40,6 +40,7 @@ app.post("/update-prices", async (c) => {
     // Process update request data
     const lowestMallRaw = await c.req.json();
     const lowestMall = MallPriceSchema.parse(lowestMallRaw);
+    await blob.setJSON("lowestMall", lowestMall);
 
     // Asynchronously handle pricegun extraction and transformation
     const itemIds = Object.keys(lowestMall)
@@ -47,7 +48,6 @@ app.post("/update-prices", async (c) => {
       .map((id) => Number.parseInt(id));
     extractAndTransformPriceGun(itemIds);
 
-    await blob.setJSON("lowestMall", lowestMall);
     return c.text("Mall prices updated successfully!");
   } catch (e) {
     return c.text(`Could not update mall prices: ${e}`, 400);
@@ -56,29 +56,50 @@ app.post("/update-prices", async (c) => {
 
 // no try-catch: if something goes wrong, just let stderr report it
 async function extractAndTransformPriceGun(itemIds: number[]) {
-  // Fetch pricegun data and store
-  const pricegun = await fetchPriceGun(itemIds);
-  await blob.setJSON("pricegun", pricegun);
-
   // Get lowest mall data
   const lowestMall: MallPrice = await blob.getJSON("lowestMall");
 
-  // Combine lowest mall and pricegun data
-  const prices = itemIds.reduce((acc, id) => {
-    const price = pricegun.find((p) => p.itemId === id);
+  try {
+    // Fetch pricegun data and store
+    const pricegun = await fetchPriceGun(itemIds);
+    await blob.setJSON("pricegun", pricegun);
 
-    acc[id] = {
-      lowestMall: lowestMall[id],
-      value: price?.value,
-      volume: price?.volume,
-    };
+    // Combine lowest mall and pricegun data
+    const prices = itemIds.reduce((acc, id) => {
+      const price = pricegun.find((p) => p.itemId === id);
 
-    return acc;
-  }, {});
+      acc[id] = {
+        lowestMall: lowestMall[id],
+        value: price?.value,
+        volume: price?.volume,
+      };
 
-  // Store combined data
-  blob.setJSON("prices", prices);
-  blob.setJSON("pricesLastUpdate", new Date());
+      return acc;
+    }, {});
+
+    // Store combined data
+    blob.setJSON("prices", prices);
+    blob.setJSON("pricesLastUpdate", new Date());
+
+    console.log("Combined data stored successfully!");
+  } catch (error) {
+    console.error("Couldn't get prices from Pricegun", error);
+
+    // Fallback to just lowestmall if pricegun errors
+    const prices = itemIds.reduce((acc, id) => {
+      acc[id] = {
+        lowestMall: lowestMall[id],
+        value: undefined,
+        volume: undefined,
+      };
+
+      return acc;
+    }, {});
+
+    // Store just mall data
+    blob.setJSON("prices", prices);
+    blob.setJSON("pricesLastUpdate", new Date());
+  }
 }
 
 async function fetchPriceGun(itemIds: number[]) {

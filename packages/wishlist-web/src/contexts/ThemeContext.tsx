@@ -14,9 +14,12 @@ type ThemeContextType = {
 const KEY = "theme";
 const DARK = "oklch(26.7% 0.048517 219.8)";
 const LIGHT = "oklch(97.4% 0.026053 90.1)";
-const DURATION = 250;
+const DURATION = 350;
 const system = () =>
-  window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+  typeof window !== "undefined" &&
+  window.matchMedia("(prefers-color-scheme: dark)").matches
+    ? "dark"
+    : "light";
 
 const ThemeContext = createContext<ThemeContextType>({
   theme: system(),
@@ -53,22 +56,34 @@ const handleAnimateThemeColor = (
 };
 
 export const ThemeProvider = ({ children }: { children: ReactNode }) => {
-  const [theme, setTheme] = useState<Theme>(
-    (localStorage.getItem(KEY) as Theme) ?? system(),
-  );
+  const [theme, setTheme] = useState<Theme>(system());
   const [isTransitioning, setIsTransitioning] = useState(false);
-  const metaTheme = document.querySelector(`meta[name="theme-color"]`);
+  const metaTheme =
+    typeof document !== "undefined"
+      ? document.querySelector(`meta[name="theme-color"]`)
+      : null;
 
   useEffect(() => {
-    document.documentElement.setAttribute("data-theme", theme);
-    metaTheme?.setAttribute("content", theme === "light" ? LIGHT : DARK);
-    localStorage.setItem(KEY, theme);
-  }, [theme, metaTheme]);
+    const cachedTheme = localStorage.getItem(KEY) as Theme;
+    setTheme(cachedTheme ?? system());
+    document.documentElement.setAttribute(
+      "data-theme",
+      cachedTheme ?? system(),
+    );
+    metaTheme?.setAttribute(
+      "content",
+      (cachedTheme ?? system()) === "light" ? LIGHT : DARK,
+    );
+
+    // set the theme if not currently in storage
+    if (cachedTheme === null) localStorage.setItem(KEY, system());
+  }, [metaTheme]);
 
   async function set(t: Theme) {
     setIsTransitioning(true);
     if (!document.startViewTransition) {
       setTheme(t);
+      localStorage.setItem(KEY, t);
       setIsTransitioning(false);
       return;
     }
@@ -76,7 +91,12 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
     // animate theme color change for supported browsers (e.g. Safari)
     if (metaTheme) handleAnimateThemeColor(metaTheme, t);
 
-    const transition = document.startViewTransition(() => setTheme(t));
+    // this call back fires _before_ the transition starts
+    const transition = document.startViewTransition(() => {
+      document.documentElement.setAttribute("data-theme", t);
+      setTheme(t);
+      localStorage.setItem(KEY, t);
+    });
     await transition.finished;
     setIsTransitioning(false);
   }
@@ -87,7 +107,12 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
 
   return (
     <ThemeContext
-      value={{ theme, setTheme: set, toggleTheme, isTransitioning }}
+      value={{
+        theme,
+        setTheme: set,
+        toggleTheme,
+        isTransitioning,
+      }}
     >
       {children}
     </ThemeContext>

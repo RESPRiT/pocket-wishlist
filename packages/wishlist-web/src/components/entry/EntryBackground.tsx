@@ -4,16 +4,17 @@ import {
   useEntryBackgroundColor,
   type EntryBackgroundColorProps,
 } from "@/hooks/useEntryBackgroundColor";
+import { useTheme } from "@/contexts/ThemeContext";
 
-type EntryBackgroundProps = EntryBackgroundColorProps;
+type EntryBackgroundProps = Omit<EntryBackgroundColorProps, "theme">;
 
 export function EntryBackground({
   status,
   isStandard,
   standardYear,
   priceRatio,
-  theme,
 }: EntryBackgroundProps) {
+  const { theme } = useTheme();
   const { bgStyle, textureClass } = useEntryBackgroundColor({
     status,
     isStandard,
@@ -22,9 +23,14 @@ export function EntryBackground({
     theme,
   });
 
+  // TODO: Somehow use CSS variables to avoid suppressing hydration warnings
   return (
     <>
-      <div className="absolute -z-20 h-full w-full" style={bgStyle} />
+      <div
+        suppressHydrationWarning
+        className="absolute -z-20 h-full w-full"
+        style={bgStyle}
+      />
       <div className={cn("absolute -z-10 h-full w-full", textureClass)} />
     </>
   );

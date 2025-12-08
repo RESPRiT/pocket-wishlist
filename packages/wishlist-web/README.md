@@ -16,6 +16,10 @@
 - [ ] Consider using canvas instead of <div>s
 - [ ] Use additional contast in minimap colors
 
+### Theming
+
+- [ ] Add cookies, headers for syncing server theme with client theme
+
 ### Else
 
 - [o] Better semantics for theme toggle
@@ -97,6 +101,10 @@
 - [ ] Darken at the bottom of year; lighten at the top of tier;
 
 ## DONE
+
+### SSR
+
+- [x] Idk, many things
 
 ### Minimap
 

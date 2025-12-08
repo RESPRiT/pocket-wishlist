@@ -1,8 +1,9 @@
 import IconButton from "./IconButton";
-import { useStore } from "@/stores/userStore";
+import { useHydratedSettingsStore } from "@/stores/useSettingsStore";
 
 function ListControlMenu() {
-  const { currentSort, setSort, currentOrder, setOrder } = useStore();
+  const { currentSort, setSort, currentOrder, setOrder } =
+    useHydratedSettingsStore();
 
   // TODO: Definitely some not-DRY shenanigans going on here...
   return (

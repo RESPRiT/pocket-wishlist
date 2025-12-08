@@ -4,6 +4,7 @@ import {
   useRef,
   useMemo,
   useState,
+  useCallback,
 } from "react";
 import { ListEntryProps } from "./ListEntry";
 import { Theme, useTheme } from "@/contexts/ThemeContext";
@@ -15,14 +16,6 @@ const ENTRY_HEIGHT_PX = 2; // h-0.5 class = 2px
 const HOVER_PADDING_MULTIPLIER = 1.5;
 const TOP_OFFSET = 24; // top-6 class = 24px
 const MIN_WIDTH = 1080;
-
-// Helper functions
-function calculateScrollMetrics(height: number) {
-  const totalHeight = document.body.getBoundingClientRect().height;
-  const excessHeight = totalHeight - height;
-  const unscrolled = Math.max(excessHeight - window.scrollY, 0);
-  return { totalHeight, excessHeight, unscrolled };
-}
 
 function MiniMapEntry({
   entry,
@@ -73,10 +66,13 @@ function ListMiniMap({
   entries: ListEntryProps[];
   height: number;
 }) {
-  const { theme, isTransitioning } = useTheme();
+  const { theme } = useTheme();
   const scrollWindowRef = useRef<HTMLDivElement>(null);
+  const scrollThrottle = useRef(false);
   const [miniMapWidth, setMiniMapWidth] = useState(0);
-  const [scrollHeight, setScrollHeight] = useState(0);
+  const [pageHeight, setPageHeight] = useState(1080);
+  // TODO: handle these initial values/initial updates so that scroll window
+  // does not always start at the top (i.e. we reload and are mid-scroll)
   const [scrollPosition, setScrollPosition] = useState(0);
   const [scrollFactor, setScrollFactor] = useState(45);
   const [initialScrollPosition, setInitialScrollPosition] = useState(0);
@@ -84,21 +80,40 @@ function ListMiniMap({
   const [isActive, setIsActive] = useState(false);
   const [showMiniMap, setShowMiniMap] = useState(true);
 
-  // Update scroll factor when height changes
+  // observer for boundingClientRect hack;
+  // more efficient than getBoundingClientRect()
+  const observerRef = useRef(
+    new IntersectionObserver((observerEntries) => {
+      const body = observerEntries[0];
+      const _pageHeight = body.boundingClientRect.height;
+      setPageHeight(_pageHeight);
+
+      const _scrollFactor = _pageHeight / (entries.length * ENTRY_HEIGHT_PX);
+      setScrollFactor(_scrollFactor);
+      setMiniMapWidth(window.innerWidth / _scrollFactor);
+
+      observerRef.current.disconnect();
+    }),
+  );
+
+  // Helper function for measurements
+  const calculateScrollMetrics = useCallback(
+    (height: number) => {
+      const excessHeight = pageHeight - height;
+      return Math.max(excessHeight - window.scrollY, 0);
+    },
+    [pageHeight],
+  );
+
+  // Set initial page height
   useEffect(() => {
-    if (!isTransitioning) {
-      const { totalHeight } = calculateScrollMetrics(height);
-      setScrollFactor(totalHeight / (entries.length * ENTRY_HEIGHT_PX));
-    }
-  }, [entries.length, height, isTransitioning]);
+    observerRef.current.observe(document.body);
+  }, []);
 
   // Setup resize event handler
   useEffect(() => {
     const handleWindowResize = () => {
-      const { unscrolled } = calculateScrollMetrics(height);
-
       setMiniMapWidth(window.innerWidth / scrollFactor);
-      setScrollHeight((window.innerHeight - unscrolled) / scrollFactor);
       setShowMiniMap(window.innerWidth >= MIN_WIDTH);
     };
 
@@ -107,24 +122,35 @@ function ListMiniMap({
     return () => {
       window.removeEventListener("resize", handleWindowResize);
     };
-  }, [height, scrollFactor]);
+  }, [scrollFactor]);
 
   // Setup scroll event handler
   useEffect(() => {
     const handleScroll = () => {
-      if (initialScrollY === null) {
-        const { unscrolled } = calculateScrollMetrics(height);
+      if (initialScrollY !== null || scrollThrottle.current) return;
+      scrollThrottle.current = true;
 
-        setScrollHeight((window.innerHeight - unscrolled) / scrollFactor);
+      // use rAF() to throttle based on refresh rate
+      requestAnimationFrame(() => {
         setScrollPosition(window.scrollY / scrollFactor);
-      }
+
+        scrollThrottle.current = false;
+      });
+    };
+
+    // only adjust sizing after scroll finishes to avoid spamming layout
+    const handleScrollEnd = () => {
+      // update page height using observer
+      observerRef.current.observe(document.body);
     };
 
     window.addEventListener("scroll", handleScroll);
+    window.addEventListener("scrollend", handleScrollEnd);
     return () => {
       window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("scrollend", handleScrollEnd);
     };
-  }, [height, initialScrollY, scrollFactor]);
+  }, [initialScrollY, scrollFactor]);
 
   // Event handlers
   const handlePointerDown: PointerEventHandler<HTMLDivElement> = (e) => {
@@ -136,9 +162,6 @@ function ListMiniMap({
 
   const handlePointerMove: PointerEventHandler<HTMLDivElement> = (e) => {
     if (initialScrollY !== null) {
-      const { unscrolled } = calculateScrollMetrics(height);
-      setScrollHeight((window.innerHeight - unscrolled) / scrollFactor);
-
       const maxScrollHeight = window.innerHeight / scrollFactor;
       const maxScrollAmount =
         entries.length * ENTRY_HEIGHT_PX - maxScrollHeight;
@@ -152,10 +175,13 @@ function ListMiniMap({
     }
   };
 
+  // only adjust sizing after scroll finishes to avoid spamming layout
   const handlePointerUp: PointerEventHandler<HTMLDivElement> = (e) => {
     e.currentTarget.releasePointerCapture(e.pointerId);
     setInitialScrollY(null);
     setIsActive(false);
+    // update page height using observer
+    observerRef.current.observe(document.body);
   };
 
   const handleJumpPointerDown: PointerEventHandler<HTMLDivElement> = (e) => {
@@ -181,10 +207,6 @@ function ListMiniMap({
       scrollWindowRef.current.setPointerCapture(e.pointerId);
       setInitialScrollY(e.clientY);
       setInitialScrollPosition(jumpY);
-
-      // resize as needed
-      const { unscrolled } = calculateScrollMetrics(height);
-      setScrollHeight((window.innerHeight - unscrolled) / scrollFactor);
 
       setIsActive(true);
     }
@@ -230,7 +252,9 @@ function ListMiniMap({
         style={{
           width: miniMapWidth,
           top: TOP_OFFSET + scrollPosition,
-          height: scrollHeight,
+          height:
+            (window.innerHeight - calculateScrollMetrics(height)) /
+            scrollFactor,
         }}
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}

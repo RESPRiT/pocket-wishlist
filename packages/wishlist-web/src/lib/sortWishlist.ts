@@ -5,12 +5,15 @@ function priceSort(
   b: ListEntryProps,
   skipTie = false,
 ): number {
+  const aPrice = (a.price?.volume ?? 0 > 0) ? a.price?.value : null;
+  const bPrice = (b.price?.volume ?? 0 > 0) ? b.price?.value : null;
+
   const aLowest = Math.min(
-    a.price?.value || Infinity,
+    aPrice || Infinity,
     a.price?.lowestMall === -1 ? Infinity : a.price?.lowestMall || Infinity,
   );
   const bLowest = Math.min(
-    b.price?.value || Infinity,
+    bPrice || Infinity,
     b.price?.lowestMall === -1 ? Infinity : b.price?.lowestMall || Infinity,
   );
 
