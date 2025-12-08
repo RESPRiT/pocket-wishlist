@@ -71,6 +71,7 @@ function ListMiniMap({
   const scrollThrottle = useRef(false);
   const [miniMapWidth, setMiniMapWidth] = useState(0);
   const [pageHeight, setPageHeight] = useState(1080);
+  const [windowHeight, setWindowHeight] = useState(1080);
   // TODO: handle these initial values/initial updates so that scroll window
   // does not always start at the top (i.e. we reload and are mid-scroll)
   const [scrollPosition, setScrollPosition] = useState(0);
@@ -100,6 +101,7 @@ function ListMiniMap({
   const calculateScrollMetrics = useCallback(
     (height: number) => {
       const excessHeight = pageHeight - height;
+      // TODO: window.scrollY is an expensive calculation that is fired constantly
       return Math.max(excessHeight - window.scrollY, 0);
     },
     [pageHeight],
@@ -108,6 +110,7 @@ function ListMiniMap({
   // Set initial page height
   useEffect(() => {
     observerRef.current.observe(document.body);
+    setWindowHeight(window.innerHeight);
   }, []);
 
   // Setup resize event handler
@@ -115,6 +118,7 @@ function ListMiniMap({
     const handleWindowResize = () => {
       setMiniMapWidth(window.innerWidth / scrollFactor);
       setShowMiniMap(window.innerWidth >= MIN_WIDTH);
+      setWindowHeight(window.innerHeight);
     };
 
     handleWindowResize();
@@ -130,16 +134,17 @@ function ListMiniMap({
       if (initialScrollY !== null || scrollThrottle.current) return;
       scrollThrottle.current = true;
 
-      // use rAF() to throttle based on refresh rate
-      requestAnimationFrame(() => {
-        setScrollPosition(window.scrollY / scrollFactor);
+      setScrollPosition(window.scrollY / scrollFactor);
 
+      setTimeout(() => {
         scrollThrottle.current = false;
-      });
+      }, 8);
     };
 
     // only adjust sizing after scroll finishes to avoid spamming layout
     const handleScrollEnd = () => {
+      if (initialScrollY !== null) return;
+
       // update page height using observer
       observerRef.current.observe(document.body);
     };
@@ -161,18 +166,22 @@ function ListMiniMap({
   };
 
   const handlePointerMove: PointerEventHandler<HTMLDivElement> = (e) => {
-    if (initialScrollY !== null) {
-      const maxScrollHeight = window.innerHeight / scrollFactor;
-      const maxScrollAmount =
-        entries.length * ENTRY_HEIGHT_PX - maxScrollHeight;
-      const _scrollPosition = Math.min(
-        Math.max(initialScrollPosition + e.clientY - initialScrollY, 0),
-        maxScrollAmount,
-      );
-      setScrollPosition(_scrollPosition);
+    if (initialScrollY === null || scrollThrottle.current) return;
+    scrollThrottle.current = true;
 
-      window.scroll(0, _scrollPosition * scrollFactor);
-    }
+    const maxScrollHeight = windowHeight / scrollFactor;
+    const maxScrollAmount = entries.length * ENTRY_HEIGHT_PX - maxScrollHeight;
+    const _scrollPosition = Math.min(
+      Math.max(initialScrollPosition + e.clientY - initialScrollY, 0),
+      maxScrollAmount,
+    );
+    setScrollPosition(_scrollPosition);
+
+    window.scroll(0, _scrollPosition * scrollFactor);
+
+    setTimeout(() => {
+      scrollThrottle.current = false;
+    }, 8);
   };
 
   // only adjust sizing after scroll finishes to avoid spamming layout
@@ -186,7 +195,7 @@ function ListMiniMap({
 
   const handleJumpPointerDown: PointerEventHandler<HTMLDivElement> = (e) => {
     if (initialScrollY === null) {
-      const maxScrollHeight = window.innerHeight / scrollFactor;
+      const maxScrollHeight = windowHeight / scrollFactor;
       const maxScrollAmount =
         entries.length * ENTRY_HEIGHT_PX - maxScrollHeight;
       const jumpY = Math.min(
@@ -242,19 +251,19 @@ function ListMiniMap({
       <div
         ref={scrollWindowRef}
         className={cn(
-          `fixed z-10 opacity-10 outline-2 outline-foreground transition-opacity
-            duration-200 group-hover:opacity-100 hover:cursor-pointer
-            hover:bg-background/20 hover:outline-foreground/50`,
+          `fixed top-0 z-10 opacity-10 outline-2 outline-foreground
+            transition-opacity duration-200 group-hover:opacity-100
+            hover:cursor-pointer hover:bg-background/20
+            hover:outline-foreground/50`,
           isActive &&
             `opacity-100 hover:cursor-grabbing hover:bg-background/50
               hover:outline-foreground/25`,
         )}
         style={{
           width: miniMapWidth,
-          top: TOP_OFFSET + scrollPosition,
+          transform: `translateY(${TOP_OFFSET + scrollPosition}px)`,
           height:
-            (window.innerHeight - calculateScrollMetrics(height)) /
-            scrollFactor,
+            (windowHeight - calculateScrollMetrics(height)) / scrollFactor,
         }}
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}

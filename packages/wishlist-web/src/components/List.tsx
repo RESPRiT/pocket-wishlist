@@ -64,6 +64,7 @@ function List() {
   const listRef = useRef<HTMLDivElement>(null);
 
   // Cache/memoize element measurements
+  // TODO: Need to mark cache as stale on resize
   const elHeights = useRef(new Map<string, number>());
   const measureElement = useCallback((el: Element) => {
     const index = el.getAttribute("data-index");
@@ -76,7 +77,7 @@ function List() {
     const measuredHeight = el.clientHeight;
     elHeights.current.set(index, measuredHeight);
 
-    return el.clientHeight;
+    return measuredHeight;
   }, []);
 
   const virtualizerOptions = useMemo(() => {
@@ -84,7 +85,7 @@ function List() {
       count: orderedData.length,
       estimateSize: () => 75,
       gap: 8,
-      overscan: 8,
+      overscan: 5,
       measureElement,
       // size of the window during SSR
       initialRect: {
