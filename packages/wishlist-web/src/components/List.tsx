@@ -54,8 +54,11 @@ function List() {
     [mallPrices, wishlist],
   );
 
-  const sortedData = data.slice().sort(getSortFunction(currentSort));
-  const orderedData = currentOrder ? sortedData.slice().reverse() : sortedData;
+  const orderedData = useMemo(() => {
+    const sortedData = data.slice().sort(getSortFunction(currentSort));
+
+    return currentOrder ? sortedData.slice().reverse() : sortedData;
+  }, [data, currentSort, currentOrder]);
 
   // Setup virtualizer
   const listRef = useRef<HTMLDivElement>(null);
@@ -76,19 +79,23 @@ function List() {
     return el.clientHeight;
   }, []);
 
-  const virtualizer = useWindowVirtualizer({
-    count: orderedData.length,
-    estimateSize: () => 75,
-    gap: 8,
-    overscan: 8,
-    measureElement,
-    // size of the window during SSR
-    initialRect: {
-      height: 15 * (75 + 8),
-      width: (64 - 5) * 16,
-    },
-    getItemKey: (item) => orderedData[item].packagedName,
-  });
+  const virtualizerOptions = useMemo(() => {
+    return {
+      count: orderedData.length,
+      estimateSize: () => 75,
+      gap: 8,
+      overscan: 8,
+      measureElement,
+      // size of the window during SSR
+      initialRect: {
+        height: 15 * (75 + 8),
+        width: (64 - 5) * 16,
+      },
+      getItemKey: (item: number) => orderedData[item].packagedName,
+    };
+  }, [measureElement, orderedData]);
+
+  const virtualizer = useWindowVirtualizer(virtualizerOptions);
 
   const items = virtualizer.getVirtualItems();
   const virtualOffset = items[0] ? items[0].start : 0;

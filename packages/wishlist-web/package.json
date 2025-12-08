@@ -27,7 +27,7 @@
     "@tanstack/react-router-devtools": "^1.135.0",
     "@tanstack/react-router-ssr-query": "^1.135.2",
     "@tanstack/react-start": "^1.135.0",
-    "@tanstack/react-virtual": "^3.13.12",
+    "@tanstack/react-virtual": "^3.13.13",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "color-bits": "^1.1.1",
