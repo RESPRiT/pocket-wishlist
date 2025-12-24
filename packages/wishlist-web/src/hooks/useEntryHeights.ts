@@ -1,11 +1,14 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { ListEntryProps } from "@/components/ListEntry";
+import { useTheme } from "@/contexts/ThemeContext";
 
 export function useEntryHeights(items: ListEntryProps[]) {
   const [heights, setHeights] = useState<Map<string, number>>(new Map());
   const [pageHeight, setPageHeight] = useState(75 * items.length);
   const [needsMeasurement, setNeedsMeasurement] = useState(true);
   const measureContainerRef = useRef<HTMLDivElement>(null);
+
+  const { isTransitioning } = useTheme();
 
   // Stable reference for measurement (doesn't change on re-sort)
   const measurementItems = useRef(items);
@@ -51,6 +54,8 @@ export function useEntryHeights(items: ListEntryProps[]) {
   // Track page height changes with ResizeObserver
   useEffect(() => {
     const observer = new ResizeObserver(() => {
+      if (isTransitioning) return;
+
       const newPageHeight = document.documentElement.scrollHeight;
       setPageHeight(newPageHeight);
     });
@@ -58,7 +63,7 @@ export function useEntryHeights(items: ListEntryProps[]) {
     observer.observe(document.body);
 
     return () => observer.disconnect();
-  }, []);
+  }, [isTransitioning]);
 
   return {
     heights,
