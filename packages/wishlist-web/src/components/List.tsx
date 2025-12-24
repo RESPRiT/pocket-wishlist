@@ -1,6 +1,6 @@
 import ListEntry, { ListEntryProps } from "./ListEntry";
 import { IOTM, iotms } from "wishlist-shared";
-import { useCallback, useMemo, useRef } from "react";
+import { useMemo, useRef } from "react";
 import { useHydratedSettingsStore } from "@/stores/useSettingsStore.ts";
 import { useWindowVirtualizer } from "@tanstack/react-virtual";
 import { useMallPrices } from "@/hooks/useMallPrices";
@@ -8,6 +8,7 @@ import { getSortFunction } from "@/lib/sortWishlist";
 import { useWishlist } from "@/contexts/WishlistContext";
 import ListMiniMap from "./ListMiniMap.tsx";
 import { ClientOnly } from "@tanstack/react-router";
+import { useItemHeights } from "@/hooks/useItemHeights";
 
 function getUnboxedName(item: IOTM): string {
   if (
@@ -63,38 +64,27 @@ function List() {
   // Setup virtualizer
   const listRef = useRef<HTMLDivElement>(null);
 
-  // Cache/memoize element measurements
-  // TODO: Need to mark cache as stale on resize
-  const elHeights = useRef(new Map<string, number>());
-  const measureElement = useCallback((el: Element) => {
-    const index = el.getAttribute("data-index");
-    if (index === null)
-      throw new Error("You need to set the `data-index` attribute");
-
-    const cache = elHeights.current.get(index);
-    if (cache !== undefined) return cache;
-
-    const measuredHeight = el.clientHeight;
-    elHeights.current.set(index, measuredHeight);
-
-    return measuredHeight;
-  }, []);
+  // Get pre-measured heights
+  const { heights, needsMeasurement, measureContainerRef, measurementItems } =
+    useItemHeights(orderedData);
 
   const virtualizerOptions = useMemo(() => {
     return {
       count: orderedData.length,
-      estimateSize: () => 75,
+      estimateSize: (index: number) => {
+        const packagedName = orderedData[index].packagedName;
+        return heights.get(packagedName) ?? 75;
+      },
       gap: 8,
       overscan: 5,
-      measureElement,
       // size of the window during SSR
       initialRect: {
         height: 15 * (75 + 8),
         width: (64 - 5) * 16,
       },
-      getItemKey: (item: number) => orderedData[item].packagedName,
+      getItemKey: (index: number) => orderedData[index].packagedName,
     };
-  }, [measureElement, orderedData]);
+  }, [orderedData, heights]);
 
   const virtualizer = useWindowVirtualizer(virtualizerOptions);
 
@@ -109,6 +99,28 @@ function List() {
         height: `${virtualizer.getTotalSize()}px`,
       }}
     >
+      {/* Hidden measurement container - only rendered when measuring */}
+      {needsMeasurement && (
+        <div
+          ref={measureContainerRef}
+          className="flex w-full flex-wrap items-stretch gap-2"
+          style={{
+            position: "absolute",
+            visibility: "hidden",
+            pointerEvents: "none",
+            top: 0,
+            left: 0,
+            zIndex: -1,
+          }}
+        >
+          {measurementItems.map((item) => (
+            <div key={item.packagedName} className="grow">
+              <ListEntry {...item} />
+            </div>
+          ))}
+        </div>
+      )}
+
       {/* TODO: Move this out of List and into ListView once data is in a context */}
       <ClientOnly>
         <ListMiniMap
@@ -125,12 +137,7 @@ function List() {
         }}
       >
         {items.map((row) => (
-          <div
-            className="grow"
-            key={row.key}
-            data-index={row.index}
-            ref={virtualizer.measureElement}
-          >
+          <div className="grow" key={row.key}>
             <ListEntry {...orderedData[row.index]} />
           </div>
         ))}
