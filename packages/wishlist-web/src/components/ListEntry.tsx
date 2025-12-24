@@ -74,9 +74,9 @@ function ListEntry({
       className={cn(
         `relative flex h-full min-w-[290px] flex-wrap items-center
         justify-center clamp-[gap-x,1.5,2.25,xs,sm] gap-y-2 overflow-hidden
-        rounded-md clamp-[px,5,6,xs,sm] py-3 hover:outline-2
-        hover:outline-foreground/50 md:clamp-[gap-x,2.25,6,md,lg] lg:w-full
-        lg:flex-nowrap`,
+        rounded-md clamp-[px,5,6,xs,sm] py-3 will-change-contents
+        contain-content hover:outline-2 hover:outline-foreground/50
+        md:clamp-[gap-x,2.25,6,md,lg] lg:w-full lg:flex-nowrap`,
         {
           "hover:outline-secondary": isStandard,
         },

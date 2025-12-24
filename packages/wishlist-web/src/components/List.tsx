@@ -1,8 +1,7 @@
 import ListEntry, { ListEntryProps } from "./ListEntry";
 import { IOTM, iotms } from "wishlist-shared";
-import { useCallback, useMemo, useRef } from "react";
+import { useMemo, useRef } from "react";
 import { useHydratedSettingsStore } from "@/stores/useSettingsStore.ts";
-import { useWindowVirtualizer } from "@tanstack/react-virtual";
 import { useMallPrices } from "@/hooks/useMallPrices";
 import { getSortFunction } from "@/lib/sortWishlist";
 import { useWishlist } from "@/contexts/WishlistContext";
@@ -60,78 +59,24 @@ function List() {
     return currentOrder ? sortedData.slice().reverse() : sortedData;
   }, [data, currentSort, currentOrder]);
 
-  // Setup virtualizer
   const listRef = useRef<HTMLDivElement>(null);
 
-  // Cache/memoize element measurements
-  // TODO: Need to mark cache as stale on resize
-  const elHeights = useRef(new Map<string, number>());
-  const measureElement = useCallback((el: Element) => {
-    const index = el.getAttribute("data-index");
-    if (index === null)
-      throw new Error("You need to set the `data-index` attribute");
-
-    const cache = elHeights.current.get(index);
-    if (cache !== undefined) return cache;
-
-    const measuredHeight = el.clientHeight;
-    elHeights.current.set(index, measuredHeight);
-
-    return measuredHeight;
-  }, []);
-
-  const virtualizerOptions = useMemo(() => {
-    return {
-      count: orderedData.length,
-      estimateSize: () => 75,
-      gap: 8,
-      overscan: 5,
-      measureElement,
-      // size of the window during SSR
-      initialRect: {
-        height: 15 * (75 + 8),
-        width: (64 - 5) * 16,
-      },
-      getItemKey: (item: number) => orderedData[item].packagedName,
-    };
-  }, [measureElement, orderedData]);
-
-  const virtualizer = useWindowVirtualizer(virtualizerOptions);
-
-  const items = virtualizer.getVirtualItems();
-  const virtualOffset = items[0] ? items[0].start : 0;
-
   return (
-    <div
-      ref={listRef}
-      className="relative mb-12 w-full"
-      style={{
-        height: `${virtualizer.getTotalSize()}px`,
-      }}
-    >
+    <div className="relative mb-12 w-full">
       {/* TODO: Move this out of List and into ListView once data is in a context */}
       <ClientOnly>
-        <ListMiniMap
-          entries={orderedData}
-          height={virtualizer.getTotalSize()}
-        />
+        <ListMiniMap listRef={listRef} entries={orderedData} />
       </ClientOnly>
       <div
-        className="absolute flex w-full flex-wrap items-stretch gap-2"
+        className="flex w-full flex-wrap items-stretch gap-2"
+        ref={listRef}
         style={{
-          position: "absolute",
-          transform: `translateY(${virtualOffset}px)`,
           viewTransitionName: "foreground",
         }}
       >
-        {items.map((row) => (
-          <div
-            className="grow"
-            key={row.key}
-            data-index={row.index}
-            ref={virtualizer.measureElement}
-          >
-            <ListEntry {...orderedData[row.index]} />
+        {orderedData.map((row) => (
+          <div className="grow" key={row.packagedName}>
+            <ListEntry {...row} />
           </div>
         ))}
       </div>

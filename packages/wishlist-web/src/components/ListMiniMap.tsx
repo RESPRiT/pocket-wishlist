@@ -5,6 +5,7 @@ import {
   useMemo,
   useState,
   useCallback,
+  RefObject,
 } from "react";
 import { ListEntryProps } from "./ListEntry";
 import { Theme, useTheme } from "@/contexts/ThemeContext";
@@ -61,15 +62,16 @@ function MiniMapEntry({
 // TODO: Consider how code can be made more performant/readable
 function ListMiniMap({
   entries,
-  height,
+  listRef,
 }: {
   entries: ListEntryProps[];
-  height: number;
+  listRef: RefObject<HTMLDivElement | null>;
 }) {
   const { theme } = useTheme();
   const scrollWindowRef = useRef<HTMLDivElement>(null);
   const scrollThrottle = useRef(false);
   const [miniMapWidth, setMiniMapWidth] = useState(0);
+  const [height, setHeight] = useState(1080);
   const [pageHeight, setPageHeight] = useState(1080);
   const [windowHeight, setWindowHeight] = useState(1080);
   // TODO: handle these initial values/initial updates so that scroll window
@@ -111,7 +113,12 @@ function ListMiniMap({
   useEffect(() => {
     observerRef.current.observe(document.body);
     setWindowHeight(window.innerHeight);
-  }, []);
+    setHeight(
+      listRef.current !== null
+        ? listRef.current.getBoundingClientRect().height
+        : 1080,
+    );
+  }, [listRef]);
 
   // Setup resize event handler
   useEffect(() => {
