@@ -1,8 +1,9 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { ListEntryProps } from "@/components/ListEntry";
 
-export function useItemHeights(items: ListEntryProps[]) {
+export function useEntryHeights(items: ListEntryProps[]) {
   const [heights, setHeights] = useState<Map<string, number>>(new Map());
+  const [pageHeight, setPageHeight] = useState(75 * items.length);
   const [needsMeasurement, setNeedsMeasurement] = useState(true);
   const measureContainerRef = useRef<HTMLDivElement>(null);
 
@@ -13,6 +14,7 @@ export function useItemHeights(items: ListEntryProps[]) {
   useLayoutEffect(() => {
     if (!needsMeasurement || !measureContainerRef.current) return;
 
+    // Batch layout calculations: measure items and page height together
     const newHeights = new Map<string, number>();
     const children = Array.from(measureContainerRef.current.children);
 
@@ -21,7 +23,10 @@ export function useItemHeights(items: ListEntryProps[]) {
       newHeights.set(measurementItems.current[index].packagedName, height);
     });
 
+    const newPageHeight = document.documentElement.scrollHeight;
+
     setHeights(newHeights);
+    setPageHeight(newPageHeight);
     setNeedsMeasurement(false);
   }, [needsMeasurement]);
 
@@ -43,8 +48,21 @@ export function useItemHeights(items: ListEntryProps[]) {
     };
   }, []);
 
+  // Track page height changes with ResizeObserver
+  useEffect(() => {
+    const observer = new ResizeObserver(() => {
+      const newPageHeight = document.documentElement.scrollHeight;
+      setPageHeight(newPageHeight);
+    });
+
+    observer.observe(document.body);
+
+    return () => observer.disconnect();
+  }, []);
+
   return {
     heights,
+    pageHeight,
     needsMeasurement,
     measureContainerRef,
     measurementItems: measurementItems.current,

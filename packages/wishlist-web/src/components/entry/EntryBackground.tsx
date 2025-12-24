@@ -28,10 +28,15 @@ export function EntryBackground({
     <>
       <div
         suppressHydrationWarning
-        className="absolute -z-20 h-full w-full"
+        className="-z-20 col-start-1 row-start-1 h-full w-full"
         style={bgStyle}
       />
-      <div className={cn("absolute -z-10 h-full w-full", textureClass)} />
+      <div
+        className={cn(
+          "-z-10 col-start-1 row-start-1 h-full w-full",
+          textureClass,
+        )}
+      />
     </>
   );
 }

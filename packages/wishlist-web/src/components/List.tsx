@@ -8,7 +8,7 @@ import { getSortFunction } from "@/lib/sortWishlist";
 import { useWishlist } from "@/contexts/WishlistContext";
 import ListMiniMap from "./ListMiniMap.tsx";
 import { ClientOnly } from "@tanstack/react-router";
-import { useItemHeights } from "@/hooks/useItemHeights";
+import { useEntryHeights } from "@/hooks/useEntryHeights.ts";
 
 function getUnboxedName(item: IOTM): string {
   if (
@@ -64,9 +64,14 @@ function List() {
   // Setup virtualizer
   const listRef = useRef<HTMLDivElement>(null);
 
-  // Get pre-measured heights
-  const { heights, needsMeasurement, measureContainerRef, measurementItems } =
-    useItemHeights(orderedData);
+  // Get pre-measured heights and page height
+  const {
+    heights,
+    pageHeight,
+    needsMeasurement,
+    measureContainerRef,
+    measurementItems,
+  } = useEntryHeights(orderedData);
 
   const virtualizerOptions = useMemo(() => {
     return {
@@ -126,6 +131,7 @@ function List() {
         <ListMiniMap
           entries={orderedData}
           height={virtualizer.getTotalSize()}
+          pageHeight={pageHeight}
         />
       </ClientOnly>
       <div

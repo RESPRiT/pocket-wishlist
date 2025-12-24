@@ -70,18 +70,7 @@ function ListEntry({
   const isStandard = standardYear < 3;
 
   return (
-    <div
-      className={cn(
-        `relative flex h-full min-w-[290px] flex-wrap items-center
-        justify-center clamp-[gap-x,1.5,2.25,xs,sm] gap-y-2 overflow-hidden
-        rounded-md clamp-[px,5,6,xs,sm] py-3 hover:outline-2
-        hover:outline-foreground/50 md:clamp-[gap-x,2.25,6,md,lg] lg:w-full
-        lg:flex-nowrap`,
-        {
-          "hover:outline-secondary": isStandard,
-        },
-      )}
-    >
+    <div className="grid overflow-hidden rounded-md">
       <EntryBackground
         status={status}
         isStandard={isStandard}
@@ -89,29 +78,42 @@ function ListEntry({
         priceRatio={priceRatio}
       />
 
-      <EntryRibbon show={isIOTY || isCon} variant={isIOTY ? "ioty" : "con"} />
+      <div
+        className={cn(
+          `relative col-start-1 row-start-1 flex h-full min-w-[290px] flex-wrap
+          items-center justify-center clamp-[gap-x,1.5,2.25,xs,sm] gap-y-2
+          overflow-hidden clamp-[px,5,6,xs,sm] py-3 hover:outline-2
+          hover:outline-foreground/50 md:clamp-[gap-x,2.25,6,md,lg] lg:w-full
+          lg:flex-nowrap`,
+          {
+            "hover:outline-secondary": isStandard,
+          },
+        )}
+      >
+        <EntryRibbon show={isIOTY || isCon} variant={isIOTY ? "ioty" : "con"} />
 
-      <EntryInfoSection
-        img={img}
-        name={name}
-        type={type}
-        year={year}
-        wikiUrl={wikiUrl}
-        isStandard={isStandard}
-        yearPercent={yearPercent}
-      />
+        <EntryInfoSection
+          img={img}
+          name={name}
+          type={type}
+          year={year}
+          wikiUrl={wikiUrl}
+          isStandard={isStandard}
+          yearPercent={yearPercent}
+        />
 
-      <EntrySpacer className="hidden lg:inline" />
+        <EntrySpacer className="hidden lg:inline" />
 
-      <EntryTiersSection speed={speed} farm={farm} />
+        <EntryTiersSection speed={speed} farm={farm} />
 
-      <EntrySpacer />
+        <EntrySpacer />
 
-      <EntryPriceSection
-        mrAs={mrAs}
-        price={price}
-        packagedName={packagedName}
-      />
+        <EntryPriceSection
+          mrAs={mrAs}
+          price={price}
+          packagedName={packagedName}
+        />
+      </div>
     </div>
   );
 }

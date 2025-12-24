@@ -4,7 +4,6 @@ import {
   useRef,
   useMemo,
   useState,
-  useCallback,
 } from "react";
 import { ListEntryProps } from "./ListEntry";
 import { Theme, useTheme } from "@/contexts/ThemeContext";
@@ -62,63 +61,31 @@ function MiniMapEntry({
 function ListMiniMap({
   entries,
   height,
+  pageHeight,
 }: {
   entries: ListEntryProps[];
   height: number;
+  pageHeight: number;
 }) {
   const { theme } = useTheme();
   const scrollWindowRef = useRef<HTMLDivElement>(null);
   const scrollThrottle = useRef(false);
-  const [miniMapWidth, setMiniMapWidth] = useState(0);
-  const [pageHeight, setPageHeight] = useState(1080);
-  const [windowHeight, setWindowHeight] = useState(1080);
   // TODO: handle these initial values/initial updates so that scroll window
   // does not always start at the top (i.e. we reload and are mid-scroll)
   const [scrollPosition, setScrollPosition] = useState(0);
-  const [scrollFactor, setScrollFactor] = useState(45);
   const [initialScrollPosition, setInitialScrollPosition] = useState(0);
   const [initialScrollY, setInitialScrollY] = useState<number | null>(null);
   const [isActive, setIsActive] = useState(false);
   const [showMiniMap, setShowMiniMap] = useState(true);
 
-  // observer for boundingClientRect hack;
-  // more efficient than getBoundingClientRect()
-  const observerRef = useRef(
-    new IntersectionObserver((observerEntries) => {
-      const body = observerEntries[0];
-      const _pageHeight = body.boundingClientRect.height;
-      setPageHeight(_pageHeight);
-
-      const _scrollFactor = _pageHeight / (entries.length * ENTRY_HEIGHT_PX);
-      setScrollFactor(_scrollFactor);
-      setMiniMapWidth(window.innerWidth / _scrollFactor);
-
-      observerRef.current.disconnect();
-    }),
-  );
-
-  // Helper function for measurements
-  const calculateScrollMetrics = useCallback(
-    (height: number) => {
-      const excessHeight = pageHeight - height;
-      // TODO: window.scrollY is an expensive calculation that is fired constantly
-      return Math.max(excessHeight - window.scrollY, 0);
-    },
-    [pageHeight],
-  );
-
-  // Set initial page height
-  useEffect(() => {
-    observerRef.current.observe(document.body);
-    setWindowHeight(window.innerHeight);
-  }, []);
+  // Calculate derived values
+  const scrollFactor = pageHeight / (entries.length * ENTRY_HEIGHT_PX);
+  const miniMapWidth = window.innerWidth / scrollFactor;
 
   // Setup resize event handler
   useEffect(() => {
     const handleWindowResize = () => {
-      setMiniMapWidth(window.innerWidth / scrollFactor);
       setShowMiniMap(window.innerWidth >= MIN_WIDTH);
-      setWindowHeight(window.innerHeight);
     };
 
     handleWindowResize();
@@ -126,7 +93,7 @@ function ListMiniMap({
     return () => {
       window.removeEventListener("resize", handleWindowResize);
     };
-  }, [scrollFactor]);
+  }, []);
 
   // Setup scroll event handler
   useEffect(() => {
@@ -134,26 +101,15 @@ function ListMiniMap({
       if (initialScrollY !== null || scrollThrottle.current) return;
       scrollThrottle.current = true;
 
-      setScrollPosition(window.scrollY / scrollFactor);
-
-      setTimeout(() => {
+      requestAnimationFrame(() => {
+        setScrollPosition(window.scrollY / scrollFactor);
         scrollThrottle.current = false;
-      }, 8);
-    };
-
-    // only adjust sizing after scroll finishes to avoid spamming layout
-    const handleScrollEnd = () => {
-      if (initialScrollY !== null) return;
-
-      // update page height using observer
-      observerRef.current.observe(document.body);
+      });
     };
 
     window.addEventListener("scroll", handleScroll);
-    window.addEventListener("scrollend", handleScrollEnd);
     return () => {
       window.removeEventListener("scroll", handleScroll);
-      window.removeEventListener("scrollend", handleScrollEnd);
     };
   }, [initialScrollY, scrollFactor]);
 
@@ -166,38 +122,31 @@ function ListMiniMap({
   };
 
   const handlePointerMove: PointerEventHandler<HTMLDivElement> = (e) => {
-    if (initialScrollY === null || scrollThrottle.current) return;
-    scrollThrottle.current = true;
+    if (initialScrollY === null) return;
 
-    const maxScrollHeight = windowHeight / scrollFactor;
-    const maxScrollAmount = entries.length * ENTRY_HEIGHT_PX - maxScrollHeight;
+    const maxScrollHeight = window.innerHeight / scrollFactor;
+    const maxScrollAmount = pageHeight / scrollFactor - maxScrollHeight;
     const _scrollPosition = Math.min(
       Math.max(initialScrollPosition + e.clientY - initialScrollY, 0),
       maxScrollAmount,
     );
     setScrollPosition(_scrollPosition);
 
-    window.scroll(0, _scrollPosition * scrollFactor);
-
-    setTimeout(() => {
-      scrollThrottle.current = false;
-    }, 8);
+    if (scrollPosition !== _scrollPosition) {
+      window.scroll(0, _scrollPosition * scrollFactor);
+    }
   };
 
-  // only adjust sizing after scroll finishes to avoid spamming layout
   const handlePointerUp: PointerEventHandler<HTMLDivElement> = (e) => {
     e.currentTarget.releasePointerCapture(e.pointerId);
     setInitialScrollY(null);
     setIsActive(false);
-    // update page height using observer
-    observerRef.current.observe(document.body);
   };
 
   const handleJumpPointerDown: PointerEventHandler<HTMLDivElement> = (e) => {
     if (initialScrollY === null) {
-      const maxScrollHeight = windowHeight / scrollFactor;
-      const maxScrollAmount =
-        entries.length * ENTRY_HEIGHT_PX - maxScrollHeight;
+      const maxScrollHeight = window.innerHeight / scrollFactor;
+      const maxScrollAmount = pageHeight / scrollFactor - maxScrollHeight;
       const jumpY = Math.min(
         Math.max(e.clientY - TOP_OFFSET - maxScrollHeight / 2, 0),
         maxScrollAmount,
@@ -221,57 +170,62 @@ function ListMiniMap({
     }
   };
 
-  return showMiniMap ? (
-    <div className="group absolute -right-6 select-none">
-      {/* Extra hover padding */}
-      <div
-        className="fixed top-0 h-full"
-        style={{
-          width: miniMapWidth * HOVER_PADDING_MULTIPLIER,
-          // shift by half of extra size to center
-          transform: `translateX(-${(miniMapWidth * (HOVER_PADDING_MULTIPLIER - 1)) / 2}px)`,
-        }}
-      />
-      {/* Minimap */}
-      <div
-        className={cn(
-          `fixed z-0 rounded-xs bg-background/0 opacity-25 outline-1
+  return (
+    showMiniMap && (
+      <div className="group absolute -right-6 select-none">
+        {/* Extra hover padding */}
+        <div
+          className="fixed top-0 h-full"
+          style={{
+            width: miniMapWidth * HOVER_PADDING_MULTIPLIER,
+            // shift by half of extra size to center
+            transform: `translateX(-${(miniMapWidth * (HOVER_PADDING_MULTIPLIER - 1)) / 2}px)`,
+          }}
+        />
+        {/* Minimap */}
+        <div
+          className={cn(
+            `fixed z-0 rounded-xs bg-background/0 opacity-25 outline-1
             outline-foreground/50 transition-opacity duration-200
             group-hover:opacity-100`,
-          isActive && "opacity-100",
-        )}
-        style={{ width: miniMapWidth, top: TOP_OFFSET }}
-        onPointerDown={handleJumpPointerDown}
-      >
-        {entries.map((entry, index) => (
-          <MiniMapEntry key={index} entry={entry} theme={theme} />
-        ))}
-      </div>
-      {/* Scroll window */}
-      <div
-        ref={scrollWindowRef}
-        className={cn(
-          `fixed top-0 z-10 opacity-10 outline-2 outline-foreground
+            isActive && "opacity-100",
+          )}
+          style={{ width: miniMapWidth, top: TOP_OFFSET }}
+          onPointerDown={handleJumpPointerDown}
+        >
+          {entries.map((entry, index) => (
+            <MiniMapEntry key={index} entry={entry} theme={theme} />
+          ))}
+        </div>
+        {/* Scroll window */}
+        <div
+          ref={scrollWindowRef}
+          className={cn(
+            `fixed top-0 z-10 opacity-10 outline-2 outline-foreground
             transition-opacity duration-200 group-hover:opacity-100
             hover:cursor-pointer hover:bg-background/20
             hover:outline-foreground/50`,
-          isActive &&
-            `opacity-100 hover:cursor-grabbing hover:bg-background/50
+            isActive &&
+              `opacity-100 hover:cursor-grabbing hover:bg-background/50
               hover:outline-foreground/25`,
-        )}
-        style={{
-          width: miniMapWidth,
-          transform: `translateY(${TOP_OFFSET + scrollPosition}px)`,
-          height:
-            (windowHeight - calculateScrollMetrics(height)) / scrollFactor,
-        }}
-        onPointerDown={handlePointerDown}
-        onPointerMove={handlePointerMove}
-        onPointerUp={handlePointerUp}
-      ></div>
-    </div>
-  ) : (
-    <></>
+          )}
+          style={{
+            width: miniMapWidth,
+            transform: `translateY(${TOP_OFFSET + scrollPosition}px)`,
+            height:
+              (window.innerHeight -
+                Math.max(
+                  0,
+                  pageHeight - height - scrollPosition * scrollFactor,
+                )) /
+              scrollFactor,
+          }}
+          onPointerDown={handlePointerDown}
+          onPointerMove={handlePointerMove}
+          onPointerUp={handlePointerUp}
+        ></div>
+      </div>
+    )
   );
 }
 
