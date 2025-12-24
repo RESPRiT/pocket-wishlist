@@ -1,22 +1,23 @@
 import { jsx, jsxs, Fragment } from "react/jsx-runtime";
-import { w as wishlistQuery, m as mallPricesQuery, u as useTheme } from "./router-C4jq88zo.js";
-import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
-import { createContext, use, useMemo, useState, useEffect, useRef } from "react";
+import { w as wishlistQuery, m as mallPricesQuery, M as MallPriceResponseSchema, u as useTheme } from "./router-CfvHw1cq.js";
+import { useSuspenseQuery, queryOptions, useQuery } from "@tanstack/react-query";
+import { createContext, use, useMemo, useEffect, useRef, useState, useLayoutEffect } from "react";
 import { clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
+import { ClientOnly } from "@tanstack/react-router";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Slot } from "@radix-ui/react-slot";
 import { cva } from "class-variance-authority";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { useWindowVirtualizer } from "@tanstack/react-virtual";
-import { ClientOnly } from "@tanstack/react-router";
 import "@tanstack/react-router-ssr-query";
 import "@fortawesome/fontawesome-svg-core";
 import "@fortawesome/free-solid-svg-icons";
 import "@fortawesome/free-regular-svg-icons";
 import "color-bits";
-import "usehooks-ts";
+import "@tanstack/react-query-persist-client";
+import "@tanstack/query-async-storage-persister";
 import "zod";
 const iotms = [
   {
@@ -3901,7 +3902,7 @@ const iotms = [
     opened_names: "blood cubic zirconia",
     year: 2025,
     month: 10,
-    speed_tier: 1,
+    speed_tier: 0,
     aftercore_tier: 1,
     tradeable: false,
     type: "item",
@@ -3921,6 +3922,19 @@ const iotms = [
     type: "item",
     equipment_slot: "offhand",
     img: "headbag.gif"
+  },
+  {
+    packaged_id: 12049,
+    packaged_name: "stocking full of bones",
+    familiar_ids: 326,
+    familiar_names: "Skeleton of Crimbo Past",
+    year: 2025,
+    month: 12,
+    speed_tier: void 0,
+    aftercore_tier: void 0,
+    tradeable: false,
+    type: "familiar",
+    img: "skeletonocp.gif"
   }
 ];
 const WishlistContext = createContext({
@@ -3935,7 +3949,7 @@ const WishlistProvider = ({
   children,
   userId = 1927026
 }) => {
-  const { data, isPending, error } = useQuery(wishlistQuery(userId));
+  const { data, isPending, error } = useSuspenseQuery(wishlistQuery(userId));
   const value = {
     ...data ?? { username: "", userId: -1, wishlist: {}, lastUpdated: -1 },
     isPending,
@@ -3954,13 +3968,94 @@ function cn(...inputs) {
   return twMerge(clsx(inputs));
 }
 function useMallPrices() {
-  const { data, isPending, error } = useQuery(mallPricesQuery);
+  const { data, isPending, error } = useSuspenseQuery(mallPricesQuery);
+  const result = isPending || error ? {
+    prices: {},
+    lastUpdated: /* @__PURE__ */ new Date()
+  } : MallPriceResponseSchema.parse(data);
   return {
-    mallPrices: data ? data.prices : {},
-    mallPricesLastUpdated: data ? data.lastUpdated : /* @__PURE__ */ new Date(),
+    mallPrices: result.prices,
+    mallPricesLastUpdated: result.lastUpdated,
     isPending,
     error
   };
+}
+function Skeleton({ className, ...props }) {
+  return /* @__PURE__ */ jsx(
+    "div",
+    {
+      "data-slot": "skeleton",
+      className: cn("animate-pulse rounded-md bg-muted-foreground", className),
+      ...props
+    }
+  );
+}
+async function fetchImg(src) {
+  const url = `https://s3.amazonaws.com/images.kingdomofloathing.com/${src}`;
+  const image = await fetch(url);
+  if (!image.ok) throw new Error(`${image.status}`);
+  const blob = await image.blob();
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onloadend = () => resolve(reader.result);
+    reader.onerror = () => reject;
+    reader.readAsDataURL(blob);
+  });
+}
+const imgQuery = (src) => queryOptions({
+  queryKey: ["img", src],
+  queryFn: () => fetchImg(src),
+  staleTime: Infinity
+});
+function useCachedImage(src) {
+  const { data, isPending, error } = useQuery(imgQuery(src));
+  return {
+    imgSrc: data ?? "",
+    isPending,
+    error
+  };
+}
+function ThemedImg({
+  className,
+  style,
+  src,
+  alt,
+  reColor,
+  bgColor,
+  ...props
+}) {
+  const { imgSrc } = useCachedImage(src);
+  return /* @__PURE__ */ jsxs("div", { className: "grid select-none", ...props, children: [
+    bgColor !== void 0 ? /* @__PURE__ */ jsx("div", { className: `col-start-1 row-start-1 ${bgColor}` }) : /* @__PURE__ */ jsx(Fragment, {}),
+    /* @__PURE__ */ jsx(
+      "div",
+      {
+        className: cn(
+          className,
+          `col-start-1 row-start-1 [mix-blend-mode:var(--image-blend)]
+          filter-(--image-filter)`
+        ),
+        children: /* @__PURE__ */ jsx(ClientOnly, { children: imgSrc ? /* @__PURE__ */ jsx(
+          "img",
+          {
+            src: imgSrc,
+            alt,
+            style,
+            className: cn("h-full w-full object-cover")
+          }
+        ) : /* @__PURE__ */ jsx(Skeleton, { className: "h-full w-full" }) })
+      }
+    ),
+    /* @__PURE__ */ jsx(
+      "div",
+      {
+        className: cn(
+          reColor,
+          "col-start-1 row-start-1 [mix-blend-mode:var(--image-overlay-blend)]"
+        )
+      }
+    )
+  ] });
 }
 const TIME_RANGES = {
   secondsAgo: 60 * 1e3,
@@ -4005,8 +4100,25 @@ function Header() {
     {
       className: "clamp-[mt,4,10,xs,sm] flex flex-col justify-between gap-2\n        sm:flex-row sm:items-end",
       children: [
-        /* @__PURE__ */ jsxs("div", { className: "flex items-baseline gap-2.5", children: [
-          /* @__PURE__ */ jsx("span", { className: "clamp-[text,3xl,4xl,xs,sm] font-medium", children: "pocket wishlist" }),
+        /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-2.5", children: [
+          /* @__PURE__ */ jsx(
+            "a",
+            {
+              href: "https://wiki.kingdomofloathing.com/Pocket_wish",
+              className: "min-h-fit min-w-fit overflow-hidden rounded-sm outline-1\n            outline-foreground/20 hover:outline-2 hover:outline-foreground",
+              children: /* @__PURE__ */ jsx(
+                ThemedImg,
+                {
+                  src: `itemimages/whitecard.gif`,
+                  alt: "pocket wish",
+                  reColor: "bg-foreground",
+                  bgColor: "bg-background",
+                  className: "m-2 clamp-[size,4,5,sm,md]"
+                }
+              )
+            }
+          ),
+          /* @__PURE__ */ jsx("span", { className: "ml-1 clamp-[text,3xl,4xl,xs,sm] font-medium", children: "pocket wishlist" }),
           /* @__PURE__ */ jsx(
             "div",
             {
@@ -4223,9 +4335,9 @@ function EntryBackground({
   status,
   isStandard,
   standardYear,
-  priceRatio,
-  theme
+  priceRatio
 }) {
+  const { theme } = useTheme();
   const { bgStyle, textureClass } = useEntryBackgroundColor({
     status,
     isStandard,
@@ -4234,8 +4346,23 @@ function EntryBackground({
     theme
   });
   return /* @__PURE__ */ jsxs(Fragment, { children: [
-    /* @__PURE__ */ jsx("div", { className: "absolute -z-20 h-full w-full", style: bgStyle }),
-    /* @__PURE__ */ jsx("div", { className: cn("absolute -z-10 h-full w-full", textureClass) })
+    /* @__PURE__ */ jsx(
+      "div",
+      {
+        suppressHydrationWarning: true,
+        className: "-z-20 col-start-1 row-start-1 h-full w-full",
+        style: bgStyle
+      }
+    ),
+    /* @__PURE__ */ jsx(
+      "div",
+      {
+        className: cn(
+          "-z-10 col-start-1 row-start-1 h-full w-full",
+          textureClass
+        )
+      }
+    )
   ] });
 }
 function EntryRibbon({ show, variant }) {
@@ -4281,81 +4408,6 @@ function EntrySection({
   className = "gap-5"
 }) {
   return /* @__PURE__ */ jsx("div", { className: `flex items-center justify-center ${className}`, children });
-}
-function Skeleton({ className, ...props }) {
-  return /* @__PURE__ */ jsx(
-    "div",
-    {
-      "data-slot": "skeleton",
-      className: cn("animate-pulse rounded-md bg-muted-foreground", className),
-      ...props
-    }
-  );
-}
-function ThemedImg({
-  className,
-  style,
-  src,
-  alt,
-  reColor,
-  bgColor,
-  ...props
-}) {
-  const [imgSrc, setImgSrc] = useState(localStorage.getItem(src));
-  const { theme } = useTheme();
-  useEffect(() => {
-    if (imgSrc) {
-      return;
-    }
-    const url = `https://s3.amazonaws.com/images.kingdomofloathing.com/${src}`;
-    async function storeImage() {
-      try {
-        const image = await fetch(url);
-        if (!image.ok) throw new Error(`${image.status}`);
-        const blob = await image.blob();
-        const base64 = await new Promise((resolve, reject) => {
-          const reader = new FileReader();
-          reader.onloadend = () => resolve(reader.result);
-          reader.onerror = () => reject;
-          reader.readAsDataURL(blob);
-        });
-        localStorage.setItem(src, base64);
-        setImgSrc(base64);
-      } catch (error) {
-        console.warn("Couldn't store image at", url, error);
-      }
-    }
-    storeImage();
-  }, [src, imgSrc]);
-  return /* @__PURE__ */ jsxs("div", { className: "grid select-none", ...props, children: [
-    bgColor !== void 0 ? /* @__PURE__ */ jsx("div", { className: `col-start-1 row-start-1 ${bgColor}` }) : /* @__PURE__ */ jsx(Fragment, {}),
-    /* @__PURE__ */ jsx(
-      "div",
-      {
-        className: cn(
-          `${className} col-start-1 row-start-1`,
-          `${theme === "dark" ? "mix-blend-lighten invert" : "mix-blend-multiply"}`
-        ),
-        children: imgSrc ? /* @__PURE__ */ jsx(
-          "img",
-          {
-            src: imgSrc,
-            alt,
-            style,
-            className: cn("h-full w-full object-cover")
-          }
-        ) : /* @__PURE__ */ jsx(Skeleton, { className: "h-full w-full" })
-      }
-    ),
-    /* @__PURE__ */ jsx(
-      "div",
-      {
-        className: cn(`col-start-1 row-start-1 ${reColor} mix-blend-lighten`, {
-          "mix-blend-darken": theme === "dark"
-        })
-      }
-    )
-  ] });
 }
 const badgeVariants = cva(
   "inline-flex items-center justify-center rounded-md border px-2 py-0.5 font-medium whitespace-nowrap shrink-0 [&>svg]:size-3 gap-1 [&>svg]:pointer-events-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive transition-[color,box-shadow] overflow-hidden",
@@ -4483,6 +4535,7 @@ function EntryPriceSection({
   packagedName
 }) {
   const mallStatus = price?.value === void 0 && price?.lowestMall === -1 ? "extinct" : price?.value === void 0 || price?.volume === 0 ? "lowestMall" : price.value < price.lowestMall ? "recentSales" : "lowestMall";
+  const lowestPrice = (mallStatus === "lowestMall" ? price?.lowestMall : mallStatus === "recentSales" ? price?.value : -1) ?? -1;
   const statusText = {
     extinct: "Mall extinct, no recent sales data",
     lowestMall: "Based on lowest mall listing",
@@ -4491,29 +4544,28 @@ function EntryPriceSection({
   const mafiaUrl = `http://127.0.0.1:60080/mall.php?didadv=0&pudnuggler=${encodeURIComponent(packagedName)}&category=allitems&food_sortitemsby=name&booze_sortitemsby=name&othercon_sortitemsby=name&consumable_byme=0&hats_sortitemsby=name&shirts_sortitemsby=name&pants_sortitemsby=name&weapons_sortitemsby=name&weaponattribute=3&weaponhands=3&acc_sortitemsby=name&offhand_sortitemsby=name&wearable_byme=0&famequip_sortitemsby=name&nolimits=0&justitems=0&sortresultsby=price&max_price=0&x_cheapest=200&consumable_tier_1=0&consumable_tier_2=0&consumable_tier_3=0&consumable_tier_4=0&consumable_tier_5=0`;
   const formatMeatPrice = () => {
     if (price === null) return "x";
-    if (price.lowestMall === -1 && (price.volume === void 0 || price.volume === 0))
-      return "∞";
-    const millions = Math.round(price.lowestMall / 1e6);
+    if (mallStatus === "extinct") return "∞";
+    const millions = Math.round(lowestPrice / 1e6);
     return millions < 1e3 ? (
       // Use whole millions below billion
       `${millions}m`
     ) : (
       // Use 1 digit for sub-10 billion, whole beyond
-      `${Math.min(price.lowestMall / 1e9, 999).toFixed(
+      `${Math.min(lowestPrice / 1e9, 999).toFixed(
         millions < 1e4 ? 1 : 0
       )}b`
     );
   };
   const formatMrARatio = () => {
     if (price === null) return "x";
-    if (price.lowestMall === -1) return "∞";
-    const ratio = price.lowestMall / mrAs;
-    if (price.lowestMall < mrAs * 100) return ratio.toFixed(1);
+    if (mallStatus === "extinct") return "∞";
+    const ratio = lowestPrice / mrAs;
+    if (lowestPrice < mrAs * 100) return ratio.toFixed(1);
     if (ratio < 1e3) return Math.round(ratio).toString();
     return `${Math.round(ratio / 1e3)}k`;
   };
-  const isExpensive = price?.lowestMall && Math.round(price.lowestMall / 1e6) >= 1e3;
-  const isInfinite = price?.lowestMall === -1;
+  const isExpensive = lowestPrice && Math.round(lowestPrice / 1e6) >= 1e3;
+  const isInfinite = lowestPrice === -1;
   const fontClass = isInfinite ? "font-bold lg:text-2xl" : isExpensive ? "lg:text-xl" : "";
   return /* @__PURE__ */ jsx(EntryItem, { label: "est. mall price", children: /* @__PURE__ */ jsxs(
     "div",
@@ -4574,7 +4626,6 @@ function ListEntry({
   mrAs,
   status
 }) {
-  const { theme } = useTheme();
   const yearPercent = useMemo(() => {
     const currentYear = (/* @__PURE__ */ new Date()).getFullYear();
     return Math.min(5 / 6, (currentYear - year) / (currentYear - 2004));
@@ -4593,59 +4644,60 @@ function ListEntry({
   const mall = price?.value || price?.lowestMall ? Math.min(price?.value ?? Infinity, price?.lowestMall ?? Infinity) : null;
   const priceRatio = mall && mrAs ? mall / mrAs : null;
   const isStandard = standardYear < 3;
-  return /* @__PURE__ */ jsxs(
-    "div",
-    {
-      className: cn(
-        `relative flex h-full min-w-[290px] flex-wrap items-center
-        justify-center clamp-[gap-x,1.5,2.25,xs,sm] gap-y-2 overflow-hidden
-        rounded-md clamp-[px,5,6,xs,sm] py-3 hover:outline-2
-        hover:outline-foreground/50 md:clamp-[gap-x,2.25,6,md,lg] lg:w-full
-        lg:flex-nowrap`,
-        {
-          "hover:outline-secondary": isStandard
-        }
-      ),
-      children: [
-        /* @__PURE__ */ jsx(
-          EntryBackground,
+  return /* @__PURE__ */ jsxs("div", { className: "grid overflow-hidden rounded-md", children: [
+    /* @__PURE__ */ jsx(
+      EntryBackground,
+      {
+        status,
+        isStandard,
+        standardYear,
+        priceRatio
+      }
+    ),
+    /* @__PURE__ */ jsxs(
+      "div",
+      {
+        className: cn(
+          `relative col-start-1 row-start-1 flex h-full min-w-[290px] flex-wrap
+          items-center justify-center clamp-[gap-x,1.5,2.25,xs,sm] gap-y-2
+          overflow-hidden clamp-[px,5,6,xs,sm] py-3 hover:outline-2
+          hover:outline-foreground/50 md:clamp-[gap-x,2.25,6,md,lg] lg:w-full
+          lg:flex-nowrap`,
           {
-            status,
-            isStandard,
-            standardYear,
-            priceRatio,
-            theme
+            "hover:outline-secondary": isStandard
           }
         ),
-        /* @__PURE__ */ jsx(EntryRibbon, { show: isIOTY || isCon, variant: isIOTY ? "ioty" : "con" }),
-        /* @__PURE__ */ jsx(
-          EntryInfoSection,
-          {
-            img,
-            name,
-            type,
-            year,
-            wikiUrl,
-            isStandard,
-            yearPercent
-          }
-        ),
-        /* @__PURE__ */ jsx(EntrySpacer, { className: "hidden lg:inline" }),
-        /* @__PURE__ */ jsx(EntryTiersSection, { speed, farm }),
-        /* @__PURE__ */ jsx(EntrySpacer, {}),
-        /* @__PURE__ */ jsx(
-          EntryPriceSection,
-          {
-            mrAs,
-            price,
-            packagedName
-          }
-        )
-      ]
-    }
-  );
+        children: [
+          /* @__PURE__ */ jsx(EntryRibbon, { show: isIOTY || isCon, variant: isIOTY ? "ioty" : "con" }),
+          /* @__PURE__ */ jsx(
+            EntryInfoSection,
+            {
+              img,
+              name,
+              type,
+              year,
+              wikiUrl,
+              isStandard,
+              yearPercent
+            }
+          ),
+          /* @__PURE__ */ jsx(EntrySpacer, { className: "hidden lg:inline" }),
+          /* @__PURE__ */ jsx(EntryTiersSection, { speed, farm }),
+          /* @__PURE__ */ jsx(EntrySpacer, {}),
+          /* @__PURE__ */ jsx(
+            EntryPriceSection,
+            {
+              mrAs,
+              price,
+              packagedName
+            }
+          )
+        ]
+      }
+    )
+  ] });
 }
-const useStore = create()(
+const useSettingsStore = create()(
   persist(
     (set) => ({
       currentSort: "date",
@@ -4654,18 +4706,28 @@ const useStore = create()(
       setOrder: (direction) => set(() => ({ currentOrder: direction }))
     }),
     {
-      name: "wishlist-store"
+      name: "wishlist-store",
       // in localStorage by default
+      skipHydration: true
+      // doesn't hydrate immediately bc of SSR
     }
   )
 );
+const useHydratedSettingsStore = () => {
+  useEffect(() => {
+    useSettingsStore.persist.rehydrate();
+  }, []);
+  return useSettingsStore();
+};
 function priceSort(a, b, skipTie = false) {
+  const aPrice = a.price?.volume ?? 0 > 0 ? a.price?.value : null;
+  const bPrice = b.price?.volume ?? 0 > 0 ? b.price?.value : null;
   const aLowest = Math.min(
-    a.price?.value || Infinity,
+    aPrice || Infinity,
     a.price?.lowestMall === -1 ? Infinity : a.price?.lowestMall || Infinity
   );
   const bLowest = Math.min(
-    b.price?.value || Infinity,
+    bPrice || Infinity,
     b.price?.lowestMall === -1 ? Infinity : b.price?.lowestMall || Infinity
   );
   if (aLowest === bLowest) {
@@ -4701,12 +4763,6 @@ const ENTRY_HEIGHT_PX = 2;
 const HOVER_PADDING_MULTIPLIER = 1.5;
 const TOP_OFFSET = 24;
 const MIN_WIDTH = 1080;
-function calculateScrollMetrics(height) {
-  const totalHeight = document.body.getBoundingClientRect().height;
-  const excessHeight = totalHeight - height;
-  const unscrolled = Math.max(excessHeight - window.scrollY, 0);
-  return { totalHeight, excessHeight, unscrolled };
-}
 function MiniMapEntry({
   entry,
   theme
@@ -4739,29 +4795,21 @@ function MiniMapEntry({
 }
 function ListMiniMap({
   entries,
-  height
+  height,
+  pageHeight
 }) {
-  const { theme, isTransitioning } = useTheme();
+  const { theme } = useTheme();
   const scrollWindowRef = useRef(null);
-  const [miniMapWidth, setMiniMapWidth] = useState(0);
-  const [scrollHeight, setScrollHeight] = useState(0);
+  const scrollThrottle = useRef(false);
   const [scrollPosition, setScrollPosition] = useState(0);
-  const [scrollFactor, setScrollFactor] = useState(45);
   const [initialScrollPosition, setInitialScrollPosition] = useState(0);
   const [initialScrollY, setInitialScrollY] = useState(null);
   const [isActive, setIsActive] = useState(false);
   const [showMiniMap, setShowMiniMap] = useState(true);
-  useEffect(() => {
-    if (!isTransitioning) {
-      const { totalHeight } = calculateScrollMetrics(height);
-      setScrollFactor(totalHeight / (entries.length * ENTRY_HEIGHT_PX));
-    }
-  }, [entries.length, height, isTransitioning]);
+  const scrollFactor = pageHeight / (entries.length * ENTRY_HEIGHT_PX);
+  const miniMapWidth = window.innerWidth / scrollFactor;
   useEffect(() => {
     const handleWindowResize = () => {
-      const { unscrolled } = calculateScrollMetrics(height);
-      setMiniMapWidth(window.innerWidth / scrollFactor);
-      setScrollHeight((window.innerHeight - unscrolled) / scrollFactor);
       setShowMiniMap(window.innerWidth >= MIN_WIDTH);
     };
     handleWindowResize();
@@ -4769,20 +4817,21 @@ function ListMiniMap({
     return () => {
       window.removeEventListener("resize", handleWindowResize);
     };
-  }, [height, scrollFactor]);
+  }, []);
   useEffect(() => {
     const handleScroll = () => {
-      if (initialScrollY === null) {
-        const { unscrolled } = calculateScrollMetrics(height);
-        setScrollHeight((window.innerHeight - unscrolled) / scrollFactor);
+      if (initialScrollY !== null || scrollThrottle.current) return;
+      scrollThrottle.current = true;
+      requestAnimationFrame(() => {
         setScrollPosition(window.scrollY / scrollFactor);
-      }
+        scrollThrottle.current = false;
+      });
     };
     window.addEventListener("scroll", handleScroll);
     return () => {
       window.removeEventListener("scroll", handleScroll);
     };
-  }, [height, initialScrollY, scrollFactor]);
+  }, [initialScrollY, scrollFactor]);
   const handlePointerDown = (e) => {
     e.currentTarget.setPointerCapture(e.pointerId);
     setInitialScrollY(e.clientY);
@@ -4790,16 +4839,15 @@ function ListMiniMap({
     setIsActive(true);
   };
   const handlePointerMove = (e) => {
-    if (initialScrollY !== null) {
-      const { unscrolled } = calculateScrollMetrics(height);
-      setScrollHeight((window.innerHeight - unscrolled) / scrollFactor);
-      const maxScrollHeight = window.innerHeight / scrollFactor;
-      const maxScrollAmount = entries.length * ENTRY_HEIGHT_PX - maxScrollHeight;
-      const _scrollPosition = Math.min(
-        Math.max(initialScrollPosition + e.clientY - initialScrollY, 0),
-        maxScrollAmount
-      );
-      setScrollPosition(_scrollPosition);
+    if (initialScrollY === null) return;
+    const maxScrollHeight = window.innerHeight / scrollFactor;
+    const maxScrollAmount = pageHeight / scrollFactor - maxScrollHeight;
+    const _scrollPosition = Math.min(
+      Math.max(initialScrollPosition + e.clientY - initialScrollY, 0),
+      maxScrollAmount
+    );
+    setScrollPosition(_scrollPosition);
+    if (scrollPosition !== _scrollPosition) {
       window.scroll(0, _scrollPosition * scrollFactor);
     }
   };
@@ -4811,7 +4859,7 @@ function ListMiniMap({
   const handleJumpPointerDown = (e) => {
     if (initialScrollY === null) {
       const maxScrollHeight = window.innerHeight / scrollFactor;
-      const maxScrollAmount = entries.length * ENTRY_HEIGHT_PX - maxScrollHeight;
+      const maxScrollAmount = pageHeight / scrollFactor - maxScrollHeight;
       const jumpY = Math.min(
         Math.max(e.clientY - TOP_OFFSET - maxScrollHeight / 2, 0),
         maxScrollAmount
@@ -4826,12 +4874,10 @@ function ListMiniMap({
       scrollWindowRef.current.setPointerCapture(e.pointerId);
       setInitialScrollY(e.clientY);
       setInitialScrollPosition(jumpY);
-      const { unscrolled } = calculateScrollMetrics(height);
-      setScrollHeight((window.innerHeight - unscrolled) / scrollFactor);
       setIsActive(true);
     }
   };
-  return showMiniMap ? /* @__PURE__ */ jsxs("div", { className: "group absolute -right-6 select-none", children: [
+  return showMiniMap && /* @__PURE__ */ jsxs("div", { className: "group absolute -right-6 select-none", children: [
     /* @__PURE__ */ jsx(
       "div",
       {
@@ -4862,23 +4908,76 @@ function ListMiniMap({
       {
         ref: scrollWindowRef,
         className: cn(
-          `fixed z-10 opacity-10 outline-2 outline-foreground transition-opacity
-            duration-200 group-hover:opacity-100 hover:cursor-pointer
-            hover:bg-background/20 hover:outline-foreground/50`,
+          `fixed top-0 z-10 opacity-10 outline-2 outline-foreground
+            transition-opacity duration-200 group-hover:opacity-100
+            hover:cursor-pointer hover:bg-background/20
+            hover:outline-foreground/50`,
           isActive && `opacity-100 hover:cursor-grabbing hover:bg-background/50
               hover:outline-foreground/25`
         ),
         style: {
           width: miniMapWidth,
-          top: TOP_OFFSET + scrollPosition,
-          height: scrollHeight
+          transform: `translateY(${TOP_OFFSET + scrollPosition}px)`,
+          height: (window.innerHeight - Math.max(
+            0,
+            pageHeight - height - scrollPosition * scrollFactor
+          )) / scrollFactor
         },
         onPointerDown: handlePointerDown,
         onPointerMove: handlePointerMove,
         onPointerUp: handlePointerUp
       }
     )
-  ] }) : /* @__PURE__ */ jsx(Fragment, {});
+  ] });
+}
+function useEntryHeights(items) {
+  const [heights, setHeights] = useState(/* @__PURE__ */ new Map());
+  const [pageHeight, setPageHeight] = useState(75 * items.length);
+  const [needsMeasurement, setNeedsMeasurement] = useState(true);
+  const measureContainerRef = useRef(null);
+  const measurementItems = useRef(items);
+  useLayoutEffect(() => {
+    if (!needsMeasurement || !measureContainerRef.current) return;
+    const newHeights = /* @__PURE__ */ new Map();
+    const children = Array.from(measureContainerRef.current.children);
+    children.forEach((child, index) => {
+      const height = child.clientHeight;
+      newHeights.set(measurementItems.current[index].packagedName, height);
+    });
+    const newPageHeight = document.documentElement.scrollHeight;
+    setHeights(newHeights);
+    setPageHeight(newPageHeight);
+    setNeedsMeasurement(false);
+  }, [needsMeasurement]);
+  useEffect(() => {
+    let resizeTimeout;
+    const handleResize = () => {
+      clearTimeout(resizeTimeout);
+      resizeTimeout = setTimeout(() => {
+        setNeedsMeasurement(true);
+      }, 150);
+    };
+    window.addEventListener("resize", handleResize);
+    return () => {
+      window.removeEventListener("resize", handleResize);
+      clearTimeout(resizeTimeout);
+    };
+  }, []);
+  useEffect(() => {
+    const observer = new ResizeObserver(() => {
+      const newPageHeight = document.documentElement.scrollHeight;
+      setPageHeight(newPageHeight);
+    });
+    observer.observe(document.body);
+    return () => observer.disconnect();
+  }, []);
+  return {
+    heights,
+    pageHeight,
+    needsMeasurement,
+    measureContainerRef,
+    measurementItems: measurementItems.current
+  };
 }
 function getUnboxedName(item) {
   if (item.type !== "skill" && item.opened_names && !Array.isArray(item.opened_names)) {
@@ -4891,7 +4990,7 @@ function getUnboxedName(item) {
 }
 function List() {
   "use no memo";
-  const { currentOrder, currentSort } = useStore();
+  const { currentOrder, currentSort } = useHydratedSettingsStore();
   const { mallPrices } = useMallPrices();
   const { wishlist } = useWishlist();
   const data = useMemo(
@@ -4915,16 +5014,36 @@ function List() {
     ),
     [mallPrices, wishlist]
   );
-  const sortedData = data.slice().sort(getSortFunction(currentSort));
-  const orderedData = currentOrder ? sortedData.slice().reverse() : sortedData;
+  const orderedData = useMemo(() => {
+    const sortedData = data.slice().sort(getSortFunction(currentSort));
+    return currentOrder ? sortedData.slice().reverse() : sortedData;
+  }, [data, currentSort, currentOrder]);
   const listRef = useRef(null);
-  const virtualizer = useWindowVirtualizer({
-    count: orderedData.length,
-    estimateSize: () => 75,
-    gap: 8,
-    overscan: 5,
-    getItemKey: (item) => orderedData[item].packagedName
-  });
+  const {
+    heights,
+    pageHeight,
+    needsMeasurement,
+    measureContainerRef,
+    measurementItems
+  } = useEntryHeights(orderedData);
+  const virtualizerOptions = useMemo(() => {
+    return {
+      count: orderedData.length,
+      estimateSize: (index) => {
+        const packagedName = orderedData[index].packagedName;
+        return heights.get(packagedName) ?? 75;
+      },
+      gap: 8,
+      overscan: 5,
+      // size of the window during SSR
+      initialRect: {
+        height: 15 * (75 + 8),
+        width: (64 - 5) * 16
+      },
+      getItemKey: (index) => orderedData[index].packagedName
+    };
+  }, [orderedData, heights]);
+  const virtualizer = useWindowVirtualizer(virtualizerOptions);
   const items = virtualizer.getVirtualItems();
   const virtualOffset = items[0] ? items[0].start : 0;
   return /* @__PURE__ */ jsxs(
@@ -4936,11 +5055,28 @@ function List() {
         height: `${virtualizer.getTotalSize()}px`
       },
       children: [
+        needsMeasurement && /* @__PURE__ */ jsx(
+          "div",
+          {
+            ref: measureContainerRef,
+            className: "flex w-full flex-wrap items-stretch gap-2",
+            style: {
+              position: "absolute",
+              visibility: "hidden",
+              pointerEvents: "none",
+              top: 0,
+              left: 0,
+              zIndex: -1
+            },
+            children: measurementItems.map((item) => /* @__PURE__ */ jsx("div", { className: "grow", children: /* @__PURE__ */ jsx(ListEntry, { ...item }) }, item.packagedName))
+          }
+        ),
         /* @__PURE__ */ jsx(ClientOnly, { children: /* @__PURE__ */ jsx(
           ListMiniMap,
           {
             entries: orderedData,
-            height: virtualizer.getTotalSize()
+            height: virtualizer.getTotalSize(),
+            pageHeight
           }
         ) }),
         /* @__PURE__ */ jsx(
@@ -4952,16 +5088,7 @@ function List() {
               transform: `translateY(${virtualOffset}px)`,
               viewTransitionName: "foreground"
             },
-            children: items.map((row) => /* @__PURE__ */ jsx(
-              "div",
-              {
-                className: "grow",
-                "data-index": row.index,
-                ref: virtualizer.measureElement,
-                children: /* @__PURE__ */ jsx(ListEntry, { ...orderedData[row.index] })
-              },
-              row.key
-            ))
+            children: items.map((row) => /* @__PURE__ */ jsx("div", { className: "grow", children: /* @__PURE__ */ jsx(ListEntry, { ...orderedData[row.index] }) }, row.key))
           }
         )
       ]
@@ -4969,7 +5096,7 @@ function List() {
   );
 }
 function ListControlMenu() {
-  const { currentSort, setSort, currentOrder, setOrder } = useStore();
+  const { currentSort, setSort, currentOrder, setOrder } = useHydratedSettingsStore();
   return /* @__PURE__ */ jsx("div", { className: "sticky top-2 z-30 flex justify-center", children: /* @__PURE__ */ jsxs(
     "div",
     {
@@ -5058,8 +5185,6 @@ function App() {
   ] });
 }
 function Index() {
-  useSuspenseQuery(wishlistQuery(1927026));
-  useSuspenseQuery(mallPricesQuery);
   return /* @__PURE__ */ jsx(App, {});
 }
 export {

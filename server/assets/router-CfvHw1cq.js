@@ -1,5 +1,5 @@
 import { queryOptions, QueryClient } from "@tanstack/react-query";
-import { createRootRouteWithContext, Outlet, HeadContent, Scripts, createFileRoute, lazyRouteComponent, createRouter } from "@tanstack/react-router";
+import { createRootRouteWithContext, useRouter, Outlet, HeadContent, Scripts, createFileRoute, lazyRouteComponent, createRouter } from "@tanstack/react-router";
 import { setupRouterSsrQueryIntegration } from "@tanstack/react-router-ssr-query";
 import { jsx, jsxs } from "react/jsx-runtime";
 import { useState, useEffect, createContext, use, StrictMode } from "react";
@@ -7,9 +7,10 @@ import { config, library } from "@fortawesome/fontawesome-svg-core";
 import { fas } from "@fortawesome/free-solid-svg-icons";
 import { far } from "@fortawesome/free-regular-svg-icons";
 import * as Color from "color-bits";
-import { useLocalStorage } from "usehooks-ts";
+import { PersistQueryClientProvider } from "@tanstack/react-query-persist-client";
+import { createAsyncStoragePersister } from "@tanstack/query-async-storage-persister";
 import { z } from "zod";
-const globalsCss = "/assets/globals-BMmbv9Xw.css";
+const globalsCss = "/assets/globals-D_tQcG40.css";
 const texturesCss = "/assets/textures-iRdHByZ0.css";
 const KEY = "theme";
 const DARK = "oklch(26.7% 0.048517 219.8)";
@@ -39,26 +40,36 @@ const handleAnimateThemeColor = (metaTheme, theme, progress = 0) => {
   requestAnimationFrame(step);
 };
 const ThemeProvider = ({ children }) => {
-  const [theme, setTheme] = useLocalStorage(KEY, system(), {
-    serializer: (s) => s ?? "",
-    deserializer: (s) => s
-  });
+  const [theme, setTheme] = useState(system());
   const [isTransitioning, setIsTransitioning] = useState(false);
   const metaTheme = typeof document !== "undefined" ? document.querySelector(`meta[name="theme-color"]`) : null;
   useEffect(() => {
-    document.documentElement.setAttribute("data-theme", theme);
-    metaTheme?.setAttribute("content", theme === "light" ? LIGHT : DARK);
-    if (localStorage.getItem(KEY) === null) setTheme(system());
-  }, [theme, setTheme, metaTheme]);
+    const cachedTheme = localStorage.getItem(KEY);
+    setTheme(cachedTheme ?? system());
+    document.documentElement.setAttribute(
+      "data-theme",
+      cachedTheme ?? system()
+    );
+    metaTheme?.setAttribute(
+      "content",
+      (cachedTheme ?? system()) === "light" ? LIGHT : DARK
+    );
+    if (cachedTheme === null) localStorage.setItem(KEY, system());
+  }, [metaTheme]);
   async function set(t) {
     setIsTransitioning(true);
     if (!document.startViewTransition) {
       setTheme(t);
+      localStorage.setItem(KEY, t);
       setIsTransitioning(false);
       return;
     }
     if (metaTheme) handleAnimateThemeColor(metaTheme, t);
-    const transition = document.startViewTransition(() => setTheme(t));
+    const transition = document.startViewTransition(() => {
+      document.documentElement.setAttribute("data-theme", t);
+      setTheme(t);
+      localStorage.setItem(KEY, t);
+    });
     await transition.finished;
     setIsTransitioning(false);
   }
@@ -126,7 +137,26 @@ const Route$2 = createRootRouteWithContext()(
   }
 );
 function RootComponent() {
-  return /* @__PURE__ */ jsx(RootDocument, { children: /* @__PURE__ */ jsx(StrictMode, { children: /* @__PURE__ */ jsx(ThemeProvider, { children: /* @__PURE__ */ jsx(Outlet, {}) }) }) });
+  const router2 = useRouter();
+  const queryClient = router2.options.context.queryClient;
+  const persister = createAsyncStoragePersister({
+    storage: typeof window !== "undefined" ? window.localStorage : void 0
+  });
+  return /* @__PURE__ */ jsx(RootDocument, { children: /* @__PURE__ */ jsx(StrictMode, { children: /* @__PURE__ */ jsx(
+    PersistQueryClientProvider,
+    {
+      client: queryClient,
+      persistOptions: {
+        persister,
+        dehydrateOptions: {
+          // only persist these keys (prices and images)
+          // see: https://github.com/TanStack/query/discussions/7131
+          shouldDehydrateQuery: (query) => ["img", "mallPrices"].includes(query.queryKey[0])
+        }
+      },
+      children: /* @__PURE__ */ jsx(ThemeProvider, { children: /* @__PURE__ */ jsx(Outlet, {}) })
+    }
+  ) }) });
 }
 function RootDocument({ children }) {
   return /* @__PURE__ */ jsxs("html", { suppressHydrationWarning: true, children: [
@@ -152,6 +182,18 @@ const WishlistResponseSchema = z.object({
   wishlist: WishlistSchema,
   lastUpdated: z.number()
 });
+const PriceGunSalesDataSchema = z.object({
+  date: z.coerce.date(),
+  unitPrice: z.number(),
+  quantity: z.number()
+});
+const PriceGunHistoricalDataSchema = z.object({
+  itemId: z.number(),
+  date: z.coerce.date(),
+  volume: z.number(),
+  price: z.coerce.number()
+  // TODO: this coercion is to get around a type bug with pricegun
+});
 const PriceGunSchema = z.object({
   // value across ALL transactions, not just past 2 weeks
   value: z.number(),
@@ -160,7 +202,11 @@ const PriceGunSchema = z.object({
   // last time the price value was calculated by PriceGun
   date: z.coerce.date(),
   // JSON dates are strings
-  itemId: z.number()
+  itemId: z.number(),
+  name: z.string(),
+  image: z.string(),
+  sales: z.array(PriceGunSalesDataSchema),
+  history: z.array(PriceGunHistoricalDataSchema)
 });
 z.array(PriceGunSchema);
 z.record(z.coerce.number(), z.number());
@@ -218,9 +264,9 @@ const mallPricesQuery = queryOptions({
   queryKey: ["mallPrices"],
   queryFn: fetchMallPrices,
   staleTime: (query) => {
-    const lastUpdated = query.state.data?.lastUpdated;
-    if (lastUpdated !== void 0) {
-      const sinceLastUpdated = Date.now() - lastUpdated.getTime();
+    const result = MallPriceResponseSchema.safeParse(query.state.data);
+    if (result.success) {
+      const sinceLastUpdated = Date.now() - result.data.lastUpdated.getTime();
       return 24 * 60 * 60 * 1e3 - sinceLastUpdated;
     }
     return 0;
@@ -237,10 +283,15 @@ async function fetchWishlist(userId = 1927026) {
 }
 const wishlistQuery = (userId) => queryOptions({
   queryKey: ["wishlist", userId],
-  queryFn: () => fetchWishlist(userId)
+  queryFn: () => fetchWishlist(userId),
+  staleTime: 5e3,
+  // prevent client for immiediately refetching
+  refetchOnWindowFocus: false
+  // a bit much
 });
-const $$splitComponentImporter = () => import("./index-BcHGsuwb.js");
+const $$splitComponentImporter = () => import("./index-BFrSLyh3.js");
 const Route = createFileRoute("/")({
+  // preload: https://tanstack.com/router/latest/docs/integrations/query#preload-with-a-loader-and-read-with-a-hook
   loader: ({
     context
   }) => {
@@ -275,10 +326,11 @@ function getRouter() {
   });
   setupRouterSsrQueryIntegration({
     router: router2,
-    queryClient
+    queryClient,
     // optional:
     // handleRedirects: true,
-    // wrapQueryClient: true,
+    wrapQueryClient: false
+    // wrapped in __root.tsx
   });
   return router2;
 }
@@ -287,6 +339,7 @@ const router = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProper
   getRouter
 }, Symbol.toStringTag, { value: "Module" }));
 export {
+  MallPriceResponseSchema as M,
   mallPricesQuery as m,
   router as r,
   useTheme as u,
