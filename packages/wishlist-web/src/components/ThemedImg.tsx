@@ -8,6 +8,7 @@ import animatedImages from "@/data/animatedImages.json";
 
 const animatedSet = new Set(animatedImages);
 
+// TODO: Clean up some of this logic, because right now it's gross
 function ThemedImg({
   className,
   style,
@@ -44,7 +45,6 @@ function ThemedImg({
     <StaticThemedImg
       className={className}
       style={style}
-      src={src}
       alt={alt}
       filename={filename}
       bgColor={bgColor}
@@ -57,13 +57,11 @@ function ThemedImg({
 function StaticThemedImg({
   className,
   style,
-  src,
   alt,
   filename,
   bgColor,
   ...props
 }: React.HTMLAttributes<HTMLDivElement> & {
-  src: string;
   alt: string;
   filename: string;
   bgColor?: string;
@@ -72,20 +70,23 @@ function StaticThemedImg({
   // Convert .gif to .png and build themed path
   const pngFilename = filename.replace(/\.gif$/i, ".png");
   const themedSrc = `/itemimages/${theme}/${pngFilename}`;
+  const { imgSrc } = useCachedImage(themedSrc);
 
   return (
     <div className="grid select-none">
       {bgColor && <div className={cn("col-start-1 row-start-1", bgColor)} />}
       <div className={cn("col-start-1 row-start-1", className)} {...props}>
-        <ClientOnly
-          fallback={<Skeleton className="h-full w-full" style={style} />}
-        >
-          <img
-            src={themedSrc}
-            alt={alt}
-            style={style}
-            className="h-full w-full object-cover"
-          />
+        <ClientOnly>
+          {imgSrc ? (
+            <img
+              src={imgSrc}
+              alt={alt}
+              style={style}
+              className="h-full w-full object-cover"
+            />
+          ) : (
+            <Skeleton className="h-full w-full" style={style} />
+          )}
         </ClientOnly>
       </div>
     </div>
