@@ -3,8 +3,97 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { ClientOnly } from "@tanstack/react-router";
 import { useCachedImage } from "@/hooks/useCachedImage";
+import { useTheme } from "@/contexts/ThemeContext";
+import animatedImages from "@/data/animatedImages.json";
+
+const animatedSet = new Set(animatedImages);
 
 function ThemedImg({
+  className,
+  style,
+  src,
+  alt,
+  reColor,
+  bgColor,
+  ...props
+}: React.HTMLAttributes<HTMLDivElement> & {
+  src: string;
+  alt: string;
+  reColor: string;
+  bgColor?: string;
+}) {
+  // Extract filename from src (e.g., "itemimages/meat.gif" -> "meat.gif")
+  const filename = src.split("/").pop() ?? "";
+  const isAnimated = animatedSet.has(filename);
+
+  if (isAnimated) {
+    return (
+      <AnimatedThemedImg
+        className={className}
+        style={style}
+        src={src}
+        alt={alt}
+        reColor={reColor}
+        bgColor={bgColor}
+        {...props}
+      />
+    );
+  }
+
+  return (
+    <StaticThemedImg
+      className={className}
+      style={style}
+      src={src}
+      alt={alt}
+      filename={filename}
+      bgColor={bgColor}
+      {...props}
+    />
+  );
+}
+
+/** Static images: use pre-rendered themed PNGs */
+function StaticThemedImg({
+  className,
+  style,
+  src,
+  alt,
+  filename,
+  bgColor,
+  ...props
+}: React.HTMLAttributes<HTMLDivElement> & {
+  src: string;
+  alt: string;
+  filename: string;
+  bgColor?: string;
+}) {
+  const { theme } = useTheme();
+  // Convert .gif to .png and build themed path
+  const pngFilename = filename.replace(/\.gif$/i, ".png");
+  const themedSrc = `/itemimages/${theme}/${pngFilename}`;
+
+  return (
+    <div className="grid select-none">
+      {bgColor && <div className={cn("col-start-1 row-start-1", bgColor)} />}
+      <div className={cn("col-start-1 row-start-1", className)} {...props}>
+        <ClientOnly
+          fallback={<Skeleton className="h-full w-full" style={style} />}
+        >
+          <img
+            src={themedSrc}
+            alt={alt}
+            style={style}
+            className="h-full w-full object-cover"
+          />
+        </ClientOnly>
+      </div>
+    </div>
+  );
+}
+
+/** Animated images: use mix-blend-mode approach (fetched from CDN) */
+function AnimatedThemedImg({
   className,
   style,
   src,
