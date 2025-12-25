@@ -1,5 +1,4 @@
 import React from "react";
-import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { ClientOnly } from "@tanstack/react-router";
 import { useCachedImage } from "@/hooks/useCachedImage";
@@ -77,15 +76,13 @@ function StaticThemedImg({
       {bgColor && <div className={cn("col-start-1 row-start-1", bgColor)} />}
       <div className={cn("col-start-1 row-start-1", className)} {...props}>
         <ClientOnly>
-          {imgSrc ? (
+          {imgSrc && (
             <img
               src={imgSrc}
               alt={alt}
               style={style}
               className="h-full w-full object-cover"
             />
-          ) : (
-            <Skeleton className="h-full w-full" style={style} />
           )}
         </ClientOnly>
       </div>
@@ -125,15 +122,13 @@ function AnimatedThemedImg({
         )}
       >
         <ClientOnly>
-          {imgSrc ? (
+          {imgSrc && (
             <img
               src={imgSrc}
               alt={alt}
               style={style}
               className={cn("h-full w-full object-cover")}
             />
-          ) : (
-            <Skeleton className="h-full w-full" />
           )}
         </ClientOnly>
       </div>

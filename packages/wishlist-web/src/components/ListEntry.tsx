@@ -70,7 +70,13 @@ function ListEntry({
   const isStandard = standardYear < 3;
 
   return (
-    <div className="grid overflow-hidden rounded-md">
+    <div
+      className={cn(
+        `grid overflow-hidden rounded-md hover:outline-2
+        hover:outline-foreground/50`,
+        isStandard && "hover:outline-secondary",
+      )}
+    >
       <EntryBackground
         status={status}
         isStandard={isStandard}
@@ -83,11 +89,7 @@ function ListEntry({
           `relative col-start-1 row-start-1 flex h-full min-w-[290px] flex-wrap
           items-center justify-center clamp-[gap-x,1.5,2.25,xs,sm] gap-y-2
           overflow-hidden clamp-[px,5,6,xs,sm] py-3 hover:outline-2
-          hover:outline-foreground/50 md:clamp-[gap-x,2.25,6,md,lg] lg:w-full
-          lg:flex-nowrap`,
-          {
-            "hover:outline-secondary": isStandard,
-          },
+          md:clamp-[gap-x,2.25,6,md,lg] lg:w-full lg:flex-nowrap`,
         )}
       >
         <EntryRibbon show={isIOTY || isCon} variant={isIOTY ? "ioty" : "con"} />
