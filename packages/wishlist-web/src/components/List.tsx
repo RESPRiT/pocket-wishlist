@@ -2,7 +2,7 @@ import ListEntry, { ListEntryProps } from "./ListEntry";
 import { IOTM, iotms } from "wishlist-shared";
 import { useMemo, useRef } from "react";
 import { useHydratedSettingsStore } from "@/stores/useSettingsStore.ts";
-import { useWindowVirtualizer } from "@tanstack/react-virtual";
+import { Range, useWindowVirtualizer } from "@tanstack/react-virtual";
 import { useMallPrices } from "@/hooks/useMallPrices";
 import { getSortFunction } from "@/lib/sortWishlist";
 import { useWishlist } from "@/contexts/WishlistContext";
@@ -81,7 +81,19 @@ function List() {
         return heights.get(packagedName) ?? 75;
       },
       gap: 8,
-      overscan: 5,
+      // used as an asymetrical overscan
+      // note: probably could just handle the initial offset on the page better, too
+      rangeExtractor: (range: Range) => {
+        const overscanTop = 5;
+        const overscanBottom = 1;
+
+        const start = Math.max(range.startIndex - overscanTop, 0);
+        const end = Math.min(range.endIndex + overscanBottom, range.count - 1);
+        const total = end - start + 1;
+
+        const arr = new Array(total).fill(0).map((_, i) => start + i);
+        return arr;
+      },
       // size of the window during SSR
       initialRect: {
         height: 15 * (75 + 8),

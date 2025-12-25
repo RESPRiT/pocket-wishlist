@@ -12,14 +12,17 @@
  */
 
 import { mkdir, writeFile } from "fs/promises";
-import { existsSync } from "fs";
 import { join } from "path";
 import sharp from "sharp";
 import { iotms } from "../../wishlist-shared/data/iotms";
 
-const CDN_BASE = "https://s3.amazonaws.com/images.kingdomofloathing.com/itemimages";
+const CDN_BASE =
+  "https://s3.amazonaws.com/images.kingdomofloathing.com/itemimages";
 const OUTPUT_DIR = join(import.meta.dirname, "../public/itemimages");
-const MANIFEST_PATH = join(import.meta.dirname, "../src/data/animatedImages.json");
+const MANIFEST_PATH = join(
+  import.meta.dirname,
+  "../src/data/animatedImages.json",
+);
 
 // Theme colors (OKLCH converted to RGB)
 // Light: oklch(26.7% 0.048517 219.8) → dark teal
@@ -69,7 +72,7 @@ async function isAnimatedGif(buffer: Buffer): Promise<boolean> {
 async function processStaticImage(
   buffer: Buffer,
   filename: string,
-  theme: "light" | "dark"
+  theme: "light" | "dark",
 ): Promise<Buffer> {
   const colorSet = ACCENT_IMAGES.has(filename) ? "accent" : "foreground";
   const { r, g, b } = COLORS[theme][colorSet];
@@ -120,7 +123,8 @@ async function processStaticImage(
     } else {
       // Anti-aliased gray pixels: interpolate alpha
       // Map luminance from [BLACK_THRESHOLD, WHITE_THRESHOLD] to alpha [255, 0]
-      const t = (luminance - BLACK_THRESHOLD) / (WHITE_THRESHOLD - BLACK_THRESHOLD);
+      const t =
+        (luminance - BLACK_THRESHOLD) / (WHITE_THRESHOLD - BLACK_THRESHOLD);
       const alpha = Math.round((1 - t) * 255);
       pixels[i] = r;
       pixels[i + 1] = g;
@@ -129,7 +133,7 @@ async function processStaticImage(
     }
   }
 
-  // Reconstruct the image
+  // Reconstruct the image with optimized PNG settings
   return sharp(pixels, {
     raw: {
       width: info.width,
@@ -137,7 +141,13 @@ async function processStaticImage(
       channels: 4,
     },
   })
-    .png()
+    .png({
+      // Use indexed palette - faster to decode since we only have ~256 color variations
+      // (one theme color at different alpha levels)
+      palette: true,
+      quality: 100, // Keep full quality for the palette
+      effort: 10, // max compression
+    })
     .toBuffer();
 }
 
