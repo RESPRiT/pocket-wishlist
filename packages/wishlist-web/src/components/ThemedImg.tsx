@@ -27,13 +27,7 @@ function ThemedImg({
       ) : (
         <></>
       )}
-      <div
-        className={cn(
-          className,
-          `col-start-1 row-start-1 [mix-blend-mode:var(--image-blend)]
-          filter-(--image-filter)`,
-        )}
-      >
+      <div className={cn(className, "col-start-1 row-start-1")}>
         <ClientOnly>
           {imgSrc ? (
             <img
@@ -47,12 +41,7 @@ function ThemedImg({
           )}
         </ClientOnly>
       </div>
-      <div
-        className={cn(
-          reColor,
-          "col-start-1 row-start-1 [mix-blend-mode:var(--image-overlay-blend)]",
-        )}
-      ></div>
+      <div className={cn(reColor, "col-start-1 row-start-1")}></div>
     </div>
   );
 }

@@ -5,8 +5,6 @@ import { useHydratedSettingsStore } from "@/stores/useSettingsStore.ts";
 import { useMallPrices } from "@/hooks/useMallPrices";
 import { getSortFunction } from "@/lib/sortWishlist";
 import { useWishlist } from "@/contexts/WishlistContext";
-import ListMiniMap from "./ListMiniMap.tsx";
-import { ClientOnly } from "@tanstack/react-router";
 
 function getUnboxedName(item: IOTM): string {
   if (
@@ -63,10 +61,6 @@ function List() {
 
   return (
     <div className="relative mb-12 w-full">
-      {/* TODO: Move this out of List and into ListView once data is in a context */}
-      <ClientOnly>
-        <ListMiniMap listRef={listRef} entries={orderedData} />
-      </ClientOnly>
       <div
         className="flex w-full flex-wrap items-stretch gap-2"
         ref={listRef}
