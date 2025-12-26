@@ -19051,7 +19051,7 @@ function main() {
       name: (0, import_kolmafia4.myName)()
     },
     wishlist: checkIOTMs()
-  }, crushed = encodeURIComponent(JSONCrush_default.crush(JSON.stringify(data))), link = "https://resprit--94d09ed2946611f08e910224a6c84d84.web.val.run/update-wishlist?d=".concat(crushed);
+  }, crushed = encodeURIComponent(JSONCrush_default.crush(JSON.stringify(data))), link = "https://resprit--dd94f3deb77f11f08e0c0224a6c84d84.web.val.run/update-wishlist?d=".concat(crushed);
   (0, import_kolmafia4.visitUrl)(link, !1, !0), (0, import_kolmafia4.print)("Updated!");
 }
 // Annotate the CommonJS export names for ESM import in node:
