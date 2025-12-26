@@ -8,6 +8,14 @@ export default tseslint.config(
   eslint.configs.recommended,
   tseslint.configs.recommended,
   eslintConfigPrettier,
-  { plugins: { libram }, rules: { "libram/verify-constants": "error" } },
-  { ignores: ["dist/*"] },
+  {
+    plugins: { libram },
+    rules: { "libram/verify-constants": "error" },
+    languageOptions: {
+      parserOptions: {
+        tsconfigRootDir: "/",
+      },
+    },
+  },
+  { ignores: ["dist/*"] }
 );

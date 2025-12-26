@@ -16,6 +16,7 @@ const HOVER_PADDING_MULTIPLIER = 1.5;
 const TOP_OFFSET = 24; // top-6 class = 24px
 const MIN_WIDTH = 1080;
 
+// TODO: Put this in canvas instead of rendering hundreds of tiny divs
 function MiniMapEntry({
   entry,
   theme,
@@ -175,6 +176,11 @@ function ListMiniMap({
     }
   };
 
+  // pulling this out allows React Compiler to auto-memoize it
+  const entryList = entries.map((entry, index) => (
+    <MiniMapEntry key={index} entry={entry} theme={theme} />
+  ));
+
   return (
     showMiniMap && (
       <div className="group absolute -right-6 select-none">
@@ -198,9 +204,7 @@ function ListMiniMap({
           style={{ width: miniMapWidth, top: TOP_OFFSET }}
           onPointerDown={handleJumpPointerDown}
         >
-          {entries.map((entry, index) => (
-            <MiniMapEntry key={index} entry={entry} theme={theme} />
-          ))}
+          {entryList}
         </div>
         {/* Scroll window */}
         <div
