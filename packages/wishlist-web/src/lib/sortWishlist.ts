@@ -30,8 +30,7 @@ function dateSort(a: ListEntryProps, b: ListEntryProps, skipTie = false) {
   if (a.year !== b.year) return b.year - a.year;
 
   // compare months, monthless => bigger (so, 13 > 12)
-  if ((a.month ?? 13) !== (b.month ?? 13))
-    return (b.month ?? 13) - (a.month ?? 13);
+  if ((a.month ?? 0) !== (b.month ?? 0)) return (b.month ?? 0) - (a.month ?? 0);
 
   // compare con and ioty status
   if (a.isIOTY && !b.isIOTY) return -1;

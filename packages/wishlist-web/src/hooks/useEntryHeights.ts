@@ -41,7 +41,7 @@ export function useEntryHeights(items: ListEntryProps[]) {
       clearTimeout(resizeTimeout);
       resizeTimeout = setTimeout(() => {
         setNeedsMeasurement(true);
-      }, 150);
+      }, 1000);
     };
 
     window.addEventListener("resize", handleResize);

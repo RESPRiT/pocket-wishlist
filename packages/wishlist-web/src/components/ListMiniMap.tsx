@@ -75,17 +75,22 @@ function ListMiniMap({
   const [scrollPosition, setScrollPosition] = useState(0);
   const [initialScrollPosition, setInitialScrollPosition] = useState(0);
   const [initialScrollY, setInitialScrollY] = useState<number | null>(null);
+  const [innerHeight, setInnerHeight] = useState(1080);
+  const [innerWidth, setInnerWidth] = useState(1920);
   const [isActive, setIsActive] = useState(false);
   const [showMiniMap, setShowMiniMap] = useState(true);
 
   // Calculate derived values
   const scrollFactor = pageHeight / (entries.length * ENTRY_HEIGHT_PX);
-  const miniMapWidth = window.innerWidth / scrollFactor;
+  const miniMapWidth = innerWidth / scrollFactor;
 
-  // Setup resize event handler
+  // Setup initial window size + resize event handler
   useEffect(() => {
     const handleWindowResize = () => {
+      const _innerWidth = window.innerWidth;
       setShowMiniMap(window.innerWidth >= MIN_WIDTH);
+      setInnerWidth(_innerWidth);
+      setInnerHeight(window.innerHeight);
     };
 
     handleWindowResize();
@@ -124,7 +129,7 @@ function ListMiniMap({
   const handlePointerMove: PointerEventHandler<HTMLDivElement> = (e) => {
     if (initialScrollY === null) return;
 
-    const maxScrollHeight = window.innerHeight / scrollFactor;
+    const maxScrollHeight = innerHeight / scrollFactor;
     const maxScrollAmount = pageHeight / scrollFactor - maxScrollHeight;
     const _scrollPosition = Math.min(
       Math.max(initialScrollPosition + e.clientY - initialScrollY, 0),
@@ -145,7 +150,7 @@ function ListMiniMap({
 
   const handleJumpPointerDown: PointerEventHandler<HTMLDivElement> = (e) => {
     if (initialScrollY === null) {
-      const maxScrollHeight = window.innerHeight / scrollFactor;
+      const maxScrollHeight = innerHeight / scrollFactor;
       const maxScrollAmount = pageHeight / scrollFactor - maxScrollHeight;
       const jumpY = Math.min(
         Math.max(e.clientY - TOP_OFFSET - maxScrollHeight / 2, 0),
@@ -213,7 +218,7 @@ function ListMiniMap({
             width: miniMapWidth,
             transform: `translateY(${TOP_OFFSET + scrollPosition}px)`,
             height:
-              (window.innerHeight -
+              (innerHeight -
                 Math.max(
                   0,
                   pageHeight - height - scrollPosition * scrollFactor,

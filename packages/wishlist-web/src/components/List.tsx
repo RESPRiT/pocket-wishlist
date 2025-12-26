@@ -1,14 +1,19 @@
 import ListEntry, { ListEntryProps } from "./ListEntry";
 import { IOTM, iotms } from "wishlist-shared";
-import { useMemo, useRef } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useHydratedSettingsStore } from "@/stores/useSettingsStore.ts";
-import { Range, useWindowVirtualizer } from "@tanstack/react-virtual";
+import {
+  Range,
+  useWindowVirtualizer,
+  VirtualItem,
+} from "@tanstack/react-virtual";
 import { useMallPrices } from "@/hooks/useMallPrices";
 import { getSortFunction } from "@/lib/sortWishlist";
 import { useWishlist } from "@/contexts/WishlistContext";
 import ListMiniMap from "./ListMiniMap.tsx";
 import { ClientOnly } from "@tanstack/react-router";
 import { useEntryHeights } from "@/hooks/useEntryHeights.ts";
+//import { useNoMemo } from "@/hooks/useNoMemo.ts";
 
 function getUnboxedName(item: IOTM): string {
   if (
@@ -25,10 +30,11 @@ function getUnboxedName(item: IOTM): string {
 }
 
 function List() {
-  "use no memo"; // react compiler breaks tanstack virtual
+  //"use no memo"; // react compiler breaks tanstack virtual
   const { currentOrder, currentSort } = useHydratedSettingsStore();
   const { mallPrices } = useMallPrices();
   const { wishlist } = useWishlist();
+  const [items, setItems] = useState<VirtualItem[]>([]);
 
   // TODO: just put data in a context
   const data = useMemo(
@@ -105,7 +111,29 @@ function List() {
 
   const virtualizer = useWindowVirtualizer(virtualizerOptions);
 
-  const items = virtualizer.getVirtualItems();
+  //const items = useNoMemo(() => virtualizer.getVirtualItems());
+
+  const virtualItems = virtualizer.getVirtualItems();
+  if (!virtualItems.every((v, i) => items[i] && v.key === items[i].key)) {
+    setItems(virtualItems.slice());
+  }
+
+  const virtualEntries = useMemo(
+    () =>
+      items.map((row) => (
+        <div className="grow" key={row.key}>
+          {currentSort === "date" &&
+            (row.index === 0 ||
+              orderedData[row.index].year !==
+                orderedData[row.index - 1].year) && (
+              <div>{orderedData[row.index].year}</div>
+            )}
+          <ListEntry {...orderedData[row.index]} />
+        </div>
+      )),
+    [items, currentSort, orderedData],
+  );
+
   const virtualOffset = items[0] ? items[0].start : 0;
 
   return (
@@ -154,11 +182,7 @@ function List() {
           viewTransitionName: "foreground",
         }}
       >
-        {items.map((row) => (
-          <div className="grow" key={row.key}>
-            <ListEntry {...orderedData[row.index]} />
-          </div>
-        ))}
+        {virtualEntries}
       </div>
     </div>
   );
