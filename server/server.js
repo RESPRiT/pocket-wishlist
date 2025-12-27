@@ -3014,7 +3014,7 @@ function getResponse() {
   return event._res;
 }
 async function getStartManifest() {
-  const { tsrStartManifest } = await import("./assets/_tanstack-start-manifest_v-CsXO2f3x.js");
+  const { tsrStartManifest } = await import("./assets/_tanstack-start-manifest_v-Ct5e4K6S.js");
   const startManifest = tsrStartManifest();
   const rootRoute = startManifest.routes[rootRouteId] = startManifest.routes[rootRouteId] || {};
   rootRoute.assets = rootRoute.assets || [];
@@ -3080,7 +3080,7 @@ const handleServerAction = async ({
   const abort = () => controller.abort();
   request.signal.addEventListener("abort", abort);
   if (regex === void 0) {
-    regex = new RegExp(`${"/./_serverFn/"}([^/?#]+)`);
+    regex = new RegExp(`${"/pocket-wishlist/_serverFn/"}([^/?#]+)`);
   }
   const method = request.method;
   const url = new URL(request.url, "http://localhost:3000");
@@ -3322,13 +3322,13 @@ function getStartResponseHeaders(opts) {
   return headers;
 }
 function createStartHandler(cb) {
-  const ROUTER_BASEPATH = ".";
+  const ROUTER_BASEPATH = "pocket-wishlist";
   let startRoutesManifest = null;
   let startEntry = null;
   let routerEntry = null;
   const getEntries = async () => {
     if (routerEntry === null) {
-      routerEntry = await import("./assets/router-Dg_WMI5W.js").then((n) => n.r);
+      routerEntry = await import("./assets/router-CqSY41jJ.js").then((n) => n.r);
     }
     if (startEntry === null) {
       startEntry = await import("./assets/start-HYkvq4Ni.js");
@@ -3392,7 +3392,7 @@ function createStartHandler(cb) {
             },
             async () => {
               try {
-                if (href.startsWith("/./_serverFn/")) {
+                if (href.startsWith("/pocket-wishlist/_serverFn/")) {
                   return await handleServerAction({
                     request,
                     context: requestOpts?.context

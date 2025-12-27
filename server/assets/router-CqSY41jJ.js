@@ -9,10 +9,10 @@ import * as Color from "color-bits";
 import { PersistQueryClientProvider } from "@tanstack/react-query-persist-client";
 import { createAsyncStoragePersister } from "@tanstack/query-async-storage-persister";
 import { z } from "zod";
-const globalsCss = "./assets/globals-EGEJniKV.css";
-const texturesCss = "./assets/textures-iRdHByZ0.css";
-const interWoff2 = "./assets/inter-latin-wght-normal-Dx4kXJAl.woff2";
-const robotoMonoWoff2 = "./assets/roboto-mono-latin-wght-normal-CZtBPCCa.woff2";
+const globalsCss = "/pocket-wishlist/assets/globals-RJEq6olY.css";
+const texturesCss = "/pocket-wishlist/assets/textures-iRdHByZ0.css";
+const interWoff2 = "/pocket-wishlist/assets/inter-latin-wght-normal-Dx4kXJAl.woff2";
+const robotoMonoWoff2 = "/pocket-wishlist/assets/roboto-mono-latin-wght-normal-CZtBPCCa.woff2";
 const KEY = "theme";
 const DARK = "oklch(26.7% 0.048517 219.8)";
 const LIGHT = "oklch(97.4% 0.026053 90.1)";
@@ -304,7 +304,7 @@ const wishlistQuery = (userId) => queryOptions({
   refetchOnWindowFocus: false
   // a bit much
 });
-const $$splitComponentImporter = () => import("./index-KnYxkhkC.js");
+const $$splitComponentImporter = () => import("./index-BD3QyBgI.js");
 const Route = createFileRoute("/")({
   // preload: https://tanstack.com/router/latest/docs/integrations/query#preload-with-a-loader-and-read-with-a-hook
   loader: ({
