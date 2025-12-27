@@ -14,6 +14,8 @@ export function getRouter() {
     context: { queryClient },
     scrollRestoration: true,
     defaultPreload: "intent",
+    // NOTE: hardcoding the GitHub Pages basepath because it's easy
+    basepath: process.env.SSR === "false" ? "/pocket-wishlist/" : "/",
   });
 
   setupRouterSsrQueryIntegration({

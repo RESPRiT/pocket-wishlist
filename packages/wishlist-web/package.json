@@ -5,11 +5,13 @@
   "type": "module",
   "scripts": {
     "dev": "vite dev --host 0.0.0.0",
+    "dev-spa": "vite dev dist/client --base=/pocket-wishlist/",
     "build": "tsc -b && vite build",
+    "build-spa": "SSR=false bun run build",
     "start": "bun run server.ts",
     "lint": "eslint .",
     "preview": "vite preview",
-    "deploy": "bun run build && gh-pages -d dist -b prod",
+    "deploy": "bun run build-spa && gh-pages -d dist/client -b prod",
     "format-all": "prettier . --write",
     "process-images": "bun run scripts/process-images.ts"
   },
@@ -17,7 +19,6 @@
     "@fontsource-variable/inter": "^5.2.8",
     "@fontsource-variable/roboto-mono": "^5.2.8",
     "@fortawesome/fontawesome-svg-core": "^7.1.0",
-    "@fortawesome/free-regular-svg-icons": "^7.1.0",
     "@fortawesome/free-solid-svg-icons": "^7.1.0",
     "@fortawesome/react-fontawesome": "^3.1.0",
     "@radix-ui/react-slot": "^1.2.4",

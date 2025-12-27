@@ -7,17 +7,24 @@ import { resolve } from "path";
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  base: process.env.SSR === "false" ? "/pocket-wishlist/" : "/",
   plugins: [
     tsConfigPaths({
       projects: ["./tsconfig.json"],
     }),
-    tailwindcss(),
-    tanstackStart(),
+    tanstackStart({
+      spa: {
+        enabled: process.env.SSR === "false",
+        prerender: { outputPath: "index" },
+        maskPath: "/pocket-wishlist/",
+      },
+    }),
     viteReact({
       babel: {
         plugins: ["babel-plugin-react-compiler"],
       },
     }),
+    tailwindcss(),
   ],
   resolve: {
     alias: {

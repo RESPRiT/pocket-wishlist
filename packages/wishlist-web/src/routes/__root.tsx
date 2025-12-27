@@ -11,9 +11,14 @@ import {
 
 import globalsCss from "@/styles/globals.css?url";
 import texturesCss from "@/styles/textures.css?url";
+import interWoff2 from "@fontsource-variable/inter/files/inter-latin-wght-normal.woff2?url";
+import robotoMonoWoff2 from "@fontsource-variable/roboto-mono/files/roboto-mono-latin-wght-normal.woff2?url";
 import { library, config } from "@fortawesome/fontawesome-svg-core";
-import { fas } from "@fortawesome/free-solid-svg-icons";
-import { far } from "@fortawesome/free-regular-svg-icons";
+import {
+  faHome,
+  faArrowUpWideShort,
+  faArrowDownShortWide,
+} from "@fortawesome/free-solid-svg-icons";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { QueryClient } from "@tanstack/react-query";
 import { PersistQueryClientProvider } from "@tanstack/react-query-persist-client";
@@ -21,7 +26,7 @@ import { createAsyncStoragePersister } from "@tanstack/query-async-storage-persi
 config.autoAddCss = false; // https://stackoverflow.com/a/59429852
 
 // add font-awesome icons
-library.add(fas, far);
+library.add(faHome, faArrowUpWideShort, faArrowDownShortWide);
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   {
@@ -42,6 +47,20 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         },
       ],
       links: [
+        {
+          rel: "preload",
+          href: interWoff2,
+          as: "font",
+          type: "font/woff2",
+          crossOrigin: "anonymous",
+        },
+        {
+          rel: "preload",
+          href: robotoMonoWoff2,
+          as: "font",
+          type: "font/woff2",
+          crossOrigin: "anonymous",
+        },
         { rel: "stylesheet", href: globalsCss },
         { rel: "stylesheet", href: texturesCss },
       ],

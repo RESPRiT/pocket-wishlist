@@ -68,7 +68,7 @@ function StaticThemedImg({
   const { theme } = useTheme();
   // Convert .gif to .png and build themed path
   const pngFilename = filename.replace(/\.gif$/i, ".png");
-  const themedSrc = `/itemimages/${theme}/${pngFilename}`;
+  const themedSrc = `./itemimages/${theme}/${pngFilename}`;
   const { imgSrc } = useCachedImage(themedSrc);
 
   return (
