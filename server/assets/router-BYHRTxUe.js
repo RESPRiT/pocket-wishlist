@@ -4,14 +4,15 @@ import { setupRouterSsrQueryIntegration } from "@tanstack/react-router-ssr-query
 import { jsx, jsxs } from "react/jsx-runtime";
 import { useState, useEffect, createContext, use, StrictMode } from "react";
 import { config, library } from "@fortawesome/fontawesome-svg-core";
-import { fas } from "@fortawesome/free-solid-svg-icons";
-import { far } from "@fortawesome/free-regular-svg-icons";
+import { faHome, faArrowUpWideShort, faArrowDownShortWide } from "@fortawesome/free-solid-svg-icons";
 import * as Color from "color-bits";
 import { PersistQueryClientProvider } from "@tanstack/react-query-persist-client";
 import { createAsyncStoragePersister } from "@tanstack/query-async-storage-persister";
 import { z } from "zod";
 const globalsCss = "/assets/globals-DlScNlGk.css";
 const texturesCss = "/assets/textures-iRdHByZ0.css";
+const interWoff2 = "/assets/inter-latin-wght-normal-Dx4kXJAl.woff2";
+const robotoMonoWoff2 = "/assets/roboto-mono-latin-wght-normal-CZtBPCCa.woff2";
 const KEY = "theme";
 const DARK = "oklch(26.7% 0.048517 219.8)";
 const LIGHT = "oklch(97.4% 0.026053 90.1)";
@@ -97,7 +98,7 @@ function useTheme() {
   return context;
 }
 config.autoAddCss = false;
-library.add(fas, far);
+library.add(faHome, faArrowUpWideShort, faArrowDownShortWide);
 const Route$2 = createRootRouteWithContext()(
   {
     head: () => ({
@@ -117,6 +118,20 @@ const Route$2 = createRootRouteWithContext()(
         }
       ],
       links: [
+        {
+          rel: "preload",
+          href: interWoff2,
+          as: "font",
+          type: "font/woff2",
+          crossOrigin: "anonymous"
+        },
+        {
+          rel: "preload",
+          href: robotoMonoWoff2,
+          as: "font",
+          type: "font/woff2",
+          crossOrigin: "anonymous"
+        },
         { rel: "stylesheet", href: globalsCss },
         { rel: "stylesheet", href: texturesCss }
       ],
@@ -289,7 +304,7 @@ const wishlistQuery = (userId) => queryOptions({
   refetchOnWindowFocus: false
   // a bit much
 });
-const $$splitComponentImporter = () => import("./index-CmNWX4H8.js");
+const $$splitComponentImporter = () => import("./index-CyPvoQLs.js");
 const Route = createFileRoute("/")({
   // preload: https://tanstack.com/router/latest/docs/integrations/query#preload-with-a-loader-and-read-with-a-hook
   loader: ({

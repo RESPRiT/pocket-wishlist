@@ -1,5 +1,5 @@
 import { jsx, jsxs, Fragment } from "react/jsx-runtime";
-import { w as wishlistQuery, m as mallPricesQuery, M as MallPriceResponseSchema, u as useTheme } from "./router-C2CaunFt.js";
+import { w as wishlistQuery, m as mallPricesQuery, M as MallPriceResponseSchema, u as useTheme } from "./router-BYHRTxUe.js";
 import { useSuspenseQuery, queryOptions, useQuery } from "@tanstack/react-query";
 import { createContext, use, useMemo, useEffect, useRef, useState, useLayoutEffect } from "react";
 import { clsx } from "clsx";
@@ -14,7 +14,6 @@ import { useWindowVirtualizer } from "@tanstack/react-virtual";
 import "@tanstack/react-router-ssr-query";
 import "@fortawesome/fontawesome-svg-core";
 import "@fortawesome/free-solid-svg-icons";
-import "@fortawesome/free-regular-svg-icons";
 import "color-bits";
 import "@tanstack/react-query-persist-client";
 import "@tanstack/query-async-storage-persister";
@@ -4315,16 +4314,6 @@ function EntrySection({
 }) {
   return /* @__PURE__ */ jsx("div", { className: `flex items-center justify-center ${className}`, children });
 }
-function Skeleton({ className, ...props }) {
-  return /* @__PURE__ */ jsx(
-    "div",
-    {
-      "data-slot": "skeleton",
-      className: cn("animate-pulse rounded-md bg-muted-foreground", className),
-      ...props
-    }
-  );
-}
 const CDN_BASE = "https://s3.amazonaws.com/images.kingdomofloathing.com";
 async function fetchImg(src) {
   const url = src.startsWith("/") ? src : `${CDN_BASE}/${src}`;
@@ -4426,7 +4415,7 @@ function StaticThemedImg({
   const { imgSrc } = useCachedImage(themedSrc);
   return /* @__PURE__ */ jsxs("div", { className: "grid select-none", children: [
     bgColor && /* @__PURE__ */ jsx("div", { className: cn("col-start-1 row-start-1", bgColor) }),
-    /* @__PURE__ */ jsx("div", { className: cn("col-start-1 row-start-1", className), ...props, children: /* @__PURE__ */ jsx(ClientOnly, { children: imgSrc ? /* @__PURE__ */ jsx(
+    /* @__PURE__ */ jsx("div", { className: cn("col-start-1 row-start-1", className), ...props, children: /* @__PURE__ */ jsx(ClientOnly, { children: imgSrc && /* @__PURE__ */ jsx(
       "img",
       {
         src: imgSrc,
@@ -4434,7 +4423,7 @@ function StaticThemedImg({
         style,
         className: "h-full w-full object-cover"
       }
-    ) : /* @__PURE__ */ jsx(Skeleton, { className: "h-full w-full", style }) }) })
+    ) }) })
   ] });
 }
 function AnimatedThemedImg({
@@ -4457,7 +4446,7 @@ function AnimatedThemedImg({
           `col-start-1 row-start-1 [mix-blend-mode:var(--image-blend)]
           filter-(--image-filter)`
         ),
-        children: /* @__PURE__ */ jsx(ClientOnly, { children: imgSrc ? /* @__PURE__ */ jsx(
+        children: /* @__PURE__ */ jsx(ClientOnly, { children: imgSrc && /* @__PURE__ */ jsx(
           "img",
           {
             src: imgSrc,
@@ -4465,7 +4454,7 @@ function AnimatedThemedImg({
             style,
             className: cn("h-full w-full object-cover")
           }
-        ) : /* @__PURE__ */ jsx(Skeleton, { className: "h-full w-full" }) })
+        ) })
       }
     ),
     /* @__PURE__ */ jsx(
@@ -4714,58 +4703,64 @@ function ListEntry({
   const mall = price?.value || price?.lowestMall ? Math.min(price?.value ?? Infinity, price?.lowestMall ?? Infinity) : null;
   const priceRatio = mall && mrAs ? mall / mrAs : null;
   const isStandard = standardYear < 3;
-  return /* @__PURE__ */ jsxs("div", { className: "grid overflow-hidden rounded-md", children: [
-    /* @__PURE__ */ jsx(
-      EntryBackground,
-      {
-        status,
-        isStandard,
-        standardYear,
-        priceRatio
-      }
-    ),
-    /* @__PURE__ */ jsxs(
-      "div",
-      {
-        className: cn(
-          `relative col-start-1 row-start-1 flex h-full min-w-[290px] flex-wrap
-          items-center justify-center clamp-[gap-x,1.5,2.25,xs,sm] gap-y-2
-          overflow-hidden clamp-[px,5,6,xs,sm] py-3 hover:outline-2
-          hover:outline-foreground/50 md:clamp-[gap-x,2.25,6,md,lg] lg:w-full
-          lg:flex-nowrap`,
+  return /* @__PURE__ */ jsxs(
+    "div",
+    {
+      className: cn(
+        `grid overflow-hidden rounded-md hover:outline-2
+        hover:outline-foreground/50`,
+        isStandard && "hover:outline-secondary"
+      ),
+      children: [
+        /* @__PURE__ */ jsx(
+          EntryBackground,
           {
-            "hover:outline-secondary": isStandard
+            status,
+            isStandard,
+            standardYear,
+            priceRatio
           }
         ),
-        children: [
-          /* @__PURE__ */ jsx(EntryRibbon, { show: isIOTY || isCon, variant: isIOTY ? "ioty" : "con" }),
-          /* @__PURE__ */ jsx(
-            EntryInfoSection,
-            {
-              img,
-              name,
-              type,
-              year,
-              wikiUrl,
-              isStandard,
-              yearPercent
-            }
-          ),
-          /* @__PURE__ */ jsx(EntrySpacer, { className: "hidden lg:inline" }),
-          /* @__PURE__ */ jsx(EntryTiersSection, { speed, farm }),
-          /* @__PURE__ */ jsx(EntrySpacer, {}),
-          /* @__PURE__ */ jsx(
-            EntryPriceSection,
-            {
-              mrAs,
-              price,
-              packagedName
-            }
-          )
-        ]
-      }
-    )
-  ] });
+        /* @__PURE__ */ jsxs(
+          "div",
+          {
+            className: cn(
+              `relative col-start-1 row-start-1 flex h-full min-w-[290px] flex-wrap
+          items-center justify-center clamp-[gap-x,1.5,2.25,xs,sm] gap-y-2
+          overflow-hidden clamp-[px,5,6,xs,sm] py-3 hover:outline-2
+          md:clamp-[gap-x,2.25,6,md,lg] lg:w-full lg:flex-nowrap`
+            ),
+            children: [
+              /* @__PURE__ */ jsx(EntryRibbon, { show: isIOTY || isCon, variant: isIOTY ? "ioty" : "con" }),
+              /* @__PURE__ */ jsx(
+                EntryInfoSection,
+                {
+                  img,
+                  name,
+                  type,
+                  year,
+                  wikiUrl,
+                  isStandard,
+                  yearPercent
+                }
+              ),
+              /* @__PURE__ */ jsx(EntrySpacer, { className: "hidden lg:inline" }),
+              /* @__PURE__ */ jsx(EntryTiersSection, { speed, farm }),
+              /* @__PURE__ */ jsx(EntrySpacer, {}),
+              /* @__PURE__ */ jsx(
+                EntryPriceSection,
+                {
+                  mrAs,
+                  price,
+                  packagedName
+                }
+              )
+            ]
+          }
+        )
+      ]
+    }
+  );
 }
 const useSettingsStore = create()(
   persist(
@@ -4807,8 +4802,7 @@ function priceSort(a, b, skipTie = false) {
 }
 function dateSort(a, b, skipTie = false) {
   if (a.year !== b.year) return b.year - a.year;
-  if ((a.month ?? 13) !== (b.month ?? 13))
-    return (b.month ?? 13) - (a.month ?? 13);
+  if ((a.month ?? 0) !== (b.month ?? 0)) return (b.month ?? 0) - (a.month ?? 0);
   if (a.isIOTY && !b.isIOTY) return -1;
   if (!a.isIOTY && b.isIOTY) return 1;
   if (a.isCon && !b.isCon) return -1;
@@ -4874,13 +4868,18 @@ function ListMiniMap({
   const [scrollPosition, setScrollPosition] = useState(0);
   const [initialScrollPosition, setInitialScrollPosition] = useState(0);
   const [initialScrollY, setInitialScrollY] = useState(null);
+  const [innerHeight, setInnerHeight] = useState(1080);
+  const [innerWidth, setInnerWidth] = useState(1920);
   const [isActive, setIsActive] = useState(false);
   const [showMiniMap, setShowMiniMap] = useState(true);
   const scrollFactor = pageHeight / (entries.length * ENTRY_HEIGHT_PX);
-  const miniMapWidth = window.innerWidth / scrollFactor;
+  const miniMapWidth = innerWidth / scrollFactor;
   useEffect(() => {
     const handleWindowResize = () => {
+      const _innerWidth = window.innerWidth;
       setShowMiniMap(window.innerWidth >= MIN_WIDTH);
+      setInnerWidth(_innerWidth);
+      setInnerHeight(window.innerHeight);
     };
     handleWindowResize();
     window.addEventListener("resize", handleWindowResize);
@@ -4910,7 +4909,7 @@ function ListMiniMap({
   };
   const handlePointerMove = (e) => {
     if (initialScrollY === null) return;
-    const maxScrollHeight = window.innerHeight / scrollFactor;
+    const maxScrollHeight = innerHeight / scrollFactor;
     const maxScrollAmount = pageHeight / scrollFactor - maxScrollHeight;
     const _scrollPosition = Math.min(
       Math.max(initialScrollPosition + e.clientY - initialScrollY, 0),
@@ -4928,7 +4927,7 @@ function ListMiniMap({
   };
   const handleJumpPointerDown = (e) => {
     if (initialScrollY === null) {
-      const maxScrollHeight = window.innerHeight / scrollFactor;
+      const maxScrollHeight = innerHeight / scrollFactor;
       const maxScrollAmount = pageHeight / scrollFactor - maxScrollHeight;
       const jumpY = Math.min(
         Math.max(e.clientY - TOP_OFFSET - maxScrollHeight / 2, 0),
@@ -4947,6 +4946,7 @@ function ListMiniMap({
       setIsActive(true);
     }
   };
+  const entryList = entries.map((entry, index) => /* @__PURE__ */ jsx(MiniMapEntry, { entry, theme }, index));
   return showMiniMap && /* @__PURE__ */ jsxs("div", { className: "group absolute -right-6 select-none", children: [
     /* @__PURE__ */ jsx(
       "div",
@@ -4970,7 +4970,7 @@ function ListMiniMap({
         ),
         style: { width: miniMapWidth, top: TOP_OFFSET },
         onPointerDown: handleJumpPointerDown,
-        children: entries.map((entry, index) => /* @__PURE__ */ jsx(MiniMapEntry, { entry, theme }, index))
+        children: entryList
       }
     ),
     /* @__PURE__ */ jsx(
@@ -4988,7 +4988,7 @@ function ListMiniMap({
         style: {
           width: miniMapWidth,
           transform: `translateY(${TOP_OFFSET + scrollPosition}px)`,
-          height: (window.innerHeight - Math.max(
+          height: (innerHeight - Math.max(
             0,
             pageHeight - height - scrollPosition * scrollFactor
           )) / scrollFactor
@@ -5026,7 +5026,7 @@ function useEntryHeights(items) {
       clearTimeout(resizeTimeout);
       resizeTimeout = setTimeout(() => {
         setNeedsMeasurement(true);
-      }, 150);
+      }, 1e3);
     };
     window.addEventListener("resize", handleResize);
     return () => {
@@ -5127,7 +5127,17 @@ function List() {
   }, [orderedData, heights]);
   const virtualizer = useWindowVirtualizer(virtualizerOptions);
   const items = virtualizer.getVirtualItems();
-  const virtualOffset = items[0] ? items[0].start : 0;
+  const itemsKey = items.map((v) => v.key).join(",");
+  const entries = useMemo(
+    () => items.map((row) => /* @__PURE__ */ jsxs("div", { className: "grow", children: [
+      currentSort === "date" && (row.index === 0 || orderedData[row.index].year !== orderedData[row.index - 1].year) && /* @__PURE__ */ jsx("div", { children: orderedData[row.index].year }),
+      /* @__PURE__ */ jsx(ListEntry, { ...orderedData[row.index] })
+    ] }, row.key)),
+    // update when item values change, not array reference
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [itemsKey, currentSort, orderedData]
+  );
+  const offset = items[0] ? items[0].start : 0;
   return /* @__PURE__ */ jsxs(
     "div",
     {
@@ -5167,10 +5177,10 @@ function List() {
             className: "absolute flex w-full flex-wrap items-stretch gap-2",
             style: {
               position: "absolute",
-              transform: `translateY(${virtualOffset}px)`,
+              transform: `translateY(${offset}px)`,
               viewTransitionName: "foreground"
             },
-            children: items.map((row) => /* @__PURE__ */ jsx("div", { className: "grow", children: /* @__PURE__ */ jsx(ListEntry, { ...orderedData[row.index] }) }, row.key))
+            children: entries
           }
         )
       ]
