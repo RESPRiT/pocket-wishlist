@@ -1,5 +1,5 @@
 import { jsx, jsxs, Fragment } from "react/jsx-runtime";
-import { w as wishlistQuery, m as mallPricesQuery, M as MallPriceResponseSchema, u as useTheme } from "./router-BYHRTxUe.js";
+import { w as wishlistQuery, m as mallPricesQuery, M as MallPriceResponseSchema, u as useTheme } from "./router-Dg_WMI5W.js";
 import { useSuspenseQuery, queryOptions, useQuery } from "@tanstack/react-query";
 import { createContext, use, useMemo, useEffect, useRef, useState, useLayoutEffect } from "react";
 import { clsx } from "clsx";
