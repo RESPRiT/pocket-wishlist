@@ -1,15 +1,48 @@
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { ListEntryProps } from "@/components/ListEntry";
-// import { useTheme } from "@/contexts/ThemeContext";
+import { VirtualListItem } from "@/components/List";
+import { useTheme } from "@/contexts/ThemeContext";
 
-export function useEntryHeights(items: ListEntryProps[]) {
-  const [heights, setHeights] = useState<Map<string, number>>(new Map());
-  const [pageHeight, setPageHeight] = useState(75 * items.length);
+const DEFAULT_ENTRY_HEIGHT = 75;
+const DEFAULT_HEADER_HEIGHT = 20;
+
+export function useEntryHeights(
+  items: ListEntryProps[],
+  virtualItems: VirtualListItem[],
+) {
+  const [measuredHeights, setMeasuredHeights] = useState<Map<string, number>>(
+    new Map(),
+  );
+  const [pageHeight, setPageHeight] = useState(
+    DEFAULT_ENTRY_HEIGHT * items.length + DEFAULT_HEADER_HEIGHT * 12,
+  );
   const [needsMeasurement, setNeedsMeasurement] = useState(true);
   const measureContainerRef = useRef<HTMLDivElement>(null);
 
   // Stable reference for measurement (doesn't change on re-sort)
-  const measurementItems = useRef(items);
+  const measurementVirtualItems = useRef(virtualItems);
+  const headerHeightRef = useRef<number>(DEFAULT_HEADER_HEIGHT);
+
+  // Merge measured heights with defaults for all virtual items
+  const heights = useMemo(() => {
+    const merged = new Map<string, number>();
+
+    for (const item of virtualItems) {
+      if (item.itemType === "header") {
+        merged.set(
+          item.key,
+          measuredHeights.get(item.key) ?? headerHeightRef.current,
+        );
+      } else {
+        merged.set(
+          item.packagedName,
+          measuredHeights.get(item.packagedName) ?? DEFAULT_ENTRY_HEIGHT,
+        );
+      }
+    }
+
+    return merged;
+  }, [virtualItems, measuredHeights]);
 
   // Measure when container is ready (before paint)
   useLayoutEffect(() => {
@@ -21,17 +54,32 @@ export function useEntryHeights(items: ListEntryProps[]) {
 
     children.forEach((child, index) => {
       const height = (child as HTMLElement).clientHeight;
-      newHeights.set(measurementItems.current[index].packagedName, height);
+      const item = measurementVirtualItems.current[index];
+
+      if (item.itemType === "header") {
+        // Measure header height once (all headers same height)
+        headerHeightRef.current = height;
+      } else {
+        newHeights.set(item.packagedName, height);
+      }
     });
+
+    // Insert memoized header height for all header keys
+    for (const item of virtualItems) {
+      if (item.itemType === "header") {
+        newHeights.set(item.key, headerHeightRef.current);
+      }
+    }
 
     const newPageHeight = document.documentElement.scrollHeight;
 
-    setHeights(newHeights);
+    setMeasuredHeights(newHeights);
     setPageHeight(newPageHeight);
     setNeedsMeasurement(false);
-  }, [needsMeasurement]);
+  }, [needsMeasurement, virtualItems]);
 
   // Re-measure on window resize (debounced)
+  // TODO: This is logic is _fine_ but it probably could be nicer
   useEffect(() => {
     let resizeTimeout: NodeJS.Timeout;
 
@@ -49,12 +97,11 @@ export function useEntryHeights(items: ListEntryProps[]) {
     };
   }, []);
 
-  // const { isTransitioning } = useTheme();
-
   // Track page height changes with ResizeObserver
   // TODO: Actually I think we don't need this?
   //   because height only changes when this does
-  /*
+  const { isTransitioning } = useTheme();
+
   useEffect(() => {
     const observer = new ResizeObserver(() => {
       if (isTransitioning) return;
@@ -67,13 +114,12 @@ export function useEntryHeights(items: ListEntryProps[]) {
 
     return () => observer.disconnect();
   }, [isTransitioning]);
-  */
 
   return {
     heights,
     pageHeight,
     needsMeasurement,
     measureContainerRef,
-    measurementItems: measurementItems.current,
+    measurementItems: measurementVirtualItems.current,
   };
 }

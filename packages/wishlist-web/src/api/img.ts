@@ -3,7 +3,8 @@ import { queryOptions } from "@tanstack/react-query";
 const CDN_BASE = "https://s3.amazonaws.com/images.kingdomofloathing.com";
 
 export async function fetchImg(src: string) {
-  // Local paths start with "/", CDN paths are relative like "itemimages/foo.gif"
+  // TODO: I don't like that CDN is mixed with self-host; it's holdover from before
+  // Local paths start with "./", CDN paths are relative like "itemimages/foo.gif"
   const url = src.startsWith("./") ? src : `${CDN_BASE}/${src}`;
 
   const image = await fetch(url);

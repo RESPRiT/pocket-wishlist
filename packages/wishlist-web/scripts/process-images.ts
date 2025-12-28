@@ -1,4 +1,5 @@
 #!/usr/bin/env bun
+// I had claude generate this and I just skimmed the code -- it works
 /**
  * Build script to download and process item images for themed display.
  *

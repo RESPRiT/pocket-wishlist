@@ -1,14 +1,105 @@
 import ListEntry, { ListEntryProps } from "./ListEntry";
+import ListHeader, { HeaderType } from "./ListHeader";
 import { IOTM, iotms } from "wishlist-shared";
-import { useMemo, useRef } from "react";
+import { useCallback, useMemo, useRef } from "react";
 import { useHydratedSettingsStore } from "@/stores/useSettingsStore.ts";
-import { useWindowVirtualizer } from "@tanstack/react-virtual";
+import {
+  defaultRangeExtractor,
+  Range,
+  useWindowVirtualizer,
+} from "@tanstack/react-virtual";
 import { useMallPrices } from "@/hooks/useMallPrices";
 import { getSortFunction } from "@/lib/sortWishlist";
 import { useWishlist } from "@/contexts/WishlistContext";
 import ListMiniMap from "./ListMiniMap.tsx";
 import { ClientOnly } from "@tanstack/react-router";
 import { useEntryHeights } from "@/hooks/useEntryHeights.ts";
+
+// TODO: Clean up a lot of this code because it's a mess rn
+export type EntryItem = ListEntryProps & { itemType: "entry" };
+export type HeaderItem = {
+  itemType: "header";
+  headerType: HeaderType;
+  label: string;
+  key: string;
+};
+export type VirtualListItem = EntryItem | HeaderItem;
+
+const PRICE_RANGES = [
+  { max: 1, label: "<1 Mr. A" },
+  { max: 2, label: "1-2 Mr. As" },
+  { max: 3, label: "2-3 Mr. As" },
+  { max: 5, label: "3-5 Mr. As" },
+  { max: 10, label: "5-10 Mr. As" },
+  { max: Infinity, label: "10+ Mr. As" },
+] as const;
+
+function getYearGroup(entry: ListEntryProps): string {
+  return String(entry.year);
+}
+
+function getTierGroup(entry: ListEntryProps): string {
+  const speed = entry.speed ?? 6;
+  const farm = entry.farm ?? 6;
+  const average = (speed + farm) / 2;
+  const tier = Math.floor(average);
+  return `Tier ${tier}`;
+}
+
+function getPriceGroup(entry: ListEntryProps): string {
+  const price = entry.price?.value ?? entry.price?.lowestMall ?? Infinity;
+  const costInMrAs = price / entry.mrAs;
+
+  for (const range of PRICE_RANGES) {
+    if (costInMrAs < range.max) {
+      return range.label;
+    }
+  }
+  return PRICE_RANGES[PRICE_RANGES.length - 1].label;
+}
+
+function insertHeaders(
+  entries: ListEntryProps[],
+  currentSort: string,
+): VirtualListItem[] {
+  let getGroup: (entry: ListEntryProps) => string;
+  let headerType: HeaderType;
+
+  if (currentSort === "date") {
+    getGroup = getYearGroup;
+    headerType = "year";
+  } else if (currentSort === "tier") {
+    getGroup = getTierGroup;
+    headerType = "tier";
+  } else if (currentSort === "price") {
+    getGroup = getPriceGroup;
+    headerType = "price";
+  } else {
+    return entries.map((entry) => ({ ...entry, itemType: "entry" as const }));
+  }
+
+  const seenGroups = new Set<string>();
+
+  return entries.flatMap((entry): VirtualListItem[] => {
+    const group = getGroup(entry);
+    const entryItem: EntryItem = { ...entry, itemType: "entry" };
+
+    if (seenGroups.has(group)) {
+      return [entryItem];
+    }
+
+    seenGroups.add(group);
+    return [
+      {
+        itemType: "header",
+        headerType,
+        label: group,
+        key: `header-${headerType}-${group}`,
+      },
+      entryItem,
+    ];
+  });
+}
 
 function getUnboxedName(item: IOTM): string {
   if (
@@ -61,6 +152,11 @@ function List() {
     return currentOrder ? sortedData.slice().reverse() : sortedData;
   }, [data, currentSort, currentOrder]);
 
+  const virtualItems = useMemo(
+    () => insertHeaders(orderedData, currentSort),
+    [orderedData, currentSort],
+  );
+
   // Setup virtualizer
   const listRef = useRef<HTMLDivElement>(null);
 
@@ -71,39 +167,69 @@ function List() {
     needsMeasurement,
     measureContainerRef,
     measurementItems,
-  } = useEntryHeights(orderedData);
+  } = useEntryHeights(orderedData, virtualItems);
+
+  // Indexes of sticky headers for rangeExtractor
+  const stickyIndexes = useMemo(
+    () =>
+      virtualItems
+        .map((item, index) => (item.itemType === "header" ? index : null))
+        .filter((index): index is number => index !== null),
+    [virtualItems],
+  );
+
+  const activeStickyIndexRef = useRef(0);
+
+  const rangeExtractor = useCallback(
+    (range: Range) => {
+      activeStickyIndexRef.current =
+        [...stickyIndexes]
+          .reverse()
+          .find((index) => range.startIndex >= index) ?? 0;
+
+      const activeIdx = stickyIndexes.indexOf(activeStickyIndexRef.current);
+      const previousStickyIndex =
+        activeIdx > 0 ? stickyIndexes[activeIdx - 1] : null;
+
+      // Include previous sticky if within 1 item of transition (overstay)
+      const includePrevious =
+        previousStickyIndex !== null &&
+        range.startIndex <= activeStickyIndexRef.current + 1;
+
+      const next = new Set([
+        activeStickyIndexRef.current,
+        ...(includePrevious ? [previousStickyIndex] : []),
+        ...defaultRangeExtractor(range),
+      ]);
+
+      return [...next].sort((a, b) => a - b);
+    },
+    [stickyIndexes],
+  );
 
   const virtualizerOptions = useMemo(() => {
     return {
-      count: orderedData.length,
+      count: virtualItems.length,
       estimateSize: (index: number) => {
-        const packagedName = orderedData[index].packagedName;
-        return heights.get(packagedName) ?? 75;
+        const item = virtualItems[index];
+        const key = item.itemType === "header" ? item.key : item.packagedName;
+        return heights.get(key) ?? 75;
       },
       gap: 8,
-      // used as an asymetrical overscan
-      // note: probably could just handle the initial offset on the page better, too
       scrollMargin: listRef.current?.offsetTop ?? 0,
       overscan: 3,
-      // rangeExtractor: (range: Range) => {
-      //   const overscanTop = 5;
-      //   const overscanBottom = 1;
-
-      //   const start = Math.max(range.startIndex - overscanTop, 0);
-      //   const end = Math.min(range.endIndex + overscanBottom, range.count - 1);
-      //   const total = end - start + 1;
-
-      //   const arr = new Array(total).fill(0).map((_, i) => start + i);
-      //   return arr;
-      // },
+      rangeExtractor,
       // size of the window during SSR
       initialRect: {
         height: 15 * (75 + 8),
         width: (64 - 5) * 16,
       },
-      getItemKey: (index: number) => orderedData[index].packagedName,
+      getItemKey: (index: number) => {
+        const item = virtualItems[index];
+        return item.itemType === "header" ? item.key : item.packagedName;
+      },
     };
-  }, [orderedData, heights]);
+  }, [virtualItems, heights, rangeExtractor]);
 
   const virtualizer = useWindowVirtualizer(virtualizerOptions);
 
@@ -111,37 +237,54 @@ function List() {
   const items = virtualizer.getVirtualItems();
   const itemsKey = items.map((v) => v.key).join(",");
 
-  const height = items[items.length - 1].end - items[0].start;
-  const offset = items[0]
-    ? items[0].start - virtualizer.options.scrollMargin
+  // Find the first item in the contiguous natural range for offset/height calculations
+  // Persisted sticky headers appear before gaps in the index sequence
+  const firstNaturalIdx = items.findIndex((item, i) => {
+    if (i === items.length - 1) return true;
+    return items[i + 1].index === item.index + 1;
+  });
+
+  const safeFirstNaturalIdx = firstNaturalIdx === -1 ? 0 : firstNaturalIdx;
+  const firstNaturalItem = items[safeFirstNaturalIdx];
+
+  // Calculate height taken by persisted sticky headers (rendered before natural items in flex)
+  // We need to adjust offset/height to account for this space
+  const gap = virtualizer.options.gap;
+  let persistedHeight = 0;
+  for (let i = 0; i < safeFirstNaturalIdx; i++) {
+    persistedHeight += items[i].size + gap;
+  }
+
+  const height =
+    items[items.length - 1].end - firstNaturalItem.start + persistedHeight;
+  const offset = firstNaturalItem
+    ? firstNaturalItem.start -
+      virtualizer.options.scrollMargin -
+      persistedHeight
     : 0;
 
   const entries = useMemo(
     () =>
-      items.map((row) => (
-        <>
-          {currentSort === "date" &&
-            (row.index === 0 ||
-              orderedData[row.index].year !==
-                orderedData[row.index - 1].year) && (
-              <div
-                className="sticky top-2 z-30 h-min w-full"
-                style={{
-                  transform: `translateY(-${row.index === 0 ? offset : 0}px)`,
-                }}
-                key={orderedData[row.index].year}
-              >
-                {orderedData[row.index].year}
-              </div>
-            )}
+      items.map((row) => {
+        const item = virtualItems[row.index];
+
+        if (item.itemType === "header") {
+          return (
+            <div className="sticky top-2 h-min w-full" key={row.key}>
+              <ListHeader type={item.headerType} label={item.label} />
+            </div>
+          );
+        }
+
+        return (
           <div className="grow" key={row.key}>
-            <ListEntry {...orderedData[row.index]} />
+            <ListEntry {...item} />
           </div>
-        </>
-      )),
+        );
+      }),
     // update when item values change, not array reference
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [itemsKey, currentSort, orderedData],
+    [itemsKey, virtualItems],
   );
 
   return (
@@ -166,11 +309,17 @@ function List() {
             zIndex: -1,
           }}
         >
-          {measurementItems.map((item) => (
-            <div key={item.packagedName} className="grow">
-              <ListEntry {...item} />
-            </div>
-          ))}
+          {measurementItems.map((item) =>
+            item.itemType === "header" ? (
+              <div key={item.key} className="w-full">
+                <ListHeader type={item.headerType} label={item.label} />
+              </div>
+            ) : (
+              <div key={item.packagedName} className="grow">
+                <ListEntry {...item} />
+              </div>
+            ),
+          )}
         </div>
       )}
 
@@ -186,8 +335,10 @@ function List() {
         className="absolute top-0 left-0 flex w-full flex-wrap items-stretch
           gap-2"
         style={{
-          transform: `translateY(${offset}px)`,
-          // top: offset,
+          // transform: `translateY(${offset}px)`,
+          // TODO: do the annoying math to make sticky play nicely with transform
+          //   top works for now, but it forces layout calculation
+          top: offset,
           height,
           viewTransitionName: "foreground",
         }}
