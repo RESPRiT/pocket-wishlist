@@ -1,14 +1,12 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { ListEntryProps } from "@/components/ListEntry";
-import { useTheme } from "@/contexts/ThemeContext";
+// import { useTheme } from "@/contexts/ThemeContext";
 
 export function useEntryHeights(items: ListEntryProps[]) {
   const [heights, setHeights] = useState<Map<string, number>>(new Map());
   const [pageHeight, setPageHeight] = useState(75 * items.length);
   const [needsMeasurement, setNeedsMeasurement] = useState(true);
   const measureContainerRef = useRef<HTMLDivElement>(null);
-
-  const { isTransitioning } = useTheme();
 
   // Stable reference for measurement (doesn't change on re-sort)
   const measurementItems = useRef(items);
@@ -51,7 +49,12 @@ export function useEntryHeights(items: ListEntryProps[]) {
     };
   }, []);
 
+  // const { isTransitioning } = useTheme();
+
   // Track page height changes with ResizeObserver
+  // TODO: Actually I think we don't need this?
+  //   because height only changes when this does
+  /*
   useEffect(() => {
     const observer = new ResizeObserver(() => {
       if (isTransitioning) return;
@@ -64,6 +67,7 @@ export function useEntryHeights(items: ListEntryProps[]) {
 
     return () => observer.disconnect();
   }, [isTransitioning]);
+  */
 
   return {
     heights,

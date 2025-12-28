@@ -2,7 +2,7 @@ import ListEntry, { ListEntryProps } from "./ListEntry";
 import { IOTM, iotms } from "wishlist-shared";
 import { useMemo, useRef } from "react";
 import { useHydratedSettingsStore } from "@/stores/useSettingsStore.ts";
-import { Range, useWindowVirtualizer } from "@tanstack/react-virtual";
+import { useWindowVirtualizer } from "@tanstack/react-virtual";
 import { useMallPrices } from "@/hooks/useMallPrices";
 import { getSortFunction } from "@/lib/sortWishlist";
 import { useWishlist } from "@/contexts/WishlistContext";
@@ -83,17 +83,19 @@ function List() {
       gap: 8,
       // used as an asymetrical overscan
       // note: probably could just handle the initial offset on the page better, too
-      rangeExtractor: (range: Range) => {
-        const overscanTop = 5;
-        const overscanBottom = 1;
+      scrollMargin: listRef.current?.offsetTop ?? 0,
+      overscan: 3,
+      // rangeExtractor: (range: Range) => {
+      //   const overscanTop = 5;
+      //   const overscanBottom = 1;
 
-        const start = Math.max(range.startIndex - overscanTop, 0);
-        const end = Math.min(range.endIndex + overscanBottom, range.count - 1);
-        const total = end - start + 1;
+      //   const start = Math.max(range.startIndex - overscanTop, 0);
+      //   const end = Math.min(range.endIndex + overscanBottom, range.count - 1);
+      //   const total = end - start + 1;
 
-        const arr = new Array(total).fill(0).map((_, i) => start + i);
-        return arr;
-      },
+      //   const arr = new Array(total).fill(0).map((_, i) => start + i);
+      //   return arr;
+      // },
       // size of the window during SSR
       initialRect: {
         height: 15 * (75 + 8),
@@ -109,25 +111,38 @@ function List() {
   const items = virtualizer.getVirtualItems();
   const itemsKey = items.map((v) => v.key).join(",");
 
+  const height = items[items.length - 1].end - items[0].start;
+  const offset = items[0]
+    ? items[0].start - virtualizer.options.scrollMargin
+    : 0;
+
   const entries = useMemo(
     () =>
       items.map((row) => (
-        <div className="grow" key={row.key}>
+        <>
           {currentSort === "date" &&
             (row.index === 0 ||
               orderedData[row.index].year !==
                 orderedData[row.index - 1].year) && (
-              <div>{orderedData[row.index].year}</div>
+              <div
+                className="sticky top-2 z-30 h-min w-full"
+                style={{
+                  transform: `translateY(-${row.index === 0 ? offset : 0}px)`,
+                }}
+                key={orderedData[row.index].year}
+              >
+                {orderedData[row.index].year}
+              </div>
             )}
-          <ListEntry {...orderedData[row.index]} />
-        </div>
+          <div className="grow" key={row.key}>
+            <ListEntry {...orderedData[row.index]} />
+          </div>
+        </>
       )),
     // update when item values change, not array reference
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [itemsKey, currentSort, orderedData],
   );
-
-  const offset = items[0] ? items[0].start : 0;
 
   return (
     <div
@@ -168,10 +183,12 @@ function List() {
         />
       </ClientOnly>
       <div
-        className="absolute flex w-full flex-wrap items-stretch gap-2"
+        className="absolute top-0 left-0 flex w-full flex-wrap items-stretch
+          gap-2"
         style={{
-          position: "absolute",
           transform: `translateY(${offset}px)`,
+          // top: offset,
+          height,
           viewTransitionName: "foreground",
         }}
       >
