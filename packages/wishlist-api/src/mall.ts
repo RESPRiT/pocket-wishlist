@@ -41,12 +41,12 @@ app.post("/update-prices", async (c) => {
     const lowestMallRaw = await c.req.json();
     const lowestMall = MallPriceSchema.parse(lowestMallRaw);
     await blob.setJSON("lowestMall", lowestMall);
+    console.log("lowestMall updated");
 
     // Asynchronously handle pricegun extraction and transformation
-    const itemIds = Object.keys(lowestMall)
-      .concat(["194"]) // include Mr. A
-      .map((id) => Number.parseInt(id));
-    extractAndTransformPriceGun(itemIds);
+    // TODO: Broken, see below
+    // const itemIds = Object.keys(lowestMall).map((id) => Number.parseInt(id));
+    // extractAndTransformPriceGun(itemIds, lowestMall);
 
     return c.text("Mall prices updated successfully!");
   } catch (e) {
@@ -54,11 +54,53 @@ app.post("/update-prices", async (c) => {
   }
 });
 
-// no try-catch: if something goes wrong, just let stderr report it
-async function extractAndTransformPriceGun(itemIds: number[]) {
-  // Get lowest mall data
-  const lowestMall: MallPrice = await blob.getJSON("lowestMall");
+// manually update pricegun prices for now
+app.post("/update-pricegun", async (c) => {
+  const secret = c.req.query("auth");
 
+  if (secret !== Deno.env.get("secret")) {
+    return c.text("Unauthorized, boo.", 401);
+  }
+
+  try {
+    // Process update request data
+    const pricegunRaw = await c.req.json();
+    const pricegun = PriceGunResponseSchema.parse(pricegunRaw);
+    await blob.setJSON("pricegun", pricegun);
+
+    const lowestMall: MallPrice = await blob.getJSON("lowestMall");
+    const itemIds = Object.keys(lowestMall).map((id) => Number.parseInt(id));
+
+    // Combine lowest mall and pricegun data
+    const prices = itemIds.reduce((acc, id) => {
+      const price = pricegun.find((p) => p.itemId === id);
+
+      acc[id] = {
+        lowestMall: lowestMall[id],
+        value: price?.value,
+        volume: price?.volume,
+      };
+
+      return acc;
+    }, {});
+
+    // Store combined data
+    blob.setJSON("prices", prices);
+    blob.setJSON("pricesLastUpdate", new Date());
+
+    return c.text(
+      "Pricegun manually updated and combined data stored successfully!"
+    );
+  } catch (e) {
+    return c.text(`Could not pricegun manually: ${e}`, 400);
+  }
+});
+
+// no try-catch: if something goes wrong, just let stderr report it
+async function extractAndTransformPriceGun(
+  itemIds: number[],
+  lowestMall: Record<number, number>
+) {
   try {
     // Fetch pricegun data and store
     const pricegun = await fetchPriceGun(itemIds);
@@ -102,11 +144,35 @@ async function extractAndTransformPriceGun(itemIds: number[]) {
   }
 }
 
+// TODO: The val seems to stop running after 10 seconds...?
+// Here is the hacky wacky fix for now -- split up the calls, then merge
+// EDIT: jk it doesn't work.
 async function fetchPriceGun(itemIds: number[]) {
-  const url = `https://pricegun.loathers.net/api/${itemIds.join(",")}`;
+  const baseUrl = "https://pricegun.loathers.net/api/";
+  const parallelRequests = 1;
+  const chunkSize = Math.ceil(itemIds.length / parallelRequests);
+  const urls = new Array(parallelRequests)
+    .fill("")
+    .map(
+      (_, i) =>
+        `${baseUrl}${itemIds
+          .slice(i * chunkSize, Math.min((i + 1) * chunkSize, itemIds.length))
+          .join(",")}`
+    );
 
-  const pricegunResponse = await fetch(url);
-  const pricegunRaw = await pricegunResponse.json();
+  console.log(urls);
+
+  const timeout = setTimeout(
+    () => console.error("Val timed out at 10s"),
+    10000
+  ); // 10s timeout
+
+  const responses = await Promise.all(urls.map((url) => fetch(url)));
+  clearTimeout(timeout);
+
+  const pricegunRaw = (
+    await Promise.all(responses.map((res) => res.json()))
+  ).flat();
   return PriceGunResponseSchema.parse(pricegunRaw);
 }
 

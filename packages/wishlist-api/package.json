@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "vt watch",
-    "deploy": "vt push"
+    "push": "vt push"
   },
   "devDependencies": {
     "@types/bun": "latest",
