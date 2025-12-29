@@ -30,22 +30,24 @@ function Header() {
   const formatTimeSince = (time: number) => {
     if (time <= 0) return "";
 
-    // TODO: Handle plurals
+    const pluralize = (count: number, singular: string) =>
+      `${count} ${singular}${count === 1 ? "" : "s"} ago`;
+
     const timeSince = Date.now() - time;
     if (timeSince < TIME_RANGES.secondsAgo) {
-      return `${Math.floor(timeSince / TIME_AMOUNTS.seconds)} seconds ago`;
+      return pluralize(Math.floor(timeSince / TIME_AMOUNTS.seconds), "second");
     } else if (timeSince < TIME_RANGES.minutesAgo) {
-      return `${Math.floor(timeSince / TIME_AMOUNTS.minutes)} minutes ago`;
+      return pluralize(Math.floor(timeSince / TIME_AMOUNTS.minutes), "minute");
     } else if (timeSince < TIME_RANGES.hoursAgo) {
-      return `${Math.floor(timeSince / TIME_AMOUNTS.hours)} hours ago`;
+      return pluralize(Math.floor(timeSince / TIME_AMOUNTS.hours), "hour");
     } else if (timeSince < TIME_RANGES.yesterday) {
       return "yesterday";
     } else if (timeSince < TIME_RANGES.daysAgo) {
-      return `${Math.floor(timeSince / TIME_AMOUNTS.days)} days ago`;
+      return pluralize(Math.floor(timeSince / TIME_AMOUNTS.days), "day");
     } else if (timeSince < TIME_RANGES.weeksAgo) {
-      return `${Math.floor(timeSince / TIME_AMOUNTS.weeks)} weeks ago`;
+      return pluralize(Math.floor(timeSince / TIME_AMOUNTS.weeks), "week");
     }
-    return `${Math.floor(timeSince / TIME_AMOUNTS.months)} months ago`;
+    return pluralize(Math.floor(timeSince / TIME_AMOUNTS.months), "month");
   };
 
   // TODO: Polish theme toggle, more usable button

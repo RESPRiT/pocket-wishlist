@@ -16,6 +16,7 @@ import { ClientOnly } from "@tanstack/react-router";
 import { useEntryHeights } from "@/hooks/useEntryHeights.ts";
 
 // TODO: Clean up a lot of this code because it's a mess rn
+// ALSO -- rename "header" to "heading"...
 export type EntryItem = ListEntryProps & { itemType: "entry" };
 export type HeaderItem = {
   itemType: "header";
@@ -31,7 +32,8 @@ const PRICE_RANGES = [
   { max: 3, label: "2-3 Mr. As" },
   { max: 5, label: "3-5 Mr. As" },
   { max: 10, label: "5-10 Mr. As" },
-  { max: Infinity, label: "10+ Mr. As" },
+  { max: 50, label: "10-50 Mr. As" },
+  { max: Infinity, label: "50+ Mr. As" },
 ] as const;
 
 function getYearGroup(entry: ListEntryProps): string {
@@ -47,8 +49,24 @@ function getTierGroup(entry: ListEntryProps): string {
 }
 
 function getPriceGroup(entry: ListEntryProps): string {
-  const price = entry.price?.value ?? entry.price?.lowestMall ?? Infinity;
-  const costInMrAs = price / entry.mrAs;
+  const price = entry.price;
+  const mallStatus =
+    price?.value === undefined && price?.lowestMall === -1
+      ? "extinct"
+      : price?.value === undefined || price?.volume === 0
+        ? "lowestMall"
+        : price.value < price.lowestMall
+          ? "recentSales"
+          : "lowestMall";
+
+  const lowestPrice =
+    (mallStatus === "lowestMall"
+      ? price?.lowestMall
+      : mallStatus === "recentSales"
+        ? price?.value
+        : -1) ?? -1;
+
+  const costInMrAs = lowestPrice === -1 ? Infinity : lowestPrice / entry.mrAs;
 
   for (const range of PRICE_RANGES) {
     if (costInMrAs < range.max) {
@@ -270,7 +288,7 @@ function List() {
 
         if (item.itemType === "header") {
           return (
-            <div className="sticky top-2 h-min w-full" key={row.key}>
+            <div className="sticky -top-2 z-20 h-min w-full" key={row.key}>
               <ListHeader type={item.headerType} label={item.label} />
             </div>
           );
