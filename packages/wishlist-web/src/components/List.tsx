@@ -1,5 +1,5 @@
 import ListEntry, { ListEntryProps } from "./ListEntry";
-import ListHeader, { HeaderType } from "./ListHeader";
+import ListHeader, { HeaderStatus, HeaderType } from "./ListHeader";
 import { IOTM, iotms } from "wishlist-shared";
 import { useCallback, useMemo, useRef } from "react";
 import { useHydratedSettingsStore } from "@/stores/useSettingsStore.ts";
@@ -23,12 +23,7 @@ export type HeaderItem = {
   headerType: HeaderType;
   label: string;
   key: string;
-  status: {
-    iotms: { owned: number; total: number };
-    iotys: { owned: number; total: number };
-    cons: { owned: number; total: number };
-    special: { owned: number; total: number };
-  };
+  status: HeaderStatus;
 };
 export type VirtualListItem = EntryItem | HeaderItem;
 
@@ -117,7 +112,6 @@ function insertHeaders(
     const status = {
       iotms: { owned: 0, total: 0 },
       iotys: { owned: 0, total: 0 },
-      cons: { owned: 0, total: 0 },
       special: { owned: 0, total: 0 },
     };
 
@@ -128,9 +122,6 @@ function insertHeaders(
       } else if (entry.isIOTY) {
         status.iotys.total++;
         if (entry.status !== "NONE") status.iotys.owned++;
-      } else if (entry.isCon) {
-        status.cons.total++;
-        if (entry.status !== "NONE") status.cons.owned++;
       } else {
         status.special.total++;
         if (entry.status !== "NONE") status.special.owned++;

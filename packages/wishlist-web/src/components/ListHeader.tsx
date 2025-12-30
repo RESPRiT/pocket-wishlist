@@ -1,68 +1,68 @@
-import { adjustLightness, interpolateColorScale } from "@/lib/colors";
 import { cn } from "@/lib/utils";
-import { useTheme } from "@/contexts/ThemeContext";
-import { useEntryBackgroundColor } from "@/hooks/useEntryBackgroundColor";
 import { Badge } from "./ui/badge";
 
 export type HeaderType = "year" | "tier" | "price";
 
+export type HeaderStatus = {
+  iotms: { owned: number; total: number };
+  iotys: { owned: number; total: number };
+  special: { owned: number; total: number };
+};
+
 interface ListHeaderProps {
   type: HeaderType;
   label: string;
-  // TODO: Make typing non-redunant with List
-  status: {
-    iotms: { owned: number; total: number };
-    iotys: { owned: number; total: number };
-    cons: { owned: number; total: number };
-    special: { owned: number; total: number };
-  };
-}
-
-// Maps price range labels to representative priceRatio values
-const PRICE_LABEL_TO_RATIO: Record<string, number> = {
-  "<1 Mr. A": 1,
-  "1-2 Mr. As": 2,
-  "2-3 Mr. As": 3,
-  "3-5 Mr. As": 5,
-  "5-10 Mr. As": 10,
-  "10-50 Mr. As": 50,
-  "50+ Mr. As": Infinity,
-};
-
-function getYearPercent(label: string): number {
-  const year = parseInt(label, 10);
-  const currentYear = new Date().getFullYear();
-  return Math.min(5 / 6, (currentYear - year) / (currentYear - 2004));
-}
-
-function getTierPercent(label: string): number {
-  const tier = parseInt(label.replace("Tier ", ""), 10);
-  return Math.max(0, (tier - 1) / 6);
+  status: HeaderStatus;
 }
 
 function ListHeader({ type, label, status }: ListHeaderProps) {
-  const { theme } = useTheme();
+  function StatusBadge({
+    statusItem,
+    type,
+  }: {
+    statusItem: { owned: number; total: number };
+    type: "iotms" | "iotys" | "special";
+  }) {
+    if (statusItem.total <= 0) return <></>;
 
-  const priceRatio =
-    type === "price" ? (PRICE_LABEL_TO_RATIO[label] ?? Infinity) : null;
+    const bgColor =
+      type === "iotms"
+        ? "bg-[color-mix(in_oklch,var(--confirm)_90%,white)]"
+        : type === "iotys"
+          ? "bg-[color-mix(in_oklch,var(--accent)_70%,white)]"
+          : "bg-[color-mix(in_oklch,var(--secondary)_70%,white)]";
 
-  const { bgStyle: priceBgStyle } = useEntryBackgroundColor({
-    isStandard: false,
-    standardYear: 2004,
-    priceRatio,
-    theme,
-  });
-
-  const style =
-    type === "price"
-      ? priceBgStyle
-      : type === "year"
-        ? interpolateColorScale(getYearPercent(label))
-        : interpolateColorScale(getTierPercent(label));
-
-  const lightened = adjustLightness(style.backgroundColor!, "white", 30);
-
-  //const adjustedLabel = type === "year" ? `Year ${label}` : label;
+    return (
+      <div className="flex flex-col items-center justify-between gap-1">
+        <Badge
+          className={cn(
+            "text-xs tracking-tighter",
+            type === "iotms" ? "w-11" : "w-9",
+            bgColor,
+          )}
+        >{`${statusItem.owned} / ${statusItem.total}`}</Badge>
+        <div className="grid">
+          <div
+            className={cn(
+              "col-start-1 row-start-1 h-0.5 origin-left rounded-md",
+              type === "iotms" ? "w-10" : "w-8",
+              bgColor,
+            )}
+            style={{
+              transform: `scaleX(${(statusItem.owned / statusItem.total) * 100}%)`,
+            }}
+          />
+          <div
+            className={cn(
+              "col-start-1 row-start-1 h-0.5 rounded-md opacity-25",
+              type === "iotms" ? "w-10" : "w-8",
+              bgColor,
+            )}
+          />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="mt-8 w-full justify-start bg-background/0">
@@ -72,7 +72,6 @@ function ListHeader({ type, label, status }: ListHeaderProps) {
             `flex items-start gap-1 rounded-md bg-background px-4 py-2
             outline-[1.5px] -outline-offset-1 outline-foreground`,
           )}
-          //style={lightened}
         >
           <span
             className={cn(
@@ -84,31 +83,9 @@ function ListHeader({ type, label, status }: ListHeaderProps) {
           >
             {label}
           </span>
-          {status.iotms.total > 0 && (
-            <Badge
-              className="w-11 bg-[color-mix(in_oklch,var(--confirm)_90%,white)]
-                text-xs tracking-tighter"
-            >{`${status.iotms.owned} / ${status.iotms.total}`}</Badge>
-          )}
-          {status.iotys.total > 0 && (
-            <Badge
-              className="w-9 bg-[color-mix(in_oklch,var(--accent)_70%,white)]
-                text-xs tracking-tighter"
-            >{`${status.iotys.owned} / ${status.iotys.total}`}</Badge>
-          )}
-          {status.cons.total > 0 && (
-            <Badge
-              className="w-9 bg-[color-mix(in_oklch,var(--secondary)_70%,white)]
-                text-xs tracking-tighter"
-            >{`${status.cons.owned} / ${status.cons.total}`}</Badge>
-          )}
-          {status.special.total > 0 && (
-            <Badge
-              className="w-9
-                bg-[color-mix(in_oklch,var(--destructive)_50%,white)] text-xs
-                tracking-tighter"
-            >{`${status.special.owned} / ${status.special.total}`}</Badge>
-          )}
+          <StatusBadge statusItem={status.iotms} type="iotms" />
+          <StatusBadge statusItem={status.iotys} type="iotys" />
+          <StatusBadge statusItem={status.special} type="special" />
         </div>
       </div>
     </div>
