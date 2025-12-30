@@ -23,6 +23,12 @@ export type HeaderItem = {
   headerType: HeaderType;
   label: string;
   key: string;
+  status: {
+    iotms: { owned: number; total: number };
+    iotys: { owned: number; total: number };
+    cons: { owned: number; total: number };
+    special: { owned: number; total: number };
+  };
 };
 export type VirtualListItem = EntryItem | HeaderItem;
 
@@ -76,6 +82,7 @@ function getPriceGroup(entry: ListEntryProps): string {
   return PRICE_RANGES[PRICE_RANGES.length - 1].label;
 }
 
+// TODO: lots of redundant loops in here
 function insertHeaders(
   entries: ListEntryProps[],
   currentSort: string,
@@ -96,6 +103,43 @@ function insertHeaders(
     return entries.map((entry) => ({ ...entry, itemType: "entry" as const }));
   }
 
+  const groupedEntries = new Map<string, ListEntryProps[]>();
+  for (const entry of entries) {
+    const group = getGroup(entry);
+    if (!groupedEntries.has(group)) {
+      groupedEntries.set(group, []);
+    }
+    groupedEntries.get(group)!.push(entry);
+  }
+
+  const groupStatus = new Map<string, HeaderItem["status"]>();
+  for (const [group, groupEntries] of groupedEntries) {
+    const status = {
+      iotms: { owned: 0, total: 0 },
+      iotys: { owned: 0, total: 0 },
+      cons: { owned: 0, total: 0 },
+      special: { owned: 0, total: 0 },
+    };
+
+    for (const entry of groupEntries) {
+      if (entry.month !== undefined) {
+        status.iotms.total++;
+        if (entry.status !== "NONE") status.iotms.owned++;
+      } else if (entry.isIOTY) {
+        status.iotys.total++;
+        if (entry.status !== "NONE") status.iotys.owned++;
+      } else if (entry.isCon) {
+        status.cons.total++;
+        if (entry.status !== "NONE") status.cons.owned++;
+      } else {
+        status.special.total++;
+        if (entry.status !== "NONE") status.special.owned++;
+      }
+    }
+
+    groupStatus.set(group, status);
+  }
+
   const seenGroups = new Set<string>();
 
   return entries.flatMap((entry): VirtualListItem[] => {
@@ -113,6 +157,7 @@ function insertHeaders(
         headerType,
         label: group,
         key: `header-${headerType}-${group}`,
+        status: groupStatus.get(group)!,
       },
       entryItem,
     ];
@@ -288,8 +333,12 @@ function List() {
 
         if (item.itemType === "header") {
           return (
-            <div className="sticky -top-2 z-20 h-min w-full" key={row.key}>
-              <ListHeader type={item.headerType} label={item.label} />
+            <div className="sticky -top-4 z-20 h-min w-full" key={row.key}>
+              <ListHeader
+                type={item.headerType}
+                label={item.label}
+                status={item.status}
+              />
             </div>
           );
         }
@@ -330,7 +379,11 @@ function List() {
           {measurementItems.map((item) =>
             item.itemType === "header" ? (
               <div key={item.key} className="w-full">
-                <ListHeader type={item.headerType} label={item.label} />
+                <ListHeader
+                  type={item.headerType}
+                  label={item.label}
+                  status={item.status}
+                />
               </div>
             ) : (
               <div key={item.packagedName} className="grow">

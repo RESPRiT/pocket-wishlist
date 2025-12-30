@@ -2,12 +2,20 @@ import { adjustLightness, interpolateColorScale } from "@/lib/colors";
 import { cn } from "@/lib/utils";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useEntryBackgroundColor } from "@/hooks/useEntryBackgroundColor";
+import { Badge } from "./ui/badge";
 
 export type HeaderType = "year" | "tier" | "price";
 
 interface ListHeaderProps {
   type: HeaderType;
   label: string;
+  // TODO: Make typing non-redunant with List
+  status: {
+    iotms: { owned: number; total: number };
+    iotys: { owned: number; total: number };
+    cons: { owned: number; total: number };
+    special: { owned: number; total: number };
+  };
 }
 
 // Maps price range labels to representative priceRatio values
@@ -32,7 +40,7 @@ function getTierPercent(label: string): number {
   return Math.max(0, (tier - 1) / 6);
 }
 
-function ListHeader({ type, label }: ListHeaderProps) {
+function ListHeader({ type, label, status }: ListHeaderProps) {
   const { theme } = useTheme();
 
   const priceRatio =
@@ -57,26 +65,50 @@ function ListHeader({ type, label }: ListHeaderProps) {
   //const adjustedLabel = type === "year" ? `Year ${label}` : label;
 
   return (
-    <div className="mt-6 justify-between bg-background/0">
-      <div
-        className={cn(
-          "flex w-min items-center gap-4 rounded-md bg-background px-4 py-2",
-          // type === "year" && "w-20",
-          // type === "tier" && "w-22",
-          // type === "price" && "w-36",
-        )}
-        //style={lightened}
-      >
-        <span className="text-xl font-normal text-nowrap text-muted-foreground">
-          {label}
-        </span>
+    <div className="mt-8 w-full justify-start bg-background/0">
+      <div className="m-2 flex w-min items-center justify-center">
         <div
-          className="flex flex-col items-start text-xs text-nowrap
-            text-muted-foreground"
+          className={cn(
+            `flex items-start gap-1 rounded-md bg-background px-4 py-2
+            outline-[1.5px] -outline-offset-1 outline-foreground`,
+          )}
+          //style={lightened}
         >
-          <span>Z is for Zootomist</span>
-          <span>Hat Trick</span>
-          <span>11,037 Leagues Under the Sea</span>
+          <span
+            className={cn(
+              "mr-2 text-center text-xl font-normal text-nowrap text-foreground",
+              type === "year" && "w-12",
+              type === "tier" && "w-15",
+              type === "price" && "w-32",
+            )}
+          >
+            {label}
+          </span>
+          {status.iotms.total > 0 && (
+            <Badge
+              className="w-11 bg-[color-mix(in_oklch,var(--confirm)_90%,white)]
+                text-xs tracking-tighter"
+            >{`${status.iotms.owned} / ${status.iotms.total}`}</Badge>
+          )}
+          {status.iotys.total > 0 && (
+            <Badge
+              className="w-9 bg-[color-mix(in_oklch,var(--accent)_70%,white)]
+                text-xs tracking-tighter"
+            >{`${status.iotys.owned} / ${status.iotys.total}`}</Badge>
+          )}
+          {status.cons.total > 0 && (
+            <Badge
+              className="w-9 bg-[color-mix(in_oklch,var(--secondary)_70%,white)]
+                text-xs tracking-tighter"
+            >{`${status.cons.owned} / ${status.cons.total}`}</Badge>
+          )}
+          {status.special.total > 0 && (
+            <Badge
+              className="w-9
+                bg-[color-mix(in_oklch,var(--destructive)_50%,white)] text-xs
+                tracking-tighter"
+            >{`${status.special.owned} / ${status.special.total}`}</Badge>
+          )}
         </div>
       </div>
     </div>

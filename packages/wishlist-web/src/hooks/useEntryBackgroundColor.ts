@@ -73,7 +73,7 @@ export function useEntryBackgroundColor({
 
     if (status === "PACKAGED") {
       return {
-        backgroundColor: "color-mix(in hsl, var(--accent) 50%, white 0%)",
+        backgroundColor: `color-mix(in hsl, var(--accent) 60%, ${theme === "light" ? "white" : "black"} 40%)`,
       };
     }
 
