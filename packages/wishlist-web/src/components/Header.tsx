@@ -57,7 +57,10 @@ function Header() {
         sm:flex-row sm:items-end"
     >
       <div className="flex items-center gap-2.5">
-        <span className="ml-1 clamp-[text,3xl,4xl,xs,sm] font-medium">
+        <span
+          className="clamp-[ml,0,0.5,sm,md] clamp-[text,3xl,4xl,xs,sm]
+            font-medium"
+        >
           {"pocket wishlist"}
         </span>
         <div

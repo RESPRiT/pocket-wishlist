@@ -71,7 +71,10 @@ function ListHeader({ type, label, status, info }: ListHeaderProps) {
   }
 
   return (
-    <div className="m-2 mt-10 mb-1 flex justify-between">
+    <div
+      className="clamp-[m,1,2,sm,md] mt-10 mb-1 flex flex-wrap justify-between
+        gap-1"
+    >
       {/* main heading */}
       <div
         className={cn(
@@ -81,10 +84,11 @@ function ListHeader({ type, label, status, info }: ListHeaderProps) {
       >
         <span
           className={cn(
-            "mr-2 text-center text-xl font-normal text-nowrap text-foreground",
-            type === "year" && "w-12",
-            type === "tier" && "w-15",
-            type === "price" && "w-32",
+            `mr-2 text-center clamp-[text,lg,xl,xs,sm] font-normal text-nowrap
+            text-foreground`,
+            type === "year" && "clamp-[w,10,12,xs,sm]",
+            type === "tier" && "clamp-[w,12,15,xs,sm]",
+            type === "price" && "clamp-[w,26,32,xs,sm]",
           )}
         >
           {label}
@@ -96,7 +100,7 @@ function ListHeader({ type, label, status, info }: ListHeaderProps) {
 
       {/* secondary heading */}
       <div className="flex h-min gap-2 text-xs">
-        <Badge className="outline-[1.5px] outline-foreground">
+        <Badge className="rounded-sm outline-[1.5px] outline-foreground">
           Avg. Price: {formatMeatPrice(info.avgPrice)}
         </Badge>
       </div>
