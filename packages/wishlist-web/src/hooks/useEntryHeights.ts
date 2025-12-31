@@ -4,7 +4,8 @@ import { VirtualListItem } from "@/components/List";
 import { useTheme } from "@/contexts/ThemeContext";
 
 const DEFAULT_ENTRY_HEIGHT = 75;
-const DEFAULT_HEADER_HEIGHT = 20;
+const DEFAULT_HEADING_HEIGHT = 44;
+const DEFAULT_SUBHEADING_HEIGHT = 20;
 
 export function useEntryHeights(
   items: ListEntryProps[],
@@ -14,24 +15,28 @@ export function useEntryHeights(
     new Map(),
   );
   const [pageHeight, setPageHeight] = useState(
-    DEFAULT_ENTRY_HEIGHT * items.length + DEFAULT_HEADER_HEIGHT * 12,
+    DEFAULT_ENTRY_HEIGHT * items.length + DEFAULT_HEADING_HEIGHT * 12,
   );
   const [needsMeasurement, setNeedsMeasurement] = useState(true);
   const measureContainerRef = useRef<HTMLDivElement>(null);
 
   // Stable reference for measurement (doesn't change on re-sort)
   const measurementVirtualItems = useRef(virtualItems);
-  const headerHeightRef = useRef<number>(DEFAULT_HEADER_HEIGHT);
+  const headingHeightRef = useRef<number>(DEFAULT_HEADING_HEIGHT);
+  const subHeadingHeightRef = useRef<number>(DEFAULT_SUBHEADING_HEIGHT);
 
   // Merge measured heights with defaults for all virtual items
   const heights = useMemo(() => {
     const merged = new Map<string, number>();
 
     for (const item of virtualItems) {
-      if (item.itemType === "header") {
+      if (item.itemType !== "entry") {
         merged.set(
           item.key,
-          measuredHeights.get(item.key) ?? headerHeightRef.current,
+          measuredHeights.get(item.key) ??
+            (item.itemType === "heading"
+              ? headingHeightRef.current
+              : subHeadingHeightRef.current),
         );
       } else {
         merged.set(
@@ -56,18 +61,20 @@ export function useEntryHeights(
       const height = (child as HTMLElement).clientHeight;
       const item = measurementVirtualItems.current[index];
 
-      if (item.itemType === "header") {
-        // Measure header height once (all headers same height)
-        headerHeightRef.current = height;
+      if (item.itemType === "heading") {
+        // Measure heading height once (all headings same height)
+        headingHeightRef.current = height;
+      } else if (item.itemType === "subheading") {
+        subHeadingHeightRef.current = height;
       } else {
         newHeights.set(item.packagedName, height);
       }
     });
 
-    // Insert memoized header height for all header keys
+    // Insert memoized heading height for all heading keys
     for (const item of virtualItems) {
-      if (item.itemType === "header") {
-        newHeights.set(item.key, headerHeightRef.current);
+      if (item.itemType === "heading") {
+        newHeights.set(item.key, headingHeightRef.current);
       }
     }
 
