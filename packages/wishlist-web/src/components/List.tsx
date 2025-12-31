@@ -457,7 +457,7 @@ function List() {
           <span className="mr-1">
             {owned.filter((v) => v !== "NONE").length} / {owned.length}
           </span>
-          {owned.map((v) => (
+          {owned.map((v, i) => (
             <div
               className={cn(
                 "h-2.5 w-1.5 rounded-xs",
@@ -467,6 +467,7 @@ function List() {
                     ? [iconColor, "opacity-40"]
                     : "border-[0.5px] border-dashed border-foreground",
               )}
+              key={i}
             />
           ))}
         </div>
