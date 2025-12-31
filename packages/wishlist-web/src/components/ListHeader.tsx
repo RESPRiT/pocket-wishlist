@@ -1,5 +1,6 @@
 import { cn } from "@/lib/utils";
 import { Badge } from "./ui/badge";
+import { formatMeatPrice } from "@/lib/prices";
 
 export type HeaderType = "year" | "tier" | "price";
 
@@ -9,13 +10,18 @@ export type HeaderStatus = {
   special: { owned: number; total: number };
 };
 
+export type HeaderInfo = {
+  avgPrice: number;
+};
+
 interface ListHeaderProps {
   type: HeaderType;
   label: string;
   status: HeaderStatus;
+  info: HeaderInfo;
 }
 
-function ListHeader({ type, label, status }: ListHeaderProps) {
+function ListHeader({ type, label, status, info }: ListHeaderProps) {
   function StatusBadge({
     statusItem,
     type,
@@ -65,28 +71,34 @@ function ListHeader({ type, label, status }: ListHeaderProps) {
   }
 
   return (
-    <div className="mt-8 w-full justify-start bg-background/0">
-      <div className="m-2 flex w-min items-center justify-center">
-        <div
+    <div className="m-2 mt-10 mb-1 flex justify-between">
+      {/* main heading */}
+      <div
+        className={cn(
+          `flex items-start gap-1 rounded-md bg-background px-4 py-2
+          outline-[1.5px] -outline-offset-1 outline-foreground`,
+        )}
+      >
+        <span
           className={cn(
-            `flex items-start gap-1 rounded-md bg-background px-4 py-2
-            outline-[1.5px] -outline-offset-1 outline-foreground`,
+            "mr-2 text-center text-xl font-normal text-nowrap text-foreground",
+            type === "year" && "w-12",
+            type === "tier" && "w-15",
+            type === "price" && "w-32",
           )}
         >
-          <span
-            className={cn(
-              "mr-2 text-center text-xl font-normal text-nowrap text-foreground",
-              type === "year" && "w-12",
-              type === "tier" && "w-15",
-              type === "price" && "w-32",
-            )}
-          >
-            {label}
-          </span>
-          <StatusBadge statusItem={status.iotms} type="iotms" />
-          <StatusBadge statusItem={status.iotys} type="iotys" />
-          <StatusBadge statusItem={status.special} type="special" />
-        </div>
+          {label}
+        </span>
+        <StatusBadge statusItem={status.iotms} type="iotms" />
+        <StatusBadge statusItem={status.iotys} type="iotys" />
+        <StatusBadge statusItem={status.special} type="special" />
+      </div>
+
+      {/* secondary heading */}
+      <div className="flex h-min gap-2 text-xs">
+        <Badge className="outline-[1.5px] outline-foreground">
+          Avg. Price: {formatMeatPrice(info.avgPrice)}
+        </Badge>
       </div>
     </div>
   );

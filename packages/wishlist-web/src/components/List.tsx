@@ -1,5 +1,5 @@
 import ListEntry, { ListEntryProps } from "./ListEntry";
-import ListHeader, { HeaderStatus, HeaderType } from "./ListHeader";
+import ListHeader, { HeaderInfo, HeaderStatus, HeaderType } from "./ListHeader";
 import { IOTM, iotms } from "wishlist-shared";
 import { useCallback, useMemo, useRef } from "react";
 import { useHydratedSettingsStore } from "@/stores/useSettingsStore.ts";
@@ -16,6 +16,7 @@ import { ClientOnly } from "@tanstack/react-router";
 import { useEntryHeights } from "@/hooks/useEntryHeights.ts";
 
 // TODO: Clean up a lot of this code because it's a mess rn
+// In particular, data flow for handling grouping and group-statistics is clumsy
 // ALSO -- rename "header" to "heading"...
 export type EntryItem = ListEntryProps & { itemType: "entry" };
 export type HeaderItem = {
@@ -24,6 +25,7 @@ export type HeaderItem = {
   label: string;
   key: string;
   status: HeaderStatus;
+  info: HeaderInfo;
 };
 export type VirtualListItem = EntryItem | HeaderItem;
 
@@ -78,6 +80,7 @@ function getPriceGroup(entry: ListEntryProps): string {
 }
 
 // TODO: lots of redundant loops in here
+// also, I don't like these side effects for calculations
 function insertHeaders(
   entries: ListEntryProps[],
   currentSort: string,
@@ -108,11 +111,23 @@ function insertHeaders(
   }
 
   const groupStatus = new Map<string, HeaderItem["status"]>();
+  const groupInfo = new Map<string, HeaderItem["info"]>();
   for (const [group, groupEntries] of groupedEntries) {
     const status = {
       iotms: { owned: 0, total: 0 },
       iotys: { owned: 0, total: 0 },
       special: { owned: 0, total: 0 },
+    };
+
+    const pricesOutliersRemoved = groupEntries
+      .map((entry) => entry.price?.lowestMall ?? Infinity)
+      .sort((a, b) => a - b)
+      .slice(1, -1);
+
+    const info = {
+      avgPrice:
+        pricesOutliersRemoved.reduce((acc, price) => acc + price, 0) /
+        pricesOutliersRemoved.length,
     };
 
     for (const entry of groupEntries) {
@@ -128,6 +143,7 @@ function insertHeaders(
       }
     }
 
+    groupInfo.set(group, info);
     groupStatus.set(group, status);
   }
 
@@ -149,6 +165,7 @@ function insertHeaders(
         label: group,
         key: `header-${headerType}-${group}`,
         status: groupStatus.get(group)!,
+        info: groupInfo.get(group)!,
       },
       entryItem,
     ];
@@ -329,6 +346,7 @@ function List() {
                 type={item.headerType}
                 label={item.label}
                 status={item.status}
+                info={item.info}
               />
             </div>
           );
@@ -374,6 +392,7 @@ function List() {
                   type={item.headerType}
                   label={item.label}
                   status={item.status}
+                  info={item.info}
                 />
               </div>
             ) : (
