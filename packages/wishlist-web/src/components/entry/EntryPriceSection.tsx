@@ -39,6 +39,8 @@ export function EntryPriceSection({
 
   const mafiaUrl = `http://127.0.0.1:60080/mall.php?didadv=0&pudnuggler=${encodeURIComponent(packagedName)}&category=allitems&food_sortitemsby=name&booze_sortitemsby=name&othercon_sortitemsby=name&consumable_byme=0&hats_sortitemsby=name&shirts_sortitemsby=name&pants_sortitemsby=name&weapons_sortitemsby=name&weaponattribute=3&weaponhands=3&acc_sortitemsby=name&offhand_sortitemsby=name&wearable_byme=0&famequip_sortitemsby=name&nolimits=0&justitems=0&sortresultsby=price&max_price=0&x_cheapest=200&consumable_tier_1=0&consumable_tier_2=0&consumable_tier_3=0&consumable_tier_4=0&consumable_tier_5=0`;
 
+  // TODO: abstract this logic into a utility
+  // see: lib/prices.ts
   const formatMeatPrice = () => {
     if (price === null) return "x";
 

@@ -73,7 +73,7 @@ export function useEntryBackgroundColor({
 
     if (status === "PACKAGED") {
       return {
-        backgroundColor: "color-mix(in hsl, var(--accent) 50%, white 0%)",
+        backgroundColor: `oklch(from color-mix(in hsl, var(--accent) ${theme === "light" ? "70%, white 30%" : "80%, black 20%"}) l ${theme === "light" ? "0.1" : "0.06"} h)`,
       };
     }
 

@@ -23,7 +23,12 @@ export function EntryInfoSection({
   isStandard,
   yearPercent,
 }: EntryInfoSectionProps) {
-  const yearLabel = isStandard ? "standard" : "hardcore";
+  const yearLabel = isStandard
+    ? "standard"
+    : (year <= 2014 && type === "item") ||
+        name === "The Crown of Ed the Undying"
+      ? "softcore"
+      : "hardcore";
 
   return (
     <EntrySection className="w-0 basis-full gap-5 lg:w-auto lg:basis-auto">

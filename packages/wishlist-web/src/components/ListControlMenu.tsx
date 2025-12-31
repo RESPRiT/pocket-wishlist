@@ -7,7 +7,7 @@ function ListControlMenu() {
 
   // TODO: Definitely some not-DRY shenanigans going on here...
   return (
-    <div className="sticky top-2 z-30 flex justify-center">
+    <div className="z-30 flex justify-center">
       <div
         className="m-2 flex min-w-min flex-wrap items-center justify-center
           gap-0 rounded-md bg-background/95 p-1"
