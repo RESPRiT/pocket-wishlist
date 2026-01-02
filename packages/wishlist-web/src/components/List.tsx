@@ -71,7 +71,7 @@ function List() {
             isCon: item.is_con || false,
             price: mallPrices[item.packaged_id] ?? null,
             mrAs: mallPrices[194]?.value ?? Infinity, // don't love this here
-            status: wishlist[item.packaged_id],
+            status: wishlist[item.packaged_id] ?? "NONE",
           }),
         ),
     [mallPrices, wishlist],
