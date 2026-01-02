@@ -48,9 +48,9 @@
   }
 }
 
-/* 768px = md */
+/* 768px / 48rem = md */
 /* Default fade transition on mobile (others are laggy) */
-@media (width < 768px) {
+@media (width < 48rem) {
   @keyframes foreground-theme-light {
     from {
       opacity: 0%;

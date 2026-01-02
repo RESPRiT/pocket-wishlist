@@ -14,7 +14,7 @@ import { cn } from "@/lib/utils";
 const ENTRY_HEIGHT_PX = 2; // h-0.5 class = 2px
 const HOVER_PADDING_MULTIPLIER = 1.5;
 const TOP_OFFSET = 24; // top-6 class = 24px
-const MIN_WIDTH = 1080;
+const MINIMAP_MIN_VIEWPORT_WIDTH = 1080;
 
 // TODO: Put this in canvas instead of rendering hundreds of tiny divs
 function MiniMapEntry({
@@ -89,7 +89,7 @@ function ListMiniMap({
   useEffect(() => {
     const handleWindowResize = () => {
       const _innerWidth = window.innerWidth;
-      setShowMiniMap(window.innerWidth >= MIN_WIDTH);
+      setShowMiniMap(_innerWidth >= MINIMAP_MIN_VIEWPORT_WIDTH);
       setInnerWidth(_innerWidth);
       setInnerHeight(window.innerHeight);
     };
