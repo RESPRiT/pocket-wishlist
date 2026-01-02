@@ -1,5 +1,6 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { VirtualListItem } from "@/components/ListItem";
+import { useTheme } from "@/contexts/ThemeContext";
 
 const DEFAULT_HEIGHTS = {
   entry: 75,
@@ -56,7 +57,6 @@ export function useEntryHeights(virtualItems: VirtualListItem[]) {
     });
 
     setLastKeySet(new Set(virtualItems.map((v) => v.key)));
-    setPageHeight(document.documentElement.scrollHeight);
     setItemHeights(newHeights);
   }, [itemHeights, lastKeySet, needsMeasurement, virtualItems]);
 
@@ -94,6 +94,24 @@ export function useEntryHeights(virtualItems: VirtualListItem[]) {
       clearTimeout(resizeTimeout);
     };
   }, [virtualItems]);
+
+  // track page height changes with ResizeObserver
+  //   I thought I didn't need this, but the alternative
+  //   is mapping out every state that can change page height,
+  //   and it turns out that this is just easier (and still fast)
+  const { isTransitioning } = useTheme();
+  useEffect(() => {
+    const observer = new ResizeObserver(() => {
+      if (isTransitioning) return;
+
+      const newPageHeight = document.documentElement.scrollHeight;
+      setPageHeight(newPageHeight);
+    });
+
+    observer.observe(document.body);
+
+    return () => observer.disconnect();
+  }, [isTransitioning]);
 
   return {
     itemHeights,
