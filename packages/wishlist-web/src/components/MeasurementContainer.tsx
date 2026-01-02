@@ -1,6 +1,6 @@
 import { RefObject } from "react";
-import { VirtualListItem } from "./List";
-import ListItem, { getListItemKey } from "./ListItem";
+import { VirtualListItem } from "./ListItem";
+import ListItem from "./ListItem";
 
 function MeasurementContainer({
   virtualItems,
@@ -16,7 +16,7 @@ function MeasurementContainer({
         items-stretch gap-2"
     >
       {virtualItems.map((v) => (
-        <ListItem item={v} key={getListItemKey(v)} />
+        <ListItem item={v} key={v.key} />
       ))}
     </div>
   );

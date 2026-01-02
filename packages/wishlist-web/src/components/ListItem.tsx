@@ -1,19 +1,14 @@
-import { VirtualListItem } from "./List";
+import { EntryItem, HeadingItem } from "./List";
 import ListEntry from "./ListEntry";
 import ListHeading from "./ListHeading";
-import ListSubHeading from "./ListSubHeading";
+import ListSubHeading, { SubHeadingItem } from "./ListSubHeading";
 
-export const getListItemKey = (item: VirtualListItem) => item.key;
-// item.itemType !== "entry" ? item.key : item.packagedName;
+export type VirtualListItem = EntryItem | HeadingItem | SubHeadingItem;
 
 function ListItem({ item }: { item: VirtualListItem }) {
   if (item.itemType === "heading") {
     return (
-      <div
-        className="sticky -top-4 z-20 h-min w-full"
-        key={getListItemKey(item)}
-        data-key={getListItemKey(item)}
-      >
+      <div className="sticky -top-4 z-20 h-min w-full" key={item.key}>
         <ListHeading
           type={item.headingType}
           label={item.label}
@@ -24,18 +19,14 @@ function ListItem({ item }: { item: VirtualListItem }) {
     );
   } else if (item.itemType === "subheading") {
     return (
-      <div key={getListItemKey(item)} data-key={getListItemKey(item)}>
+      <div key={item.key}>
         <ListSubHeading type={item.subheadingType} owned={item.owned} />
       </div>
     );
   }
 
   return (
-    <div
-      className="grow"
-      key={getListItemKey(item)}
-      data-key={getListItemKey(item)}
-    >
+    <div className="grow" key={item.key}>
       <ListEntry {...item.entry} />
     </div>
   );

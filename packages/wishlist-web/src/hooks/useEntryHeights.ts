@@ -1,5 +1,5 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
-import { VirtualListItem } from "@/components/List";
+import { VirtualListItem } from "@/components/ListItem";
 
 const DEFAULT_HEIGHTS = {
   entry: 75,

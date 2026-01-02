@@ -13,14 +13,12 @@ import { getSortFunction } from "@/lib/sortWishlist";
 import { useWishlist } from "@/contexts/WishlistContext";
 import ListMiniMap from "./ListMiniMap.tsx";
 import { ClientOnly } from "@tanstack/react-router";
-import ListItem, { getListItemKey } from "./ListItem.tsx";
-import { SubHeadingItem } from "./ListSubHeading.tsx";
+import ListItem from "./ListItem.tsx";
 import MeasurementContainer from "./MeasurementContainer.tsx";
 import { insertListHeadings } from "../lib/insertListHeadings.ts";
 import { useEntryHeights } from "@/hooks/useEntryHeights.ts";
 
-// TODO: Clean up a lot of this code because it's a mess rn
-// In particular, data flow for handling grouping and group-statistics is clumsy
+// TODO: Reorganize these types
 export type EntryItem = {
   entry: ListEntryProps;
   itemType: "entry";
@@ -34,8 +32,6 @@ export type HeadingItem = {
   status: HeadingStatus;
   info: HeadingInfo;
 };
-export type VirtualListItem = EntryItem | HeadingItem | SubHeadingItem;
-
 function getUnboxedName(item: IOTM): string {
   if (
     item.type !== "skill" &&
@@ -196,7 +192,7 @@ function List() {
       viewportItems.map((row) => (
         <ListItem
           item={virtualItems[row.index]}
-          key={getListItemKey(virtualItems[row.index])}
+          key={virtualItems[row.index].key}
         />
       )),
     // update when item values change, not array reference

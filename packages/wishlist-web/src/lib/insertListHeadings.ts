@@ -1,4 +1,5 @@
-import { HeadingItem, VirtualListItem } from "@/components/List";
+import { HeadingItem } from "@/components/List";
+import { VirtualListItem } from "@/components/ListItem";
 import { ListEntryProps } from "@/components/ListEntry";
 import { HeadingType } from "@/components/ListHeading";
 
