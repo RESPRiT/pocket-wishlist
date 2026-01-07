@@ -1,8 +1,9 @@
 import { useMemo } from "react";
 import { adjustLightness, logBracketScale } from "@/lib/colors";
+import { ListEntryStatus } from "@/components/ListEntry";
 
 export type EntryBackgroundColorProps = {
-  status?: "NONE" | "PACKAGED" | "OPENED";
+  status?: ListEntryStatus;
   isStandard: boolean;
   standardYear: number;
   priceRatio: number | null;

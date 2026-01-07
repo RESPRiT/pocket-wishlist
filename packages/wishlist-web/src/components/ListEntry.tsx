@@ -8,6 +8,8 @@ import { EntryPriceSection } from "./entry/EntryPriceSection";
 import { cn } from "@/lib/utils";
 import { Price } from "wishlist-shared";
 
+// TODO: Move to wishlist data schema once API is updated
+export type ListEntryStatus = "NONE" | "PACKAGED" | "OPENED" | "WISHED";
 export type ListEntryProps = {
   img: string;
   name: string;
@@ -21,7 +23,8 @@ export type ListEntryProps = {
   isCon: boolean;
   price: Price | null;
   mrAs: number;
-  status?: "NONE" | "PACKAGED" | "OPENED";
+  // TODO: Make this a resuable type
+  status?: ListEntryStatus;
 };
 
 function ListEntry({
@@ -73,8 +76,11 @@ function ListEntry({
     <div
       className={cn(
         `grid overflow-hidden rounded-md hover:outline-2
-        hover:outline-foreground/50`,
+        hover:outline-foreground/50 hover:outline-solid`,
         isStandard && "hover:outline-secondary",
+        status === "WISHED" &&
+          "outline-2 -outline-offset-2 outline-foreground/50 outline-dashed",
+        status === "WISHED" && isStandard && "outline-secondary",
       )}
     >
       <EntryBackground
@@ -102,11 +108,17 @@ function ListEntry({
           wikiUrl={wikiUrl}
           isStandard={isStandard}
           yearPercent={yearPercent}
+          status={status}
         />
 
         <EntrySpacer className="hidden lg:inline" />
 
-        <EntryTiersSection speed={speed} farm={farm} />
+        <EntryTiersSection
+          speed={speed}
+          farm={farm}
+          status={status}
+          isStandard={isStandard}
+        />
 
         <EntrySpacer />
 
