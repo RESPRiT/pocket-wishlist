@@ -3,7 +3,7 @@ import { z } from "npm:zod@4";
 // TODO: Copy from wishlist-shared in build/dev script instead of separate copy
 export const WishlistSchema = z.record(
   z.coerce.number<number>(), // JSON keys are strings
-  z.literal(["NONE", "PACKAGED", "OPENED"])
+  z.literal(["NONE", "PACKAGED", "OPENED"]),
 );
 export const WishlistResponseSchema = z.object({
   username: z.string(),
@@ -35,7 +35,7 @@ export const PriceGunSchema = z.object({
   // last time the price value was calculated by PriceGun
   date: z.coerce.date(), // JSON dates are strings
   itemId: z.number(),
-  name: z.string(),
+  name: z.string().nullable(), // new IOTMs can have a missing name field, I guess?
   image: z.string(),
   sales: z.array(PriceGunSalesDataSchema),
   history: z.array(PriceGunHistoricalDataSchema),
@@ -55,7 +55,7 @@ export const PriceSchema = z.object({
 });
 export const CombinedPriceSchema = z.record(
   z.coerce.number<number>(),
-  PriceSchema
+  PriceSchema,
 );
 export const MallPriceResponseSchema = z.object({
   prices: CombinedPriceSchema,
