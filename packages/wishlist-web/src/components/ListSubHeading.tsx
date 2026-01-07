@@ -1,5 +1,6 @@
 import { cn } from "@/lib/utils";
 import { ListEntryProps } from "./ListEntry";
+import { useHydratedSettingsStore } from "@/stores/useSettingsStore";
 
 export type SubHeadingType = "iotm" | "ioty" | "special";
 export type SubHeadingItem = {
@@ -16,6 +17,8 @@ function ListSubHeading({
   type: SubHeadingType;
   owned: SubHeadingItem["owned"];
 }) {
+  const { currentSort } = useHydratedSettingsStore();
+
   const textColor =
     type === "iotm"
       ? "text-[oklch(from_var(--confirm)_var(--foreground-lightness)_0.09_h)]"
@@ -50,19 +53,47 @@ function ListSubHeading({
         <span className="mr-1 text-xs tracking-tighter">
           {owned.filter((v) => v !== "NONE").length} / {owned.length}
         </span>
-        {owned.map((v, i) => (
-          <div
-            className={cn(
-              "h-2.5 w-1.5 rounded-xs",
-              v === "OPENED"
-                ? iconColor
-                : v === "PACKAGED"
-                  ? [iconColor, "opacity-40"]
-                  : "border-[0.5px] border-dashed border-foreground",
-            )}
-            key={i}
-          />
-        ))}
+        {currentSort === "date" || owned.length <= 4 ? (
+          owned.map((v, i) => (
+            <div
+              className={cn(
+                "h-2.5 w-1.5 rounded-xs",
+                v === "OPENED"
+                  ? iconColor
+                  : v === "PACKAGED"
+                    ? [iconColor, "opacity-40"]
+                    : "border-[0.5px] border-dashed border-foreground",
+              )}
+              key={i}
+            />
+          ))
+        ) : (
+          <div className="grid overflow-hidden rounded-xs">
+            <div className="col-start-1 row-start-1 flex">
+              <div
+                className={cn("h-2.5", iconColor)}
+                style={{
+                  width: owned.filter((v) => v === "OPENED").length * 2.5,
+                }}
+              ></div>
+              <div
+                className={cn("h-2.5 opacity-40", iconColor)}
+                style={{
+                  width: owned.filter((v) => v === "PACKAGED").length * 2.5,
+                }}
+              ></div>
+            </div>
+            <div
+              className={cn(
+                "col-start-1 row-start-1 h-2.5 opacity-25",
+                iconColor,
+              )}
+              style={{
+                width: owned.length * 2.5,
+              }}
+            ></div>
+          </div>
+        )}
       </div>
     </div>
   );

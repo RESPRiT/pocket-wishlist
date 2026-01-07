@@ -2,10 +2,12 @@ import { useEffect } from "react";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
+type SortSetting = "date" | "price" | "tier";
+
 type SettingsStore = {
-  currentSort: string;
+  currentSort: SortSetting;
   currentOrder: boolean;
-  setSort: (sort: string) => void;
+  setSort: (sort: SortSetting) => void;
   setOrder: (direction: boolean) => void;
 };
 
@@ -14,7 +16,7 @@ export const useSettingsStore = create<SettingsStore>()(
     (set) => ({
       currentSort: "date",
       currentOrder: false,
-      setSort: (sort: string) => set(() => ({ currentSort: sort })),
+      setSort: (sort: SortSetting) => set(() => ({ currentSort: sort })),
       setOrder: (direction: boolean) =>
         set(() => ({ currentOrder: direction })),
     }),
