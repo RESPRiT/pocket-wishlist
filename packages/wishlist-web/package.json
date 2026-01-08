@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite dev --host 0.0.0.0",
     "dev-spa": "vite dev dist/client --base=/pocket-wishlist/",
-    "build": "tsc -b && vite build",
+    "build": "vite build",
     "build-spa": "SSR=false bun run build",
     "start": "bun run server.ts",
     "lint": "eslint .",

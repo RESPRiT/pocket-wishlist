@@ -39,7 +39,7 @@ app.on(["POST", "GET"], "/update-wishlist", async (c) => {
 app.on(["POST"], "/toggle-wishlist", async (c) => {
   try {
     const { userId, auth, itemUpdates } = WishlistToggleRequestSchema.parse(
-      c.req.json()
+      await c.req.json()
     );
 
     const wishlist = await blob.getJSON(`wish/${userId}`);
