@@ -18777,12 +18777,19 @@ config(en_default());
 var WishlistSchema = external_exports.record(
   external_exports.coerce.number(),
   // JSON keys are strings
-  external_exports.literal(["NONE", "PACKAGED", "OPENED"])
+  external_exports.literal(["NONE", "PACKAGED", "OPENED", "WISHED"])
 ), WishlistResponseSchema = external_exports.object({
   username: external_exports.string(),
   userId: external_exports.number(),
   wishlist: WishlistSchema,
   lastUpdated: external_exports.number()
+}), WishlistToggleRequestSchema = external_exports.object({
+  userId: external_exports.number(),
+  auth: external_exports.string(),
+  itemUpdates: external_exports.array(external_exports.object({
+    id: external_exports.number(),
+    status: external_exports.boolean()
+  }))
 }), PriceGunSalesDataSchema = external_exports.object({
   date: external_exports.coerce.date(),
   unitPrice: external_exports.number(),
@@ -18802,7 +18809,8 @@ var WishlistSchema = external_exports.record(
   date: external_exports.coerce.date(),
   // JSON dates are strings
   itemId: external_exports.number(),
-  name: external_exports.string(),
+  name: external_exports.string().nullable(),
+  // new IOTMs can have a missing name field, I guess?
   image: external_exports.string(),
   sales: external_exports.array(PriceGunSalesDataSchema),
   history: external_exports.array(PriceGunHistoricalDataSchema)
