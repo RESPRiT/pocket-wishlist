@@ -98,13 +98,16 @@ export function insertListHeadings(
     for (const entry of groupEntries) {
       if (entry.month !== undefined) {
         status.iotms.total++;
-        if (entry.status !== "NONE") status.iotms.owned++;
+        if (entry.status === "OPENED" || entry.status === "PACKAGED")
+          status.iotms.owned++;
       } else if (entry.isIOTY) {
         status.iotys.total++;
-        if (entry.status !== "NONE") status.iotys.owned++;
+        if (entry.status === "OPENED" || entry.status === "PACKAGED")
+          status.iotys.owned++;
       } else {
         status.special.total++;
-        if (entry.status !== "NONE") status.special.owned++;
+        if (entry.status === "OPENED" || entry.status === "PACKAGED")
+          status.special.owned++;
       }
     }
 

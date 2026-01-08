@@ -1,10 +1,17 @@
-import { wishlistQuery } from "@/api/wishlist";
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { toggleWishlistMutation, wishlistQuery } from "@/api/wishlist";
+import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
 import { createContext, ReactNode, use } from "react";
-import { type Wishlist } from "wishlist-shared";
+import { WishlishToggleRequest, type Wishlist } from "wishlist-shared";
 
 type WishlistContextType = {
   wishlist: Wishlist;
+  toggleWishlist: ({
+    itemUpdates,
+    auth,
+  }: {
+    itemUpdates: WishlishToggleRequest["itemUpdates"];
+    auth: WishlishToggleRequest["auth"];
+  }) => void;
   username: string;
   userId: number;
   lastUpdated: number;
@@ -14,6 +21,7 @@ type WishlistContextType = {
 
 const WishlistContext = createContext<WishlistContextType>({
   wishlist: {},
+  toggleWishlist: () => {},
   username: "",
   userId: -1,
   lastUpdated: -1,
@@ -31,14 +39,27 @@ export const WishlistProvider = ({
   userId?: number;
 }) => {
   const { data, isPending, error } = useSuspenseQuery(wishlistQuery(userId));
+  const wishlistMutation = useMutation(toggleWishlistMutation(userId));
 
-  const value = {
-    ...(data ?? { username: "", userId: -1, wishlist: {}, lastUpdated: -1 }),
-    isPending,
-    error,
+  const value = data ?? {
+    username: "",
+    userId: -1,
+    wishlist: {},
+    lastUpdated: -1,
   };
 
-  return <WishlistContext value={value}>{children}</WishlistContext>;
+  return (
+    <WishlistContext
+      value={{
+        ...value,
+        isPending,
+        error,
+        toggleWishlist: wishlistMutation.mutate,
+      }}
+    >
+      {children}
+    </WishlistContext>
+  );
 };
 
 export const useWishlist = () => {

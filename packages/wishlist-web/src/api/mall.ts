@@ -31,6 +31,6 @@ export const mallPricesQuery = queryOptions({
       const sinceLastUpdated = Date.now() - result.data.lastUpdated.getTime();
       return 24 * 60 * 60 * 1000 - sinceLastUpdated;
     }
-    return 0;
+    return 5000; // don't refetch constantly
   },
 });

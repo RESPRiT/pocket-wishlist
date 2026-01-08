@@ -1,7 +1,10 @@
 import { blob } from "https://esm.town/v/std/blob";
 import { Hono } from "npm:hono@4";
 import jsoncrush from "npm:jsoncrush@1";
-import { WishlistResponseSchema } from "../schemas/api.ts";
+import {
+  WishlistResponseSchema,
+  WishlistToggleRequestSchema,
+} from "../schemas/api.ts";
 
 const app = new Hono();
 
@@ -26,19 +29,45 @@ app.on(["POST", "GET"], "/update-wishlist", async (c) => {
 
     // TODO: Move away from blob storage
     await blob.setJSON(`wish/${data.player.id}`, stored);
-    return c.json("Wishlist data updated! (I think?)");
+    return c.text("Wishlist data updated! (I think?)");
   } catch (e) {
     return c.text(`Invalid data: ${e}`, 400);
   }
 });
 
+// TODO: handle auth
+app.on(["POST"], "/toggle-wishlist", async (c) => {
+  try {
+    const { userId, auth, itemUpdates } = WishlistToggleRequestSchema.parse(
+      c.req.json()
+    );
+
+    const wishlist = await blob.getJSON(`wish/${userId}`);
+    if (!wishlist) return c.text(`Could not find wishlist for ${userId}`, 400);
+
+    // TODO: would prefer if this was immutable
+    const updatedWishlist = WishlistResponseSchema.parse(wishlist);
+    for (const { id, status } of itemUpdates) {
+      updatedWishlist.wishlist[id] = status ? "WISHED" : "NONE";
+    }
+
+    await blob.setJSON(`wish/${userId}`, updatedWishlist);
+    return c.json(itemUpdates);
+  } catch (e) {
+    return c.text(`Invalid toggle request: ${e}`, 400);
+  }
+});
+
 app.get("/get-wishlist", async (c) => {
-  const user = c.req.query("u");
+  const userId = c.req.query("u");
+  const secret = c.req.query("secret");
 
-  if (user === undefined) return c.text("No user specified", 400);
+  // TODO: Implement secret phrase handling
 
-  const wishlist = await blob.getJSON(`wish/${user}`);
-  if (!wishlist) return c.text(`Could not find wishlist for ${user}`, 400);
+  if (userId === undefined) return c.text("No user specified", 400);
+
+  const wishlist = await blob.getJSON(`wish/${userId}`);
+  if (!wishlist) return c.text(`Could not find wishlist for ${userId}`, 400);
 
   try {
     return c.json(WishlistResponseSchema.parse(wishlist));

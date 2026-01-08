@@ -62,6 +62,7 @@ function List() {
             img: item.img,
             name: getUnboxedName(item),
             packagedName: item.packaged_name,
+            id: item.packaged_id,
             type: item.type,
             year: item.year,
             month: item.month,

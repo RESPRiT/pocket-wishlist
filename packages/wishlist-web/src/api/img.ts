@@ -23,4 +23,6 @@ export const imgQuery = (src: string) =>
     queryKey: ["img", src],
     queryFn: () => fetchImg(src),
     staleTime: Infinity,
+    // don't garbage collect inactive images (e.g. dark mode when in light mode)
+    gcTime: Infinity,
   });

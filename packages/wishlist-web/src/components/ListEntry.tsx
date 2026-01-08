@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import EntrySpacer from "./EntrySpacer";
 import { EntryBackground } from "./entry/EntryBackground";
 import { EntryRibbon } from "./entry/EntryRibbon";
@@ -7,6 +7,7 @@ import { EntryTiersSection } from "./entry/EntryTiersSection";
 import { EntryPriceSection } from "./entry/EntryPriceSection";
 import { cn } from "@/lib/utils";
 import { Price } from "wishlist-shared";
+import { useWishlist } from "@/contexts/WishlistContext";
 
 // TODO: Move to wishlist data schema once API is updated
 export type ListEntryStatus = "NONE" | "PACKAGED" | "OPENED" | "WISHED";
@@ -14,6 +15,7 @@ export type ListEntryProps = {
   img: string;
   name: string;
   packagedName: string;
+  id: number;
   type: string;
   year: number;
   month?: number;
@@ -31,6 +33,7 @@ function ListEntry({
   img,
   name,
   packagedName,
+  id,
   type,
   year,
   speed,
@@ -41,6 +44,9 @@ function ListEntry({
   mrAs,
   status,
 }: ListEntryProps) {
+  const { toggleWishlist } = useWishlist();
+  const [toggleLock, setToggleLock] = useState(false);
+
   const yearPercent = useMemo(() => {
     const currentYear = new Date().getFullYear();
     // why capped at 5/6? idk, I like that color range better
@@ -75,13 +81,40 @@ function ListEntry({
   return (
     <div
       className={cn(
-        `grid overflow-hidden rounded-md hover:outline-2
-        hover:outline-foreground/50 hover:outline-solid`,
-        isStandard && "hover:outline-secondary",
+        `grid overflow-hidden rounded-md hover:outline-0
+        hover:outline-foreground/30 hover:outline-solid`,
+        isStandard && "hover:outline-secondary/80",
+        (status === "WISHED" || status === "NONE") &&
+          `hover:cursor-pointer hover:outline-2 active:translate-y-0.5
+          active:opacity-80 active:-outline-offset-2
+          active:outline-foreground/20`,
         status === "WISHED" &&
-          "outline-2 -outline-offset-2 outline-foreground/50 outline-dashed",
-        status === "WISHED" && isStandard && "outline-secondary",
+          "outline-2 -outline-offset-1 outline-foreground/30 outline-dashed",
+        status === "WISHED" && isStandard && "outline-secondary/80",
+        (toggleLock || status === "WISHED") && "active:outline-dashed",
       )}
+      onPointerDown={() => {
+        if (toggleLock || status !== "NONE") return;
+        setToggleLock(true);
+
+        toggleWishlist({
+          itemUpdates: [{ id, status: true }],
+          auth: "",
+        });
+      }}
+      onPointerUp={() => {
+        if (toggleLock) {
+          setToggleLock(false);
+          return;
+        }
+
+        if (status !== "WISHED") return;
+
+        toggleWishlist({
+          itemUpdates: [{ id, status: false }],
+          auth: "",
+        });
+      }}
     >
       <EntryBackground
         status={status}

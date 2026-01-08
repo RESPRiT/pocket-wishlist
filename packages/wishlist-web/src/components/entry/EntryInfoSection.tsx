@@ -50,7 +50,7 @@ export function EntryInfoSection({
           src={`itemimages/${img}`}
           alt={name}
           reColor="bg-foreground"
-          bgColor={status === "WISHED" ? "" : "bg-background"}
+          bgColor={status === "WISHED" ? "bg-transparent" : "bg-background"}
           className={cn("m-2 clamp-[size,6,7,sm,md]")}
         />
       </a>

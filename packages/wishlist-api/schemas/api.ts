@@ -3,7 +3,7 @@ import { z } from "npm:zod@4";
 // TODO: Copy from wishlist-shared in build/dev script instead of separate copy
 export const WishlistSchema = z.record(
   z.coerce.number<number>(), // JSON keys are strings
-  z.literal(["NONE", "PACKAGED", "OPENED"]),
+  z.literal(["NONE", "PACKAGED", "OPENED", "WISHED"])
 );
 export const WishlistResponseSchema = z.object({
   username: z.string(),
@@ -11,8 +11,19 @@ export const WishlistResponseSchema = z.object({
   wishlist: WishlistSchema,
   lastUpdated: z.number(),
 });
+export const WishlistToggleRequestSchema = z.object({
+  userId: z.number(),
+  auth: z.string(),
+  itemUpdates: z.array(
+    z.object({
+      id: z.number(),
+      status: z.boolean(),
+    })
+  ),
+});
 export type Wishlist = z.infer<typeof WishlistSchema>;
 export type WishlistResponse = z.infer<typeof WishlistResponseSchema>;
+export type WishlishToggleRequest = z.infer<typeof WishlistToggleRequestSchema>;
 
 // most recent sales data
 export const PriceGunSalesDataSchema = z.object({
@@ -55,7 +66,7 @@ export const PriceSchema = z.object({
 });
 export const CombinedPriceSchema = z.record(
   z.coerce.number<number>(),
-  PriceSchema,
+  PriceSchema
 );
 export const MallPriceResponseSchema = z.object({
   prices: CombinedPriceSchema,

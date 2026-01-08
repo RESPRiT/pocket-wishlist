@@ -3,7 +3,7 @@ import { z } from "zod";
 // TODO: Don't copy to wishlist-api
 export const WishlistSchema = z.record(
   z.coerce.number<number>(), // JSON keys are strings
-  z.literal(["NONE", "PACKAGED", "OPENED"])
+  z.literal(["NONE", "PACKAGED", "OPENED", "WISHED"])
 );
 export const WishlistResponseSchema = z.object({
   username: z.string(),
@@ -11,8 +11,19 @@ export const WishlistResponseSchema = z.object({
   wishlist: WishlistSchema,
   lastUpdated: z.number(),
 });
+export const WishlistToggleRequestSchema = z.object({
+  userId: z.number(),
+  auth: z.string(),
+  itemUpdates: z.array(
+    z.object({
+      id: z.number(),
+      status: z.boolean(),
+    })
+  ),
+});
 export type Wishlist = z.infer<typeof WishlistSchema>;
 export type WishlistResponse = z.infer<typeof WishlistResponseSchema>;
+export type WishlishToggleRequest = z.infer<typeof WishlistToggleRequestSchema>;
 
 // most recent sales data
 export const PriceGunSalesDataSchema = z.object({
@@ -35,7 +46,7 @@ export const PriceGunSchema = z.object({
   // last time the price value was calculated by PriceGun
   date: z.coerce.date(), // JSON dates are strings
   itemId: z.number(),
-  name: z.string(),
+  name: z.string().nullable(), // new IOTMs can have a missing name field, I guess?
   image: z.string(),
   sales: z.array(PriceGunSalesDataSchema),
   history: z.array(PriceGunHistoricalDataSchema),

@@ -51,7 +51,8 @@ function ListSubHeading({
           rounded-sm bg-primary px-2 py-1"
       >
         <span className="mr-1 text-xs tracking-tighter">
-          {owned.filter((v) => v !== "NONE").length} / {owned.length}
+          {owned.filter((v) => v === "OPENED" || v === "PACKAGED").length} /{" "}
+          {owned.length}
         </span>
         {currentSort === "date" || owned.length <= 4 ? (
           owned.map((v, i) => (
