@@ -3,6 +3,7 @@ import tsConfigPaths from "vite-tsconfig-paths";
 import viteReact from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 import { tanstackStart } from "@tanstack/react-start/plugin/vite";
+import { nitro } from "nitro/vite";
 import { resolve } from "path";
 
 // https://vitejs.dev/config/
@@ -19,6 +20,7 @@ export default defineConfig({
         maskPath: "/pocket-wishlist/",
       },
     }),
+    nitro({ preset: "bun" }),
     viteReact({
       babel: {
         plugins: ["babel-plugin-react-compiler"],
