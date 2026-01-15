@@ -33,7 +33,7 @@ function MiniMapEntry({
 
   const mall =
     entry.price?.value || entry.price?.lowestMall
-      ? Math.min(
+      ? Math.max(
           entry.price?.value ?? Infinity,
           entry.price?.lowestMall ?? Infinity,
         )
