@@ -72,7 +72,7 @@ function ListEntry({
 
   const mall =
     price?.value || price?.lowestMall
-      ? Math.min(price?.value ?? Infinity, price?.lowestMall ?? Infinity)
+      ? Math.max(price?.value ?? Infinity, price?.lowestMall ?? Infinity)
       : null;
 
   const priceRatio = mall && mrAs ? mall / mrAs : null;

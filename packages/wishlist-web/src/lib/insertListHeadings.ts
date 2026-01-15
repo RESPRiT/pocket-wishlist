@@ -32,7 +32,7 @@ function getPriceGroup(entry: ListEntryProps): string {
       ? "extinct"
       : price?.value === undefined || price?.volume === 0
         ? "lowestMall"
-        : price.value < price.lowestMall
+        : price.value > price.lowestMall
           ? "recentSales"
           : "lowestMall";
 

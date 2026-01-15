@@ -8,11 +8,11 @@ function priceSort(
   const aPrice = (a.price?.volume ?? 0 > 0) ? a.price?.value : null;
   const bPrice = (b.price?.volume ?? 0 > 0) ? b.price?.value : null;
 
-  const aLowest = Math.min(
+  const aLowest = Math.max(
     aPrice || Infinity,
     a.price?.lowestMall === -1 ? Infinity : a.price?.lowestMall || Infinity,
   );
-  const bLowest = Math.min(
+  const bLowest = Math.max(
     bPrice || Infinity,
     b.price?.lowestMall === -1 ? Infinity : b.price?.lowestMall || Infinity,
   );
