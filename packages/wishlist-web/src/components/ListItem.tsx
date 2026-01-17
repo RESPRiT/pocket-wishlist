@@ -19,14 +19,14 @@ function ListItem({ item }: { item: VirtualListItem }) {
     );
   } else if (item.itemType === "subheading") {
     return (
-      <div key={item.key}>
+      <div className="w-full" key={item.key}>
         <ListSubHeading type={item.subheadingType} owned={item.owned} />
       </div>
     );
   }
 
   return (
-    <div className="grow" key={item.key}>
+    <div className="w-full grow" key={item.key}>
       <ListEntry {...item.entry} />
     </div>
   );

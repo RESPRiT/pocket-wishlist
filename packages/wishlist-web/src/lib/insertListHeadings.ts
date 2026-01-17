@@ -113,10 +113,12 @@ export function insertListHeadings(
 
     groupStatus.set(group, status);
 
+    const numOutliers = Math.floor(groupEntries.length / 4);
+
     const pricesOutliersRemoved = groupEntries
       .map((entry) => entry.price?.lowestMall ?? Infinity)
       .sort((a, b) => a - b)
-      .slice(1, -1);
+      .slice(numOutliers, numOutliers > 0 ? -numOutliers : undefined);
 
     const info = {
       avgPrice:

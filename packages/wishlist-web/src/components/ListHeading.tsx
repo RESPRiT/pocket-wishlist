@@ -1,6 +1,7 @@
 import { cn } from "@/lib/utils";
 import { Badge } from "./ui/badge";
-import { formatMeatPrice } from "@/lib/prices";
+import { formatMeatPrice, formatMrARatio } from "@/lib/prices";
+import ThemedImg from "./ThemedImg";
 
 export type HeadingType = "year" | "tier" | "price";
 
@@ -99,17 +100,35 @@ function ListHeading({ type, label, status, info }: ListHeadingProps) {
       </div>
 
       {/* secondary heading -- TODO: I think this could be a floating info box, instead*/}
-      {/* eslint-disable-next-line no-constant-binary-expression */}
-      {false && (
-        <div className="flex h-min gap-2 text-xs">
+      {
+        <div className="text-md flex h-min gap-2">
           <Badge
             className="rounded-sm outline-[1.5px] -outline-offset-1
               outline-foreground"
           >
-            Avg. Price: {formatMeatPrice(info.avgPrice)}
+            <span>Avg. Price:</span>
+            <ThemedImg
+              src="itemimages/meat.gif"
+              alt="meat"
+              reColor="bg-foreground"
+              className={"-mr-px clamp-[size,3,4,xs,sm]"}
+            />
+            <span className="font-roboto-mono">
+              {formatMeatPrice(info.avgPrice)}
+            </span>
+            <span className="font-roboto-mono text-muted-foreground">/</span>
+            <ThemedImg
+              src="itemimages/mracc.gif"
+              alt="meat"
+              reColor="bg-accent"
+              className={"-mx-0.5 clamp-[size,4,5,xs,sm]"}
+            />
+            <span className="font-roboto-mono">
+              {formatMrARatio(info.avgPrice, 70000000)}
+            </span>
           </Badge>
         </div>
-      )}
+      }
     </div>
   );
 }
