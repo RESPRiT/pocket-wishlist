@@ -93,7 +93,7 @@ function ListEntry({
         status === "WISHED" && isStandard && "outline-secondary/80",
         (toggleLock || status === "WISHED") && "active:outline-dashed",
       )}
-      onPointerDown={() => {
+      onMouseDown={() => {
         if (toggleLock || status !== "NONE") return;
         setToggleLock(true);
 
@@ -102,7 +102,7 @@ function ListEntry({
           auth: "",
         });
       }}
-      onPointerUp={() => {
+      onMouseUp={() => {
         if (toggleLock) {
           setToggleLock(false);
           return;

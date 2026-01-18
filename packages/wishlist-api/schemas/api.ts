@@ -3,7 +3,10 @@ import { z } from "npm:zod@4";
 // TODO: Copy from wishlist-shared in build/dev script instead of separate copy
 export const WishlistSchema = z.record(
   z.coerce.number<number>(), // JSON keys are strings
-  z.literal(["NONE", "PACKAGED", "OPENED", "WISHED"])
+  z.preprocess(
+    (val) => val ?? "NONE",
+    z.literal(["NONE", "PACKAGED", "OPENED", "WISHED"])
+  )
 );
 export const WishlistResponseSchema = z.object({
   username: z.string(),

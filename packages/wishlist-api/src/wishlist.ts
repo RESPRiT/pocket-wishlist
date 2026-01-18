@@ -2,7 +2,9 @@ import { blob } from "https://esm.town/v/std/blob";
 import { Hono } from "npm:hono@4";
 import jsoncrush from "npm:jsoncrush@1";
 import {
+  WishlistResponse,
   WishlistResponseSchema,
+  WishlistSchema,
   WishlistToggleRequestSchema,
 } from "../schemas/api.ts";
 
@@ -19,16 +21,34 @@ app.on(["POST", "GET"], "/update-wishlist", async (c) => {
     );
 
     const data = JSON.parse(decoded);
+    const curr: WishlistResponse = await blob.getJSON(`wish/${data.player.id}`);
+    const newWishlist = WishlistSchema.parse(curr.wishlist ?? data.wishlist);
 
-    const stored = WishlistResponseSchema.parse({
+    if (curr !== undefined) {
+      Object.keys(newWishlist).forEach((key) => {
+        // don't override wishes if the IOTM isn't reported, isn't acquired yet,
+        // or if it's already been marked as opened (e.g. if missed in HC)
+        if (
+          data.wishlist[key] === undefined ||
+          data.wishlist[key] === "NONE" ||
+          curr.wishlist[key] === "OPENED"
+        ) {
+          newWishlist[key] = curr.wishlist[key];
+        } else {
+          newWishlist[key] = data.wishlist[key];
+        }
+      });
+    }
+
+    const update = WishlistResponseSchema.parse({
       username: data.player.name,
       userId: data.player.id,
-      wishlist: data.wishlist,
+      wishlist: newWishlist,
       lastUpdated: Date.now(),
     });
 
     // TODO: Move away from blob storage
-    await blob.setJSON(`wish/${data.player.id}`, stored);
+    await blob.setJSON(`wish/${data.player.id}`, update);
     return c.text("Wishlist data updated! (I think?)");
   } catch (e) {
     return c.text(`Invalid data: ${e}`, 400);
