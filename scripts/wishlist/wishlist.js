@@ -18777,7 +18777,9 @@ config(en_default());
 var WishlistSchema = external_exports.record(
   external_exports.coerce.number(),
   // JSON keys are strings
-  external_exports.literal(["NONE", "PACKAGED", "OPENED", "WISHED"])
+  external_exports.preprocess(function(val) {
+    return val ?? "NONE";
+  }, external_exports.literal(["NONE", "PACKAGED", "OPENED", "WISHED"]))
 ), WishlistResponseSchema = external_exports.object({
   username: external_exports.string(),
   userId: external_exports.number(),
@@ -18792,23 +18794,22 @@ var WishlistSchema = external_exports.record(
   }))
 }), PriceGunSalesDataSchema = external_exports.object({
   date: external_exports.coerce.date(),
-  unitPrice: external_exports.number(),
-  quantity: external_exports.number()
+  unitPrice: external_exports.coerce.number(),
+  quantity: external_exports.coerce.number()
 }), PriceGunHistoricalDataSchema = external_exports.object({
-  itemId: external_exports.number(),
+  itemId: external_exports.coerce.number(),
   date: external_exports.coerce.date(),
-  volume: external_exports.number(),
+  volume: external_exports.coerce.number(),
   price: external_exports.coerce.number()
-  // TODO: this coercion is to get around a type bug with pricegun
 }), PriceGunSchema = external_exports.object({
   // value across ALL transactions, not just past 2 weeks
-  value: external_exports.number(),
+  value: external_exports.coerce.number(),
   // volume across the past 2 weeks
-  volume: external_exports.number(),
+  volume: external_exports.coerce.number(),
   // last time the price value was calculated by PriceGun
   date: external_exports.coerce.date(),
   // JSON dates are strings
-  itemId: external_exports.number(),
+  itemId: external_exports.coerce.number(),
   name: external_exports.string().nullable(),
   // new IOTMs can have a missing name field, I guess?
   image: external_exports.string(),
