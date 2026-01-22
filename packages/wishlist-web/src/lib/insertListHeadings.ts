@@ -124,6 +124,7 @@ export function insertListHeadings(
       avgPrice:
         pricesOutliersRemoved.reduce((acc, price) => acc + price, 0) /
         pricesOutliersRemoved.length,
+      mrAs: groupEntries[0].mrAs,
     };
 
     groupInfo.set(group, info);

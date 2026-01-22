@@ -13,6 +13,7 @@ export type HeadingStatus = {
 
 export type HeadingInfo = {
   avgPrice: number;
+  mrAs: number;
 };
 
 interface ListHeadingProps {
@@ -124,7 +125,7 @@ function ListHeading({ type, label, status, info }: ListHeadingProps) {
               className={"-mx-0.5 clamp-[size,4,5,xs,sm]"}
             />
             <span className="font-roboto-mono">
-              {formatMrARatio(info.avgPrice, 70000000)}
+              {formatMrARatio(info.avgPrice, info.mrAs)}
             </span>
           </Badge>
         </div>
