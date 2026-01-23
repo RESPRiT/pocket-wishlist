@@ -76,11 +76,13 @@ function Header() {
         <span className="text-xs text-accent">{`prices updated: ${formatTimeSince(
           mallPricesLastUpdated.getTime(),
         )}`}</span>
-        <span className="clamp-[text,sm,base,xs,sm] text-foreground">
-          {`${username}'s wishlist `}
-          <span className="clamp-[text,xs,sm,xs,sm]">{"as of "}</span>
-          <b>{formatTimeSince(lastUpdated ?? 0)}</b>
-        </span>
+        {username && (
+          <span className="clamp-[text,sm,base,xs,sm] text-foreground">
+            {`${username}'s wishlist `}
+            <span className="clamp-[text,xs,sm,xs,sm]">{"as of "}</span>
+            <b>{formatTimeSince(lastUpdated ?? 0)}</b>
+          </span>
+        )}
       </div>
     </header>
   );

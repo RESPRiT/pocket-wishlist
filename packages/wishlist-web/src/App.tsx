@@ -5,7 +5,7 @@ import { WishlistProvider } from "./contexts/WishlistContext";
 import { useTheme } from "./contexts/ThemeContext.tsx";
 import { cn } from "./lib/utils.ts";
 
-function App() {
+function App({ userId }: { userId?: number }) {
   const { isTransitioning } = useTheme();
 
   // TODO: Disable scroll on mobile
@@ -20,7 +20,7 @@ function App() {
           isTransitioning && "h-screen overflow-y-hidden",
         )}
       >
-        <WishlistProvider>
+        <WishlistProvider userId={userId}>
           <Header />
           <Menu />
           <ListView />

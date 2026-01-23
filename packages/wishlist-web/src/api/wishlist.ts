@@ -7,11 +7,8 @@ import {
 
 /**
  * Fetches user wishlist status
- * TODO: Un-hardcode user ID
  */
-async function fetchWishlist(
-  userId: number = 1927026,
-): Promise<WishlistResponse> {
+async function fetchWishlist(userId: number): Promise<WishlistResponse> {
   const url = `https://resprit--dd94f3deb77f11f08e0c0224a6c84d84.web.val.run/get-wishlist?u=${userId}`;
 
   const response = await fetch(url);
