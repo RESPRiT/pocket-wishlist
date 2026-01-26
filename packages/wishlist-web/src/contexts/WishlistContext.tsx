@@ -1,5 +1,5 @@
 import { toggleWishlistMutation, wishlistQuery } from "@/api/wishlist";
-import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { createContext, ReactNode, use } from "react";
 import { WishlishToggleRequest, type Wishlist } from "wishlist-shared";
 
@@ -38,9 +38,7 @@ export const WishlistProvider = ({
   children: ReactNode;
   userId?: number;
 }) => {
-  const { data, isPending, error } = useSuspenseQuery(
-    wishlistQuery(userId ?? -1),
-  );
+  const { data, isPending, error } = useQuery(wishlistQuery(userId ?? -1));
   const wishlistMutation = useMutation(toggleWishlistMutation(userId ?? -1));
 
   const value = data ?? {

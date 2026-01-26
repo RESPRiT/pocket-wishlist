@@ -40,9 +40,7 @@ function TierBadge({
           status === "WISHED" &&
             `bg-transparent text-foreground/50 outline-[1.5px] -outline-offset-1
             outline-foreground/50 outline-dashed`,
-          status === "WISHED" &&
-            isStandard &&
-            "text-secondary outline-secondary",
+          status === "WISHED" && isStandard && "",
           className,
         )}
         style={

@@ -20,10 +20,10 @@ export const Route = createFileRoute("/")({
   }),
   // preload: https://tanstack.com/router/latest/docs/integrations/query#preload-with-a-loader-and-read-with-a-hook
   loader: async ({ context, deps }) => {
-    if (deps.u) {
-      context.queryClient.ensureQueryData(wishlistQuery(deps.u));
-    }
-    context.queryClient.ensureQueryData(mallPricesQuery);
+    // if (deps.u) {
+    //   context.queryClient.ensureQueryData(wishlistQuery(deps.u));
+    // }
+    // context.queryClient.ensureQueryData(mallPricesQuery);
     // await Promise.all([
     //   context.queryClient.prefetchQuery(wishlistQuery(1927026)),
     //   context.queryClient.prefetchQuery(mallPricesQuery),

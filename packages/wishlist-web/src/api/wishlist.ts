@@ -26,6 +26,7 @@ export const wishlistQuery = (userId: number) =>
     queryFn: () => fetchWishlist(userId),
     staleTime: 5000, // prevent client for immediately refetching
     refetchOnWindowFocus: false, // a bit much
+    enabled: userId > 0, // is this weird? Should it just be nullish?
   });
 
 export async function requestWishlistToggle(
@@ -39,7 +40,7 @@ export async function requestWishlistToggle(
   });
 
   if (!response.ok) {
-    throw new Error(`Failed to fetch wishlist: ${response.statusText}`);
+    console.error(`Failed to fetch wishlist: ${response.statusText}`);
   }
 
   return response.json();

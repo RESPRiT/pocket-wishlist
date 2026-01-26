@@ -22,7 +22,7 @@ const TIME_AMOUNTS = {
 } as const;
 
 function Header() {
-  const { username, lastUpdated } = useWishlist();
+  const { username, lastUpdated, error } = useWishlist();
   // don't love that this re-calls
   const { mallPricesLastUpdated } = useMallPrices();
   const { theme, setTheme, isTransitioning } = useTheme();
@@ -54,7 +54,7 @@ function Header() {
   return (
     <header
       className="clamp-[mt,4,10,xs,sm] flex flex-col justify-between gap-2
-        sm:flex-row sm:items-end"
+        sm:flex-row sm:items-start"
     >
       <div className="flex items-center gap-2.5">
         <span
@@ -76,12 +76,18 @@ function Header() {
         <span className="text-xs text-accent">{`prices updated: ${formatTimeSince(
           mallPricesLastUpdated.getTime(),
         )}`}</span>
-        {username && (
-          <span className="clamp-[text,sm,base,xs,sm] text-foreground">
-            {`${username}'s wishlist `}
-            <span className="clamp-[text,xs,sm,xs,sm]">{"as of "}</span>
-            <b>{formatTimeSince(lastUpdated ?? 0)}</b>
+        {error ? (
+          <span className="clamp-[text,sm,base,xs,sm] text-destructive">
+            User not found
           </span>
+        ) : (
+          username && (
+            <span className="clamp-[text,sm,base,xs,sm] text-foreground">
+              {`${username}'s wishlist `}
+              <span className="clamp-[text,xs,sm,xs,sm]">{"as of "}</span>
+              <b>{formatTimeSince(lastUpdated ?? 0)}</b>
+            </span>
+          )
         )}
       </div>
     </header>

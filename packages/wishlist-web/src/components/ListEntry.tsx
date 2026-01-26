@@ -82,15 +82,14 @@ function ListEntry({
     <div
       className={cn(
         `grid overflow-hidden rounded-md hover:outline-0
-        hover:outline-foreground/30 hover:outline-solid`,
-        isStandard && "hover:outline-secondary/80",
+        hover:outline-foreground hover:outline-solid`,
+        isStandard && "hover:outline-secondary-light",
         (status === "WISHED" || status === "NONE") &&
           `hover:cursor-pointer hover:outline-2 active:translate-y-0.5
-          active:opacity-80 active:-outline-offset-2
-          active:outline-foreground/20`,
+          active:opacity-80 active:-outline-offset-2 active:outline-foreground`,
         status === "WISHED" &&
-          "outline-2 -outline-offset-1 outline-foreground/30 outline-dashed",
-        status === "WISHED" && isStandard && "outline-secondary/80",
+          "outline-2 -outline-offset-1 outline-foreground outline-dashed",
+        status === "WISHED" && isStandard && "outline-secondary",
         (toggleLock || status === "WISHED") && "active:outline-dashed",
       )}
       onMouseDown={() => {
