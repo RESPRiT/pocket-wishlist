@@ -3,10 +3,9 @@ import { z } from "zod";
 // TODO: Don't copy to wishlist-api
 export const WishlistSchema = z.record(
   z.coerce.number<number>(), // JSON keys are strings
-  z.preprocess(
-    (val) => val ?? "NONE",
-    z.literal(["NONE", "PACKAGED", "OPENED", "WISHED"]),
-  ),
+  z
+    .literal(["NONE", "PACKAGED", "OPENED", "WISHED"])
+    .transform((val) => val ?? "NONE"),
 );
 export const WishlistResponseSchema = z.object({
   username: z.string(),
@@ -29,11 +28,22 @@ export type WishlistResponse = z.infer<typeof WishlistResponseSchema>;
 export type WishlishToggleRequest = z.infer<typeof WishlistToggleRequestSchema>;
 
 // NOTE: All pricegun number values are coerced from strings bc all the bigint
-//       values are converted into strings by the API
+//       values are converted into strings by the API.
+// EDIT: Now, they are converted into { __decimal__: string } objects?
+const PriceGunDecimalSchema = z
+  .union([
+    z
+      .object({
+        __decimal__: z.string(),
+      })
+      .transform((obj) => obj.__decimal__ ?? "0"),
+    z.string(),
+  ])
+  .pipe(z.coerce.number());
 // most recent sales data
 export const PriceGunSalesDataSchema = z.object({
   date: z.coerce.date(),
-  unitPrice: z.coerce.number(),
+  unitPrice: PriceGunDecimalSchema,
   quantity: z.coerce.number(),
 });
 // data for a specific date
@@ -41,11 +51,11 @@ export const PriceGunHistoricalDataSchema = z.object({
   itemId: z.coerce.number(),
   date: z.coerce.date(),
   volume: z.coerce.number(),
-  price: z.coerce.number(),
+  price: PriceGunDecimalSchema,
 });
 export const PriceGunSchema = z.object({
   // value across ALL transactions, not just past 2 weeks
-  value: z.coerce.number(),
+  value: PriceGunDecimalSchema,
   // volume across the past 2 weeks
   volume: z.coerce.number(),
   // last time the price value was calculated by PriceGun
