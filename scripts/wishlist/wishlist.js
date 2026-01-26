@@ -18777,9 +18777,9 @@ config(en_default());
 var WishlistSchema = external_exports.record(
   external_exports.coerce.number(),
   // JSON keys are strings
-  external_exports.preprocess(function(val) {
+  external_exports.literal(["NONE", "PACKAGED", "OPENED", "WISHED"]).transform(function(val) {
     return val ?? "NONE";
-  }, external_exports.literal(["NONE", "PACKAGED", "OPENED", "WISHED"]))
+  })
 ), WishlistResponseSchema = external_exports.object({
   username: external_exports.string(),
   userId: external_exports.number(),
@@ -18792,18 +18792,22 @@ var WishlistSchema = external_exports.record(
     id: external_exports.number(),
     status: external_exports.boolean()
   }))
-}), PriceGunSalesDataSchema = external_exports.object({
+}), PriceGunDecimalSchema = external_exports.union([external_exports.object({
+  __decimal__: external_exports.string()
+}).transform(function(obj) {
+  return obj.__decimal__ ?? "0";
+}), external_exports.string()]).pipe(external_exports.coerce.number()), PriceGunSalesDataSchema = external_exports.object({
   date: external_exports.coerce.date(),
-  unitPrice: external_exports.coerce.number(),
+  unitPrice: PriceGunDecimalSchema,
   quantity: external_exports.coerce.number()
 }), PriceGunHistoricalDataSchema = external_exports.object({
   itemId: external_exports.coerce.number(),
   date: external_exports.coerce.date(),
   volume: external_exports.coerce.number(),
-  price: external_exports.coerce.number()
+  price: PriceGunDecimalSchema
 }), PriceGunSchema = external_exports.object({
   // value across ALL transactions, not just past 2 weeks
-  value: external_exports.coerce.number(),
+  value: PriceGunDecimalSchema,
   // volume across the past 2 weeks
   volume: external_exports.coerce.number(),
   // last time the price value was calculated by PriceGun
