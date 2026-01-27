@@ -20,11 +20,19 @@ function App({ userId }: { userId?: number }) {
           isTransitioning && "h-screen overflow-y-hidden",
         )}
       >
-        <WishlistProvider userId={userId}>
-          <Header />
-          <Menu />
-          <ListView />
-        </WishlistProvider>
+        {userId !== undefined ? (
+          <WishlistProvider userId={userId}>
+            <Header />
+            <Menu />
+            <ListView />
+          </WishlistProvider>
+        ) : (
+          <>
+            <Header />
+            <Menu />
+            <ListView />
+          </>
+        )}
       </div>
     </main>
   );

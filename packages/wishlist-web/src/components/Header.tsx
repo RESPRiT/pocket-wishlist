@@ -22,7 +22,7 @@ const TIME_AMOUNTS = {
 } as const;
 
 function Header() {
-  const { username, lastUpdated, error } = useWishlist();
+  const { username, userId, lastUpdated, error } = useWishlist();
   // don't love that this re-calls
   const { mallPricesLastUpdated } = useMallPrices();
   const { theme, setTheme, isTransitioning } = useTheme();
@@ -53,8 +53,8 @@ function Header() {
   // TODO: Polish theme toggle, more usable button
   return (
     <header
-      className="clamp-[mt,4,10,xs,sm] flex flex-col justify-between gap-2
-        sm:flex-row sm:items-start"
+      className="clamp-[mt,4,10,xs,sm] flex flex-col items-end justify-between
+        gap-2 sm:flex-row"
     >
       <div className="flex items-center gap-2.5">
         <span
@@ -78,7 +78,7 @@ function Header() {
         )}`}</span>
         {error ? (
           <span className="clamp-[text,sm,base,xs,sm] text-destructive">
-            User not found
+            User not found for ID: <b>{userId}</b>
           </span>
         ) : (
           username && (
