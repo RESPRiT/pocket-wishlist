@@ -43,7 +43,7 @@ export function EntryInfoSection({
           hover:outline-2 hover:outline-foreground hover:outline-solid`,
           status === "WISHED" &&
             "outline-2 -outline-offset-1 outline-foreground/50 outline-dashed",
-          status === "WISHED" && isStandard && "outline-secondary",
+          status === "WISHED" && isStandard && "",
         )}
       >
         <ThemedImg
@@ -71,9 +71,7 @@ export function EntryInfoSection({
             status === "WISHED" &&
               `text-foreground/50 outline-[1.5px] -outline-offset-1
               outline-foreground/50 outline-dashed`,
-            status === "WISHED" &&
-              isStandard &&
-              "text-secondary outline-secondary",
+            status === "WISHED" && isStandard && "",
           )}
           style={
             status === "WISHED"

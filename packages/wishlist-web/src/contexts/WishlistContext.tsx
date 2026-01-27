@@ -33,19 +33,23 @@ const WishlistContext = createContext<WishlistContextType>({
 // we get it via SSR, we should re-validate persisted data
 export const WishlistProvider = ({
   children,
-  userId = 1927026,
+  userId,
 }: {
   children: ReactNode;
-  userId?: number;
+  userId: number;
 }) => {
-  const { data, isPending, error } = useSuspenseQuery(wishlistQuery(userId));
+  const { data, isPending } = useSuspenseQuery(wishlistQuery(userId));
   const wishlistMutation = useMutation(toggleWishlistMutation(userId));
 
-  const value = data ?? {
+  // some cursed error handling stuff going on here
+  const value = {
     username: "",
-    userId: -1,
     wishlist: {},
     lastUpdated: -1,
+    error: null,
+    ...(data ?? {
+      userId,
+    }),
   };
 
   return (
@@ -53,7 +57,7 @@ export const WishlistProvider = ({
       value={{
         ...value,
         isPending,
-        error,
+        error: value.error,
         toggleWishlist: wishlistMutation.mutate,
       }}
     >

@@ -95,12 +95,6 @@ function RootComponent() {
           client={queryClient}
           persistOptions={{
             persister,
-            dehydrateOptions: {
-              // only persist these keys (prices and images)
-              // see: https://github.com/TanStack/query/discussions/7131
-              shouldDehydrateQuery: (query) =>
-                ["img", "mallPrices"].includes(query.queryKey[0] as string),
-            },
           }}
         >
           <ThemeProvider>

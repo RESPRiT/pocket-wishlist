@@ -5,18 +5,31 @@ import {
   WishlistResponseSchema,
 } from "wishlist-shared";
 
-/**
- * Fetches user wishlist status
- * TODO: Un-hardcode user ID
- */
+export type WishlistError = {
+  userId: number;
+  error: Error;
+};
+
 async function fetchWishlist(
-  userId: number = 1927026,
-): Promise<WishlistResponse> {
+  userId?: number,
+): Promise<WishlistResponse | WishlistError | null> {
+  if (userId === undefined) return new Promise((resolve) => resolve(null));
+
   const url = `https://resprit--dd94f3deb77f11f08e0c0224a6c84d84.web.val.run/get-wishlist?u=${userId}`;
 
   const response = await fetch(url);
   if (!response.ok) {
-    throw new Error(`Failed to fetch wishlist: ${response.statusText}`);
+    const message = await response.text();
+
+    return new Promise((resolve) =>
+      resolve({
+        userId,
+        error: {
+          name: response.statusText,
+          message,
+        },
+      }),
+    );
   }
 
   const wishlist = await response.json();
@@ -27,8 +40,9 @@ export const wishlistQuery = (userId: number) =>
   queryOptions({
     queryKey: ["wishlist", userId],
     queryFn: () => fetchWishlist(userId),
-    staleTime: 5000, // prevent client for immediately refetching
+    staleTime: 5000, // prevent client from immediately refetching
     refetchOnWindowFocus: false, // a bit much
+    enabled: userId > 0, // is this weird? Should it just be nullish?
   });
 
 export async function requestWishlistToggle(
@@ -42,7 +56,7 @@ export async function requestWishlistToggle(
   });
 
   if (!response.ok) {
-    throw new Error(`Failed to fetch wishlist: ${response.statusText}`);
+    console.error(`Failed to fetch wishlist: ${response.statusText}`);
   }
 
   return response.json();
