@@ -1,11 +1,11 @@
-import { blob } from "https://esm.town/v/std/blob";
-import { Hono } from "npm:hono@4";
+import { Hono } from "hono";
 import {
-  MallPrice,
+  type MallPrice,
   MallPriceResponseSchema,
   MallPriceSchema,
   PriceGunResponseSchema,
-} from "../schemas/api.ts";
+} from "wishlist-shared";
+import { blob } from "./blob.ts";
 
 const app = new Hono();
 
@@ -32,7 +32,7 @@ app.get("/lowest-mall", async (c) => {
 app.post("/update-prices", async (c) => {
   const secret = c.req.query("auth");
 
-  if (secret !== Deno.env.get("secret")) {
+  if (secret !== process.env.SECRET) {
     return c.text("Unauthorized, boo.", 401);
   }
 
@@ -58,7 +58,7 @@ app.post("/update-prices", async (c) => {
 app.post("/update-pricegun", async (c) => {
   const secret = c.req.query("auth");
 
-  if (secret !== Deno.env.get("secret")) {
+  if (secret !== process.env.SECRET) {
     return c.text("Unauthorized, boo.", 401);
   }
 

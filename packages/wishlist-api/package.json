@@ -3,12 +3,11 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "dev": "vt watch",
-    "push": "vt push"
+    "dev": "bun run --watch src/index.ts",
+    "start": "bun run src/index.ts"
   },
   "devDependencies": {
-    "@types/bun": "latest",
-    "deno": "latest"
+    "@types/bun": "latest"
   },
   "peerDependencies": {
     "typescript": "^5"

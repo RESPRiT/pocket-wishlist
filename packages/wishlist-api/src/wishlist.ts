@@ -1,12 +1,12 @@
-import { blob } from "https://esm.town/v/std/blob";
-import { Hono } from "npm:hono@4";
-import jsoncrush from "npm:jsoncrush@1";
+import { Hono } from "hono";
+import jsoncrush from "jsoncrush";
 import {
-  WishlistResponse,
+  type WishlistResponse,
   WishlistResponseSchema,
   WishlistSchema,
   WishlistToggleRequestSchema,
-} from "../schemas/api.ts";
+} from "wishlist-shared";
+import { blob } from "./blob.ts";
 
 const app = new Hono();
 
