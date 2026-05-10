@@ -19,6 +19,19 @@ reference is injected each session — don't duplicate it here.
 
 If hooks aren't running for some reason, run `bd prime` manually.
 
+## React Compiler
+
+`packages/wishlist-web` is built with the React Compiler (Forget) via
+`babel-plugin-react-compiler`. The compiler auto-memoizes component renders
+and derived values, so **do not reach for `useMemo` / `useCallback`** in new
+code — leave the computation inline and let the compiler do the work.
+
+A few hand-written hooks/components opt out by placing a `"use no memo"`
+directive at the top of the function body, typically because a library
+they wrap (e.g. `@tanstack/react-virtual`) is incompatible with the
+compiler's memoization. `packages/wishlist-web/src/components/List.tsx` is
+the current example. Don't add the directive without a documented reason.
+
 ## Non-Interactive Shell Commands
 
 **ALWAYS use non-interactive flags** with file operations to avoid hanging on confirmation prompts.
