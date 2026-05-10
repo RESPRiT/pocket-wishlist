@@ -1,7 +1,5 @@
 import { Hono } from "hono";
 import {
-  type CombinedPrice,
-  type MallPrice,
   MallPriceResponseSchema,
   MallPriceSchema,
   PriceGunResponseSchema,
@@ -49,7 +47,6 @@ app.post("/update-prices", async (c) => {
   }
 });
 
-// manually update pricegun prices for now
 app.post("/update-pricegun", async (c) => {
   const secret = c.req.query("auth");
 
@@ -62,27 +59,9 @@ app.post("/update-pricegun", async (c) => {
     const pricegun = PriceGunResponseSchema.parse(pricegunRaw);
     store.setPricegun(pricegun);
 
-    const lowestMall = store.getLowestMall() ?? {};
-    const itemIds = Object.keys(lowestMall).map((id) => Number.parseInt(id));
-
-    const prices = itemIds.reduce<CombinedPrice>((acc, id) => {
-      const price = pricegun.find((p) => p.itemId === id);
-      acc[id] = {
-        lowestMall: lowestMall[id]!,
-        value: price?.value,
-        volume: price?.volume,
-      };
-      return acc;
-    }, {});
-
-    store.setPrices(prices);
-    store.setPricesLastUpdate(new Date());
-
-    return c.text(
-      "Pricegun manually updated and combined data stored successfully!"
-    );
+    return c.text("Pricegun updated successfully!");
   } catch (e) {
-    return c.text(`Could not pricegun manually: ${e}`, 400);
+    return c.text(`Could not update pricegun: ${e}`, 400);
   }
 });
 

@@ -11,9 +11,11 @@ const DB_PATH = process.env.DB_PATH ?? "./wishlist.db";
 const db = new Database(DB_PATH, { create: true });
 db.exec("PRAGMA journal_mode = WAL");
 db.exec(`
-  CREATE TABLE IF NOT EXISTS kv (
-    key TEXT PRIMARY KEY,
-    value_json TEXT NOT NULL,
+  CREATE TABLE IF NOT EXISTS prices (
+    item_id INTEGER PRIMARY KEY,
+    lowest_mall INTEGER,
+    pricegun_value REAL,
+    pricegun_volume INTEGER,
     updated_at INTEGER NOT NULL
   );
   CREATE TABLE IF NOT EXISTS wishlists (
@@ -24,21 +26,73 @@ db.exec(`
   );
 `);
 
-const getKVStmt = db.query<{ value_json: string }, [string]>(
-  "SELECT value_json FROM kv WHERE key = ?"
+type PriceRow = {
+  item_id: number;
+  lowest_mall: number | null;
+  pricegun_value: number | null;
+  pricegun_volume: number | null;
+  updated_at: number;
+};
+
+const selectAllPricesStmt = db.query<PriceRow, []>(
+  "SELECT item_id, lowest_mall, pricegun_value, pricegun_volume, updated_at FROM prices"
 );
-const setKVStmt = db.query<unknown, [string, string, number]>(
-  "INSERT INTO kv (key, value_json, updated_at) VALUES (?, ?, ?) " +
-    "ON CONFLICT(key) DO UPDATE SET value_json = excluded.value_json, updated_at = excluded.updated_at"
+const selectLowestMallStmt = db.query<{ item_id: number; lowest_mall: number }, []>(
+  "SELECT item_id, lowest_mall FROM prices WHERE lowest_mall IS NOT NULL"
+);
+const selectMaxUpdatedStmt = db.query<{ max_updated: number | null }, []>(
+  "SELECT MAX(updated_at) AS max_updated FROM prices"
+);
+const upsertLowestMallStmt = db.query<unknown, [number, number, number]>(
+  "INSERT INTO prices (item_id, lowest_mall, updated_at) VALUES (?, ?, ?) " +
+    "ON CONFLICT(item_id) DO UPDATE SET " +
+    "lowest_mall = excluded.lowest_mall, updated_at = excluded.updated_at"
+);
+const upsertPricegunStmt = db.query<unknown, [number, number, number, number]>(
+  "INSERT INTO prices (item_id, pricegun_value, pricegun_volume, updated_at) VALUES (?, ?, ?, ?) " +
+    "ON CONFLICT(item_id) DO UPDATE SET " +
+    "pricegun_value = excluded.pricegun_value, pricegun_volume = excluded.pricegun_volume, updated_at = excluded.updated_at"
 );
 
-function getKV<T>(key: string): T | undefined {
-  const row = getKVStmt.get(key);
-  return row ? (JSON.parse(row.value_json) as T) : undefined;
+function getPrices(): CombinedPrice {
+  const out: CombinedPrice = {};
+  for (const row of selectAllPricesStmt.all()) {
+    if (row.lowest_mall == null) continue;
+    out[row.item_id] = {
+      lowestMall: row.lowest_mall,
+      value: row.pricegun_value ?? undefined,
+      volume: row.pricegun_volume ?? undefined,
+    };
+  }
+  return out;
 }
 
-function setKV(key: string, value: unknown): void {
-  setKVStmt.run(key, JSON.stringify(value), Date.now());
+function getLowestMall(): MallPrice {
+  const out: MallPrice = {};
+  for (const row of selectLowestMallStmt.all()) {
+    out[row.item_id] = row.lowest_mall;
+  }
+  return out;
+}
+
+function getPricesLastUpdate(): number | undefined {
+  return selectMaxUpdatedStmt.get()?.max_updated ?? undefined;
+}
+
+function setLowestMall(value: MallPrice): void {
+  const now = Date.now();
+  const tx = db.transaction((entries: [number, number][]) => {
+    for (const [id, price] of entries) upsertLowestMallStmt.run(id, price, now);
+  });
+  tx(Object.entries(value).map(([id, p]) => [Number(id), p]));
+}
+
+function setPricegun(value: PriceGunResponse): void {
+  const now = Date.now();
+  const tx = db.transaction((rows: PriceGunResponse) => {
+    for (const r of rows) upsertPricegunStmt.run(r.itemId, r.value, r.volume, now);
+  });
+  tx(value);
 }
 
 const getWishlistStmt = db.query<
@@ -72,14 +126,11 @@ function setWishlist(userId: number, response: WishlistResponse): void {
 }
 
 export const store = {
-  getPrices: () => getKV<CombinedPrice>("prices"),
-  setPrices: (value: CombinedPrice) => setKV("prices", value),
-  getPricesLastUpdate: () => getKV<string | number>("pricesLastUpdate"),
-  setPricesLastUpdate: (value: Date) => setKV("pricesLastUpdate", value),
-  getLowestMall: () => getKV<MallPrice>("lowestMall"),
-  setLowestMall: (value: MallPrice) => setKV("lowestMall", value),
-  getPricegun: () => getKV<PriceGunResponse>("pricegun"),
-  setPricegun: (value: PriceGunResponse) => setKV("pricegun", value),
+  getPrices,
+  getPricesLastUpdate,
+  getLowestMall,
+  setLowestMall,
+  setPricegun,
   getWishlist,
   setWishlist,
 };
