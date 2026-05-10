@@ -1,6 +1,9 @@
 node_modules
 .DS_Store
 *.un~
+.env
+.env.local
+.env.production
 
 # Beads / Dolt files (added by bd init)
 .dolt/

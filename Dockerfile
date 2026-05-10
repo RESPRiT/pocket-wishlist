@@ -1,7 +1,6 @@
 # syntax=docker/dockerfile:1
 
-# Build
-FROM oven/bun:latest AS build
+FROM oven/bun:latest
 
 WORKDIR /home/bun/app
 
@@ -11,9 +10,13 @@ COPY /packages/wishlist-shared ./packages/wishlist-shared
 
 RUN bun install
 
+ARG VITE_API_BASE
+ENV VITE_API_BASE=$VITE_API_BASE
+
 WORKDIR /home/bun/app/packages/wishlist-web
 RUN bun run build
-EXPOSE 80
 
-# Serve via SSR script
+ENV PORT=3000
+EXPOSE 3000
+
 CMD ["bun", "run", "start"]

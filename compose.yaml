@@ -1,0 +1,40 @@
+# Deploy:
+#   ssh hzr "cd ~/pocket-wishlist && docker compose pull && docker compose up -d"
+# Requires .env with GITHUB_OWNER, SECRET. IMAGE_TAG optional (default 'latest').
+
+services:
+  api:
+    image: ghcr.io/${GITHUB_OWNER}/pocket-wishlist-api:${IMAGE_TAG:-latest}
+    environment:
+      SECRET: ${SECRET}
+      CORS_ORIGIN: https://kol.resprit.com
+      DB_PATH: /data/wishlist.db
+      PORT: "3001"
+    volumes:
+      - api_data:/data
+    restart: unless-stopped
+
+  web:
+    image: ghcr.io/${GITHUB_OWNER}/pocket-wishlist:${IMAGE_TAG:-latest}
+    environment:
+      PORT: "3000"
+    restart: unless-stopped
+
+  caddy:
+    image: caddy:2
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    restart: unless-stopped
+    depends_on:
+      - api
+      - web
+
+volumes:
+  api_data:
+  caddy_data:
+  caddy_config:
