@@ -37,6 +37,9 @@ const context = await esbuild.context({
   inject: ["./kolmafia-polyfill.js"],
   define: {
     "process.env.NODE_ENV": '"production"',
+    "process.env.WISHLIST_API_BASE": JSON.stringify(
+      process.env.WISHLIST_API_BASE ?? "https://wishlist-api.invalid"
+    ),
   },
 });
 

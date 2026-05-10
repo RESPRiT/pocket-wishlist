@@ -26,6 +26,8 @@ jobs:
         run: bun install
 
       - name: Build script
+        env:
+          WISHLIST_API_BASE: ${{ vars.WISHLIST_API_BASE }}
         run: bun run build
 
       # Ensure that GitHub Actions has read/write permissions for this to work:

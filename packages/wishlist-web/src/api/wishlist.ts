@@ -4,6 +4,7 @@ import {
   WishlistResponse,
   WishlistResponseSchema,
 } from "wishlist-shared";
+import { API_BASE } from "./_base";
 
 export type WishlistError = {
   userId: number;
@@ -15,7 +16,7 @@ async function fetchWishlist(
 ): Promise<WishlistResponse | WishlistError | null> {
   if (userId === undefined) return new Promise((resolve) => resolve(null));
 
-  const url = `https://resprit--dd94f3deb77f11f08e0c0224a6c84d84.web.val.run/get-wishlist?u=${userId}`;
+  const url = `${API_BASE}/get-wishlist?u=${userId}`;
 
   const response = await fetch(url);
   if (!response.ok) {
@@ -48,7 +49,7 @@ export const wishlistQuery = (userId: number) =>
 export async function requestWishlistToggle(
   body: WishlishToggleRequest,
 ): Promise<WishlishToggleRequest["itemUpdates"]> {
-  const url = `https://resprit--dd94f3deb77f11f08e0c0224a6c84d84.web.val.run/toggle-wishlist`;
+  const url = `${API_BASE}/toggle-wishlist`;
 
   const response = await fetch(url, {
     method: "POST",
