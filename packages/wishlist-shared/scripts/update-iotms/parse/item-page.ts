@@ -81,15 +81,28 @@ export async function parseItemPageWithReview(
 
   const wt = await wiki.fetchWikitext(ctx.packaged_slug);
 
-  // Discover linked entities by scanning the wikitext for templates that
-  // identify what this IOTM "becomes" when used.
-  const linked = discoverLinks(wt);
+  // If the package itself is wearable equipment (Tam, Bjorn, Camp Scout
+  // backpack, etc.), iotms.ts treats it as the item directly — no opened
+  // forms recorded — and the equipment_slot is the package's own slot. In
+  // that case we skip the package→opened-item discovery to avoid pulling
+  // in the random per-use drops (which aren't iotms.ts contents).
+  const packageSlot = equipmentSlotFor(pkg);
+
+  const linked = packageSlot ? { openedItems: [], familiars: [], skills: [] } : discoverLinks(wt);
 
   // Resolve linked names to mafia data, then sort by id ascending — that's
   // the ordering convention iotms.ts uses for multi-form arrays (e.g. the
   // 5 forms of naughty origami kit, the 5 forms of Spooky Putty).
+  // Some wikitext acquire calls reference a state-suffixed name (e.g.
+  // "unbreakable umbrella (broken)") while items.txt only has the canonical
+  // "unbreakable umbrella" — strip parenthetical suffixes as a fallback.
   const opened = linked.openedItems
-    .map((n) => itemsByName.get(n.toLowerCase()))
+    .map((n) => {
+      const direct = itemsByName.get(n.toLowerCase());
+      if (direct) return direct;
+      const stripped = n.replace(/\s*\([^)]*\)\s*$/, "").toLowerCase();
+      return stripped !== n.toLowerCase() ? itemsByName.get(stripped) : undefined;
+    })
     .filter((x): x is MafiaItem => x !== undefined)
     .sort((a, b) => a.id - b.id);
   const familiars = linked.familiars
@@ -101,10 +114,16 @@ export async function parseItemPageWithReview(
     .filter((x): x is MafiaSkill => x !== undefined)
     .sort((a, b) => a.id - b.id);
 
-  // Equipment slot: only relevant for item-type IOTMs whose opened/headline
-  // form is wearable equipment. Read it from the appropriate items.txt row.
-  const headlineItemEarly = opened[0] ?? pkg;
-  const headlineSlot = equipmentSlotFor(headlineItemEarly);
+  // Equipment slot resolution:
+  //   - if package itself is equipment, that's the slot (Tam, Bjorn, ...);
+  //   - else if there's exactly one opened form with a slot, use that;
+  //   - else if multiple opened forms have different slots (foldable items
+  //     like origami kit, Spooky Putty), iotms.ts records no slot.
+  const openedSlots = opened.map(equipmentSlotFor).filter((s): s is string => !!s);
+  const distinctOpenedSlots = new Set(openedSlots);
+  const headlineSlot =
+    packageSlot ??
+    (distinctOpenedSlots.size === 1 ? openedSlots[0] : undefined);
 
   // Type discrimination, in priority order. Strong signals (skill / familiar
   // links) take precedence over wikitext heuristics.

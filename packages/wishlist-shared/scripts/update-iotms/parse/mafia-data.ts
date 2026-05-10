@@ -36,6 +36,9 @@ const EQUIPMENT_USES = new Set([
   "accessory",
   "familiar",
 ]);
+// (iotms.ts has one item — the cosmic bowling ball — with
+// equipment_slot="combat", which doesn't correspond to any KoLmafia use
+// flag. We don't try to detect it; the human reviewer fills it in.)
 
 function parseTsvLines(raw: string): string[][] {
   return raw
@@ -94,11 +97,15 @@ export function parseSkillsFile(raw: string): MafiaSkill[] {
 
 /**
  * Determine the equipment slot for an item, if any. Reads the primary-use
- * column for one of the equipment-shaped values listed in items.txt's header.
+ * column for one of the equipment-shaped values listed in items.txt's
+ * header. Translates KoLmafia's "container" → "back" so we match the
+ * naming iotms.ts (and modern KoL) uses for the back-equipment slot.
  */
 export function equipmentSlotFor(item: MafiaItem): string | undefined {
   const uses = item.use.split(",").map((u) => u.trim());
-  return uses.find((u) => EQUIPMENT_USES.has(u));
+  const raw = uses.find((u) => EQUIPMENT_USES.has(u));
+  if (raw === "container") return "back";
+  return raw;
 }
 
 /**
