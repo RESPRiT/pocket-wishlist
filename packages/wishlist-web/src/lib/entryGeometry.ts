@@ -13,6 +13,12 @@
 //
 // Source clamp formulas read from packages/wishlist-web/src/components/entry/*
 // and confirmed against generated CSS via DevTools.
+//
+// TODO(pocket-wishlist-j4f): un-hardcode the CSS↔TS mappings here. Every clamp
+// formula below mirrors a tailwind-clamp utility by hand; if the CSS changes,
+// virtualizer heights silently drift. Options: codegen from the source JSX
+// classes, dev-mode self-check against DOM measurements at probe time, or
+// migrating clamp parameters to shared CSS custom properties read at runtime.
 
 const clampPx = (
   min: number,

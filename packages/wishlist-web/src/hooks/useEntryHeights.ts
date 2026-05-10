@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { VirtualListItem } from "@/components/ListItem";
 import { useTheme } from "@/contexts/ThemeContext";
 import { nameLineHeightPx } from "@/lib/entryGeometry";
@@ -9,6 +9,11 @@ const DEFAULT_HEIGHTS = {
   heading: 40 + 44,
   subheading: 4 + 28,
 };
+
+// Tailwind v4 lg breakpoint (64rem). Tailwind doesn't emit breakpoints as
+// queryable CSS custom properties — keep this mirrored by hand under the
+// same un-hardcoding TODO as the entryGeometry clamps (pocket-wishlist-j4f).
+const LG_BREAKPOINT_PX = 1024;
 
 type ProbeData = {
   totalH: number;
@@ -95,24 +100,17 @@ export function useEntryHeights(virtualItems: VirtualListItem[]) {
   const [headingHeight, setHeadingHeight] = useState<number | null>(null);
 
   // Identify a probe entry and a probe heading from current items.
-  const probeEntry = useMemo(
-    () => virtualItems.find((v) => v.itemType === "entry"),
-    [virtualItems],
-  );
-  const probeHeading = useMemo(
-    () => virtualItems.find((v) => v.itemType === "heading"),
-    [virtualItems],
-  );
+  const probeEntry = virtualItems.find((v) => v.itemType === "entry");
+  const probeHeading = virtualItems.find((v) => v.itemType === "heading");
 
   // Items the MeasurementContainer should render. Empty once probes are
   // measured for the current viewport — eliminates the loading-time tax.
-  const needsMeasurement = useMemo<VirtualListItem[]>(() => {
-    const list: VirtualListItem[] = [];
-    if (!fontsReady) return list;
-    if (probe === null && probeEntry) list.push(probeEntry);
-    if (headingHeight === null && probeHeading) list.push(probeHeading);
-    return list;
-  }, [fontsReady, probe, headingHeight, probeEntry, probeHeading]);
+  const needsMeasurement: VirtualListItem[] = [];
+  if (fontsReady) {
+    if (probe === null && probeEntry) needsMeasurement.push(probeEntry);
+    if (headingHeight === null && probeHeading)
+      needsMeasurement.push(probeHeading);
+  }
 
   // Wait for fonts before allowing pretext to compute against the wrong metrics.
   useEffect(() => {
@@ -150,9 +148,8 @@ export function useEntryHeights(virtualItems: VirtualListItem[]) {
 
   // Compute item heights: heading/subheading from constants + probe, entries
   // from probe + pretext-derived line counts.
-  const itemHeights = useMemo<Map<string, number>>(() => {
-    const map = new Map<string, number>();
-    if (!fontsReady || !probe) return map;
+  const itemHeights = new Map<string, number>();
+  if (fontsReady && probe) {
     const lh = nameLineHeightPx(probe.vp);
     const probeSectionLineH = lineWithSectionH(
       probe.nameItemH,
@@ -162,9 +159,9 @@ export function useEntryHeights(virtualItems: VirtualListItem[]) {
     );
     for (const item of virtualItems) {
       if (item.itemType === "heading") {
-        map.set(item.key, headingHeight ?? DEFAULT_HEIGHTS.heading);
+        itemHeights.set(item.key, headingHeight ?? DEFAULT_HEIGHTS.heading);
       } else if (item.itemType === "subheading") {
-        map.set(item.key, DEFAULT_HEIGHTS.subheading);
+        itemHeights.set(item.key, DEFAULT_HEIGHTS.subheading);
       } else {
         const lineCount = nameTextLineCount(item.entry.name, probe.vp);
         const targetNameItemH =
@@ -175,14 +172,13 @@ export function useEntryHeights(virtualItems: VirtualListItem[]) {
           probe.staticOutsideSection,
           probe.rowIsNowrap,
         );
-        map.set(
+        itemHeights.set(
           item.key,
           probe.totalH + (targetSectionLineH - probeSectionLineH),
         );
       }
     }
-    return map;
-  }, [virtualItems, fontsReady, probe, headingHeight]);
+  }
 
   // Re-probe when the layout viewport changes — clamps in the entry path
   // interpolate with `vw`, so a probe taken at one vp is wrong at another.
@@ -199,7 +195,6 @@ export function useEntryHeights(virtualItems: VirtualListItem[]) {
   probeVpRef.current = probe?.vp ?? null;
   useEffect(() => {
     if (typeof window === "undefined") return;
-    const LG_BREAKPOINT = 1024;
     let rafId: number | null = null;
     const handleResize = () => {
       if (rafId !== null) return;
@@ -210,8 +205,8 @@ export function useEntryHeights(virtualItems: VirtualListItem[]) {
         if (probeVp === vp) return;
         if (
           probeVp !== null &&
-          probeVp >= LG_BREAKPOINT &&
-          vp >= LG_BREAKPOINT
+          probeVp >= LG_BREAKPOINT_PX &&
+          vp >= LG_BREAKPOINT_PX
         )
           return;
         setProbe(null);
