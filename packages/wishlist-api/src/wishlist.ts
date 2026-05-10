@@ -21,11 +21,17 @@ app.on(["POST", "GET"], "/update-wishlist", async (c) => {
     );
 
     const data = JSON.parse(decoded);
-    const curr: WishlistResponse = await blob.getJSON(`wish/${data.player.id}`);
-    const newWishlist = WishlistSchema.parse(curr.wishlist ?? data.wishlist);
+    const curr: WishlistResponse | undefined = await blob.getJSON(
+      `wish/${data.player.id}`
+    );
+    const newWishlist = WishlistSchema.parse({ ...data.wishlist });
 
-    if (curr !== undefined) {
-      Object.keys(newWishlist).forEach((key) => {
+    if (curr?.wishlist !== undefined) {
+      const allKeys = new Set([
+        ...Object.keys(data.wishlist),
+        ...Object.keys(curr.wishlist),
+      ]);
+      for (const key of allKeys) {
         // don't override wishes if the IOTM isn't reported, isn't acquired yet,
         // or if it's already been marked as opened (e.g. if missed in HC)
         if (
@@ -33,11 +39,13 @@ app.on(["POST", "GET"], "/update-wishlist", async (c) => {
           data.wishlist[key] === "NONE" ||
           curr.wishlist[key] === "OPENED"
         ) {
-          newWishlist[key] = curr.wishlist[key];
+          if (curr.wishlist[key] !== undefined) {
+            newWishlist[key] = curr.wishlist[key];
+          }
         } else {
           newWishlist[key] = data.wishlist[key];
         }
-      });
+      }
     }
 
     const update = WishlistResponseSchema.parse({
