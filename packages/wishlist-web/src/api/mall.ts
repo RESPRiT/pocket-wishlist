@@ -3,13 +3,13 @@ import {
   MallPriceResponseSchema,
   type MallPriceResponse,
 } from "wishlist-shared";
+import { API_BASE } from "./_base";
 
 /**
  * Fetches lowest mall prices
  */
 export async function fetchMallPrices(): Promise<MallPriceResponse> {
-  const url =
-    "https://resprit--dd94f3deb77f11f08e0c0224a6c84d84.web.val.run/get-prices";
+  const url = `${API_BASE}/get-prices`;
 
   const response = await fetch(url);
   if (!response.ok) {

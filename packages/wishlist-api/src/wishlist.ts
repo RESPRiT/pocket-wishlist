@@ -1,12 +1,11 @@
-import { blob } from "https://esm.town/v/std/blob";
-import { Hono } from "npm:hono@4";
-import jsoncrush from "npm:jsoncrush@1";
+import { Hono } from "hono";
+import jsoncrush from "jsoncrush";
 import {
-  WishlistResponse,
   WishlistResponseSchema,
   WishlistSchema,
   WishlistToggleRequestSchema,
-} from "../schemas/api.ts";
+} from "wishlist-shared";
+import { store } from "./db.ts";
 
 const app = new Hono();
 
@@ -21,9 +20,7 @@ app.on(["POST", "GET"], "/update-wishlist", async (c) => {
     );
 
     const data = JSON.parse(decoded);
-    const curr: WishlistResponse | undefined = await blob.getJSON(
-      `wish/${data.player.id}`
-    );
+    const curr = store.getWishlist(data.player.id);
     const newWishlist = WishlistSchema.parse({ ...data.wishlist });
 
     if (curr?.wishlist !== undefined) {
@@ -55,8 +52,7 @@ app.on(["POST", "GET"], "/update-wishlist", async (c) => {
       lastUpdated: Date.now(),
     });
 
-    // TODO: Move away from blob storage
-    await blob.setJSON(`wish/${data.player.id}`, update);
+    store.setWishlist(data.player.id, update);
     return c.text("Wishlist data updated! (I think?)");
   } catch (e) {
     return c.text(`Invalid data: ${e}`, 400);
@@ -70,7 +66,7 @@ app.on(["POST"], "/toggle-wishlist", async (c) => {
       await c.req.json()
     );
 
-    const wishlist = await blob.getJSON(`wish/${userId}`);
+    const wishlist = store.getWishlist(userId);
     if (!wishlist) return c.text(`Could not find wishlist for ${userId}`, 400);
 
     // TODO: would prefer if this was immutable
@@ -79,22 +75,23 @@ app.on(["POST"], "/toggle-wishlist", async (c) => {
       updatedWishlist.wishlist[id] = status ? "WISHED" : "NONE";
     }
 
-    await blob.setJSON(`wish/${userId}`, updatedWishlist);
+    store.setWishlist(userId, updatedWishlist);
     return c.json(itemUpdates);
   } catch (e) {
     return c.text(`Invalid toggle request: ${e}`, 400);
   }
 });
 
-app.get("/get-wishlist", async (c) => {
-  const userId = c.req.query("u");
+app.get("/get-wishlist", (c) => {
+  const userIdRaw = c.req.query("u");
   const secret = c.req.query("secret");
 
   // TODO: Implement secret phrase handling
 
-  if (userId === undefined) return c.text("No user specified", 400);
+  if (userIdRaw === undefined) return c.text("No user specified", 400);
+  const userId = Number.parseInt(userIdRaw);
 
-  const wishlist = await blob.getJSON(`wish/${userId}`);
+  const wishlist = store.getWishlist(userId);
   if (!wishlist) return c.text(`Could not find wishlist for ${userId}`, 400);
 
   try {

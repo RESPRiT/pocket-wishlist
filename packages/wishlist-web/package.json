@@ -16,6 +16,7 @@
     "process-images": "bun run scripts/process-images.ts"
   },
   "dependencies": {
+    "@chenglou/pretext": "0.0.7",
     "@fontsource-variable/inter": "^5.2.8",
     "@fontsource-variable/roboto-mono": "^5.2.8",
     "@fortawesome/fontawesome-svg-core": "^7.1.0",

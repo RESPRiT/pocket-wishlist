@@ -1,0 +1,20 @@
+# syntax=docker/dockerfile:1
+
+FROM oven/bun:latest
+
+WORKDIR /home/bun/app
+
+COPY package.json bun.lock ./
+COPY /packages/wishlist-api ./packages/wishlist-api
+COPY /packages/wishlist-shared ./packages/wishlist-shared
+
+RUN bun install
+
+WORKDIR /home/bun/app/packages/wishlist-api
+
+ENV PORT=3001
+ENV DB_PATH=/data/wishlist.db
+VOLUME ["/data"]
+EXPOSE 3001
+
+CMD ["bun", "run", "start"]

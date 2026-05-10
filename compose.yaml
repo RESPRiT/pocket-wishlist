@@ -1,0 +1,55 @@
+# Deployed via Coolify (Docker Compose resource). Coolify's Traefik proxy
+# handles TLS termination and routing via the labels below.
+#
+# Routing:
+#   kol.resprit.com/*     -> web:3000
+#   kol.resprit.com/api/* -> api:3001  (prefix /api is stripped before forwarding)
+
+services:
+  web:
+    image: ghcr.io/${GITHUB_OWNER}/pocket-wishlist:${IMAGE_TAG:-latest}
+    environment:
+      PORT: "3000"
+    restart: unless-stopped
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=coolify
+      - traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https
+      - traefik.http.routers.pocket-wishlist-web-http.entryPoints=http
+      - traefik.http.routers.pocket-wishlist-web-http.rule=Host(`kol.resprit.com`)
+      - traefik.http.routers.pocket-wishlist-web-http.middlewares=redirect-to-https
+      - traefik.http.routers.pocket-wishlist-web-http.priority=1
+      - traefik.http.routers.pocket-wishlist-web.entryPoints=https
+      - traefik.http.routers.pocket-wishlist-web.rule=Host(`kol.resprit.com`)
+      - traefik.http.routers.pocket-wishlist-web.tls=true
+      - traefik.http.routers.pocket-wishlist-web.tls.certresolver=letsencrypt
+      - traefik.http.routers.pocket-wishlist-web.priority=1
+      - traefik.http.services.pocket-wishlist-web.loadbalancer.server.port=3000
+
+  api:
+    image: ghcr.io/${GITHUB_OWNER}/pocket-wishlist-api:${IMAGE_TAG:-latest}
+    environment:
+      SECRET: ${SECRET}
+      DB_PATH: /data/wishlist.db
+      PORT: "3001"
+    volumes:
+      - api_data:/data
+    restart: unless-stopped
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=coolify
+      - traefik.http.routers.pocket-wishlist-api-http.entryPoints=http
+      - traefik.http.routers.pocket-wishlist-api-http.rule=Host(`kol.resprit.com`) && PathPrefix(`/api`)
+      - traefik.http.routers.pocket-wishlist-api-http.middlewares=redirect-to-https
+      - traefik.http.routers.pocket-wishlist-api-http.priority=10
+      - traefik.http.routers.pocket-wishlist-api.entryPoints=https
+      - traefik.http.routers.pocket-wishlist-api.rule=Host(`kol.resprit.com`) && PathPrefix(`/api`)
+      - traefik.http.routers.pocket-wishlist-api.tls=true
+      - traefik.http.routers.pocket-wishlist-api.tls.certresolver=letsencrypt
+      - traefik.http.routers.pocket-wishlist-api.priority=10
+      - traefik.http.routers.pocket-wishlist-api.middlewares=pocket-wishlist-api-strip
+      - traefik.http.middlewares.pocket-wishlist-api-strip.stripprefix.prefixes=/api
+      - traefik.http.services.pocket-wishlist-api.loadbalancer.server.port=3001
+
+volumes:
+  api_data:

@@ -183,7 +183,7 @@ export function main(): void {
   };
   const crushed = encodeURIComponent(jsoncrush.crush(JSON.stringify(data)));
 
-  const link = `https://resprit--dd94f3deb77f11f08e0c0224a6c84d84.web.val.run/update-wishlist?d=${crushed}`;
+  const link = `${process.env.WISHLIST_API_BASE}/update-wishlist?d=${crushed}`;
 
   // for some reason, (I think) Mafia strips query strings when you make a POST request?
   visitUrl(link, false, true);
