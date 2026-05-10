@@ -1,0 +1,105 @@
+{{item}}
+
+==Obtained From==
+;Obsoleted Areas/Methods
+;:;Stores
+:::[[Mr. Store]] (1 [[Mr. Accessory]])
+
+==When Used==
+{{useitem|
+text=You fill out the Pen Pal Acquisition form and drop the application in the nearest mailbox. Almost immediately, you get a message from your brand new pen pal, who is apparently a kid named <[[Pen Pal Names|alliterative name]]>. Cool!}}
+
+*''When used with another [[Correspondence|Correspondence]] active an additional message is shown:''
+:(Only one correspondent may be active at a time, your Pen Pal subscription is now active and this may be changed in the Options Menu.)
+
+==Notes==
+{{IotM Description|date=May 2011|desc=Hooks you up with a pen pal from Distant Lands, who will write you every day to tell you fun stories and send you free stuff.}}
+*Only 1 [[Correspondence]] may be active at once, if you have used another correspondence item, you may choose which one you want to receive mail in the Eudora tab in Options menu.
+
+=== Items Received ===
+Every day, at the start of a new ascension, and on use (even if you already received a [[GameInformPowerDailyPro magazine|magazine]] today) you will receive a random message from [[Pen Pal Messages|your pen pal]] with a single item attached. The item received depends on your current ascension restrictions, level and gifts you have received recently.
+
+* If you are in [[Bad Moon]], you will receive {{InlineItem|fistful of ashes}} 
+* If you are in Hardcore or Ronin, you will receive an item based on your class and level. 
+** If you already have the item appropriate for your level, you will receive the fallback item instead.
+{|cellpadding="1" cellspacing="0" border="1" style="text-align:center; max-width:800px;" align="center"
+|- style="background-color: whitesmoke;"
+|Level
+|style="background-color: #FFDDDD"| Muscle classes
+| style="background-color: #DDDDFF"| Mysticality classes
+|colspan=2 style="background-color: #DDFFDD"| Moxie classes
+|-
+| 1 &ndash; 4
+| {{InlineItem|giant clay ashtray}}
+| {{InlineItem|Van der Graaf helmet}}
+| {{InlineItem|rubber band gun}}
+|-
+| 5 &ndash; 9
+| {{InlineItem|orange leather lanyard}}
+| {{InlineItem|electric crutch}}
+| {{InlineItem|pin-stripe slacks}}
+|-
+| 10+
+| {{InlineItem|Monster pants}}
+| {{InlineItem|shock belt}}
+| {{InlineItem|sticky gloves}}
+|-
+| Fallback
+| {{InlineItem|box of Pokëmann band-aids}}
+| {{InlineItem|Okee-Dokee soda}}
+| {{InlineItem|correction fluid}}
+|}
+*If you are not under any ascension restrictions, you randomly receive one of the following:
+{|cellpadding="1" cellspacing="0" border="1"  align="center" style="text-align: center"
+! Item !! Frequency
+|-
+| {{InlineItem|fish juice box}} || ??
+|-
+|{{InlineItem|Li'l Businessman Kit}} || ??
+|-
+|{{InlineItem|Nuclear Blastball}} || ??
+|-
+|{{InlineItem|paint bomb}} || ??
+|-
+|{{InlineItem|stress ball}} || ??
+|-
+|{{InlineItem|Ultracolor™ shirt}} || ??
+|-
+|{{InlineItem|willyweed}} || ??
+|-
+| colspan=2 style="background-color: #EEEEEE;"  | [[Pokëmann]]
+|-
+|{{InlineItem|Pokëmann figurine: Bloodkip}} || ??
+|-
+|{{InlineItem|Pokëmann figurine: Duck}} || ??
+|-
+|{{InlineItem|Pokëmann figurine: Frank}} || ??
+|-
+|{{InlineItem|Pokëmann figurine: Galumpagump}} || ??
+|-
+|{{InlineItem|Pokëmann figurine: Hoboking}} || ??
+|-
+|{{InlineItem|Pokëmann figurine: Kagosan}} || ??
+|-
+|{{InlineItem|Pokëmann figurine: Magikrap}} || ??
+|-
+|{{InlineItem|Pokëmann figurine: Moog}} || ??
+|-
+|{{InlineItem|Pokëmann figurine: Nothing}} || ??
+|-
+|{{InlineItem|Pokëmann figurine: Porkachu}} || ??
+|-
+|{{InlineItem|Pokëmann figurine: Shoggoth}} || ??
+|-
+|{{InlineItem|Pokëmann figurine: Smugleaf‎}} || ??
+|-
+|{{InlineItem|Pokëmann figurine: Twitter}} || ??
+|-
+|{{InlineItem|Pokëmann figurine: Vegemite}} || ??
+|-
+|{{InlineItem|Pokëmann figurine: Vermouth}} || ??
+|}
+*If you are under [[Standard restrictions]], you will retroactively receive any sent items after the restrictions are lifted. Only aftercore items can be received.
+
+{{Collection|5112}}
+{{Mr Store 2011}}

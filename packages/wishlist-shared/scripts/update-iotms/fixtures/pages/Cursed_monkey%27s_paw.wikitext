@@ -1,0 +1,33 @@
+{{item}}
+
+==Obtained From==
+;Items
+:[[cursed monkey glove]]
+
+==Notes==
+* Has a [wish] link in the inventory. It takes you to [[Make a Wish]].
+** You can use up to 5 wishes per day on effects or items, see the dedicated page. You can wish for the same item multiple times.
+** There is a [https://docs.google.com/spreadsheets/d/1mKiXfTnATE0wSJlX4wOlc_OATA4ZdwSiZ4lSxtiQ9dM/edit#gid=0 spading spreadsheet].
+* When an item and effect have the same name, it appears to prioritize the effect. For example, wishing for "knob goblin perfume" results in the effect rather than the item.
+* Depending on the number of wishes used today provides a different combat skill when equipped and has a different description and image:
+
+{| class="wikitable"
+|-
+! !! Wishes used !! Skill !! Skill effect !! Description
+|-
+| [[File:monkeypaw0.gif]] || 0 || [[Monkey Slap]] || Instant kill, banish (turn-taking), no items will drop || A cursed monkey's paw with no curled digits. Everything is going great and the world is your oyster.
+|-
+| [[File:monkeypaw1.gif]] || 1 || [[Monkey Tickle]] || Delevel || A cursed monkey's paw with its thumb curled up. It makes you a little nervous, but you're sure everything will work out just fine.
+|-
+| [[File:monkeypaw2.gif]] || 2 || [[Evil Monkey Eye]] || Spooky damage + delevel || A cursed monkey's paw with its thumb and pinky curled up. It looks uncomfortable, and it makes you feel uncomfortable.
+|-
+| [[File:monkeypaw3.gif]] || 3 || [[Monkey Peace Sign]] || Heal || A cursed monkey's paw with only two fingers extended. It does not make you feel peaceful.
+|-
+| [[File:monkeypaw4.gif]] || 4 || [[Monkey Point]] || [[Olfaction]]-like || A cursed monkey's paw extending its pointer finger at you. You know what you did, and you know there will be consequences.
+|-
+| [[File:monkeypaw5.gif]] || 5 || [[Monkey Punch]] || Physical damage || A cursed monkey's paw, curled into a fist. No need to ask for whom it punches. It punches for thee.
+|}
+*Is automatically placed in your inventory for you at the beginning of your run, with the message:
+*:You can't seem to leave this cursed thing behind!{{acquire|item=cursed monkey's paw}}
+
+{{Collection|11186}}

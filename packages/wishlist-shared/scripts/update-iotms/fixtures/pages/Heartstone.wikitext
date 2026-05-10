@@ -1,0 +1,36 @@
+{{item}}
+
+==Obtained From==
+;Items
+:[[boxed Heartstone]]
+
+==Notes==
+*Is automatically placed in your inventory for you at the beginning of your run, with the message:
+*:<center>Home is where your heartstone is, and your heartstone is now at home in your inventory.{{acquire|item=Heartstone}}</center>
+*Grants the skill [[Steal Monster's Heart]].
+*Has additional skills that must be permanently unlocked via [[Steal Monster's Heart]]. Afterwards they are conditional on the Heartstone being equipped.
+** Combat skills:
+*** [[Heartstone: BOOM]] (5/day, [[Insta-kill]] with [[Stat]] gains)
+*** [[Heartstone: GONE]] (5/day, [[Insta-kill]] [[Banishing|Banish]])
+*** [[Heartstone: STUN]] (5/day, Multi-round [[Stunning|Stun]])
+** Noncombat skills:
+*** [[Heartstone: BUDS]] (5/day, [[Best Pals]] (25 turns))
+*** [[Heartstone: BUFF]] (5/day, [[Ultraheart]] (25 turns))
+*** [[Heartstone: LUCK]] (1/day, [[Lucky!]] intrinsic)
+*Has a [use] link that takes you to the [[campground]].
+*Can be placed in [[Decorate Your Eternity Codpiece|The Eternity Codpiece]], which continues to allow access to the skills when worn.
+
+==See Also==
+* [[Muscle Modifiers]]
+* [[Mysticality Modifiers]]
+* [[Moxie Modifiers]]
+* [[Stat Gains from Fights]]
+* [[HP Regeneration]]
+
+==References==
+* The [use] link taking you to your campsite is a reference to the [[wikipedia:World of Warcraft|World of Warcraft]] Hearthstone items that teleport the player back to their current lodgings.
+** Amusingly, if one were to use [[Steal Monster's Heart]] to extract the middle letter of "Hearthstone", one would be left with the name of this item.
+
+{{Collection|12181}}
+
+[[Category:Gems]]

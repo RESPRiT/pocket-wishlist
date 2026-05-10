@@ -1,0 +1,15 @@
+{{item}}
+
+==Obtained From==
+;Obsoleted Areas/Methods
+;:;Stores
+:::[[Mr. Store]] (2 {{plural|Mr. Accessory}})
+
+==When Used==
+{{useitem|
+text=He does a monologue, howling to the heavens in a totally adorable way.|
+type=familiar|
+becomes=Dramatic Hedgehog}}
+
+{{Collection|4734}}
+{{Mr Store 2011}}

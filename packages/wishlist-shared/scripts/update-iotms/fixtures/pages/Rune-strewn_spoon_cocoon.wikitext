@@ -1,0 +1,24 @@
+{{item}}
+
+==Obtained From==
+;Obsoleted Areas/Methods
+::Stores
+:::[[Mr. Store]] (1 [[Mr. Accessory]])
+
+==When used==
+
+*Without a hewn moon-rune spoon:
+{{useitem
+|text=You tear into the cocoon like a raccoon, and soon the spoon within is youn. Which is a way of saying "yours" that I just made up.
+{{acquire|item=hewn moon-rune spoon}}
+|type=accessory}}
+
+''If you already own one'':
+
+You've already got one of those spoons. You don't need twoon.
+
+==Notes==
+{{IotM Description|date=June 2019|desc=You'll soon swoon, but then somebody will revive you with a prune and you'll be over the moon for this spoon!}}
+
+{{Collection|10256}}
+{{Mr Store 2019}}

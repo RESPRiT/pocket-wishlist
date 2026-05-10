@@ -1,0 +1,33 @@
+{{item}}
+
+==Obtained From==
+;Items
+:[[wrapped Baseball Diamond]]
+
+==Notes==
+*Is automatically placed in your inventory for you at the beginning of your run, with the message:
+*:<center>You throw up your open hand just in time to catch your Baseball Diamond as it arcs out of the afterlife behind you. Ouch, you need a glove!</center>{{acquire|item=Baseball Diamond}}
+* Has a [play ball] link.
+** Takes you to [[Play Ball!]].
+** Clicking the link before recruiting 9 monsters gives:<br><br><center>You need to recruit X foe(s) to play baseball.</center><br> where X is the number of remaining monsters.
+** Clicking the link once you have already played 3 innings that day gives:<br><br><center>You've already pitched 3 whole innings today. You better stop before you blow out your shoulder.</center><br>
+
+*Automatically tries to recruit monsters at the end of battle:{{useitem|text=You recruit a <monster> to play baseball. You need X more players.|type=combat}}
+:*''or, once you have enough players:''
+{{useitem|text=You recruit a <monster> to play baseball. You are ready to play ball!|type=combat}}
+
+:*''or, if the monster image is not exactly 100x100 pixels:''
+{{useitem|text=This foe is too big for baseball.|type=combat}}
+
+:*''or, if the monster's name was modified:''
+{{useitem|text=This foe is too strange for baseball.|type=combat}}
+
+:*''or, if the monster was a [[:Category:Bosses|boss]] or an [[:Category:Uncopyable|uncopyable]] monster:''
+{{useitem|text=This foe is too cool for baseball.|type=combat}}
+
+*Reasons for why a monster would be considered too strange for baseball include: [[:Category:Monsters With Generated Names|generated monster names]] (e.g., [[Copperhead Club bartender]], [[Slime Tube monster]]), [[Monster Modifier]]s (some of the modifiers causing the monster to become too big instead) and [[Eldritch Intellect]] for normally valid [[Eldritch Tentacle]]s. Despite [[Hobopolis]] hobos having generated names, they are considered valid baseball players. Monsters that have [[Steal Monster's Heart|had their hearts stolen]] are also valid.
+*Can be placed in [[The Eternity Codpiece]], which continues to allow access to the skills when worn.
+
+{{Collection|12216}}
+
+[[Category:Gems]]

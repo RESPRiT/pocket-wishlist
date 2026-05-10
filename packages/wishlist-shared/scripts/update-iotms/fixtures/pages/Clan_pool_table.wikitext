@@ -1,0 +1,25 @@
+{{item}}
+
+==Obtained From==
+;Obsoleted Areas/Methods
+;:;Stores
+:::[[Mr. Store]] (3 [[Mr. Accessory|Mr. Accessories]])
+
+==When Used==
+:<center>You install the pool table in your clan's VIP Lounge.</center>
+
+*With a Pool Table already present:
+:Your Clan already has a pool table installed in its VIP Lounge. It was put there by <user>.
+
+==Notes==
+{{IotM Description|date=May 2009|desc=Installs a pool table in your clan's VIP Lounge}}
+*True to the Mr. Store description, using this installs [[A Pool Table (VIP Lounge)|A Pool Table]] in the [[VIP Lounge|Clan VIP Lounge]].
+
+==History==
+*On an unknown date on or before August 20, 2014, this item became a free pull from Hagnk's.
+
+==References==
+*In the film ''[[Wikipedia:Short Circuit|Short Circuit]]'' the sentient robot Johnny 5 expresses his fears of disassembly to the female protagonist, Stephanie.
+
+{{Collection|3963}}
+{{Mr Store 2009}}

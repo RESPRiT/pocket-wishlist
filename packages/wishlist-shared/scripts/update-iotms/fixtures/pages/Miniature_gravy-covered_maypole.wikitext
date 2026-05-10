@@ -1,0 +1,23 @@
+{{item}}
+
+==Obtained From==
+;Obsoleted Areas/Methods
+;:;Stores
+:::[[Mr. Store]] (1 [[Mr. Accessory]])
+;:;Prize
+:::[[The Raffle House]]
+
+==Messages==
+*Every familiar this can be equipped to gets a custom end of combat message.  See each individual [[:Category:Familiars|familiar's page]] for details.
+
+==Notes==
+{{IotM Description|date=May 2005}}
+*Cannot be equipped on the [[Comma Chameleon]].
+*This item's enchantment used to be +10 lbs. of [[Baby Gravy Fairy|Gravy Fairy]].
+*First prize in [[The Raffle House]] on February 9, 2008.
+
+==See Also==
+*[[Items from Monsters]]
+
+{{Collection|1152}}
+{{Mr Store 2005}}

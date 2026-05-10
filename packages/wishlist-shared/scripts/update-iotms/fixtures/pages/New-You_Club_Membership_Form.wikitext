@@ -1,0 +1,153 @@
+{{NeedsSpading|comment=Affirmations for certain path/class/day combinations.}}
+
+{{item}}
+
+==Obtained From==
+;Obsoleted Areas/Methods
+;:;Stores
+:::[[Mr. Store]] (1 [[Mr. Accessory]])
+
+==When Used==
+{{useitem|
+text=Per the instructions on the back of the card, you place your hand over your heart and recite the membership oath: ''"I'm good enough, I'm smart enough, and doggone it, people like me!"'' You feel affirmed already!}}
+
+*''When used with a correspondence active an additional message is shown:''
+:(Only one correspondent may be active at a time, your New-You Club Membership is now active and this may be changed in the Options Menu.)
+
+*''If you are already a member of the New-You Club'':
+:You are already a member of the New-You Club.
+
+==Notes==
+{{IotM Description|date=May 2017|desc=Signs you up for a helpful daily affirmation!}}
+*Only 1 [[Correspondence]] IOTM may be active at once, you can change which is active in your settings.
+
+=== Items Received ===
+In addition to when you use the membership form, you will receive [[New-You Club Messages|a message]] with one of seven Daily Affirmation items in the Correspondence section of your mailbox at rollover and on ascension.
+
+Affirmations can be used as potions or combat items.
+
+{|class="mw-collapsible" cellpadding="3" cellspacing="0" border="1" style="text-align:center; margin-bottom: 1em;" align="center"
+|+ style="white-space: nowrap" | Daily Affirmations
+|-
+! Affirmation !! Potion Effect !! Combat Effect
+|-
+| {{StackItem|Daily Affirmation: Adapt to Change Eventually}} || {{StackEffect|effect=Adapt to Change Eventually|duration=100}} || Changes monster into another random monster
+|-
+| {{StackItem|Daily Affirmation: Always be Collecting}} || {{StackEffect|effect=Always be Collecting|duration=100}} || Staggers, and after combat, drops a copy of every item that dropped
+|-
+| {{StackItem|Daily Affirmation: Be a Mind Master}} || {{StackEffect|effect=Be a Mind Master|duration=100}} || Banishes a monster for 80 Adventures
+|-
+| {{StackItem|Daily Affirmation: Be Superficially interested}} || {{StackEffect|effect=Become Superficially interested|duration=100}} <br> ''can be toggled:'' <br> {{StackEffect|effect=Become Intensely interested|duration=100}} || Increases monster encounter rate for 80 Adventures <br> (+3 copies to its location, does not remove [[Adventure Queue|queue rejection]] or stack with [[On the Trail]])
+|-
+| {{StackItem|Daily Affirmation: Keep Free Hate in your Heart}} || {{StackEffect|effect=Keep Free Hate in your Heart|duration=100}} || Delevels, and one per day, gives 3 PvP fights
+|-
+| {{StackItem|Daily Affirmation: Think Win-Lose}} || {{StackEffect|effect=Think Win-Lose|duration=100}} || [[Instakill]]s the monster for no Adventure cost
+|-
+| {{StackItem|Daily Affirmation: Work For Hours a Week}} || {{StackEffect|effect=Work For Hours a Week|duration=100}} || Grants Meat based on Monster stats <br> (14x the sum of HP, Attack, and Defense; min. 111, max. 11,111)
+|}
+
+* If the King has been freed (Aftercore), the Affirmation will be selected randomly.
+* If the King has not been freed, the Affirmation received is [[Deterministic RNG|determined]] by the sum of [[Paths by number|Path ID]], [[Classes by number|Class ID]], and Daycount:
+
+{|class="mw-collapsible" cellpadding="3" cellspacing="0" border="1" style="text-align:center" align="center"
+|+ style="white-space: nowrap" | Affirmations by Class, Path, and Daycount
+|-
+! Sum !! Affirmation !! Sum !! Affirmation !! Sum !! Affirmation !! Sum !! Affirmation
+|-
+| 2 || Be a Mind Master || 19 || Always Be Collecting || 36 || Always be Collecting || 53 || Keep Free Hate in your Heart
+|-
+| 3 || Keep Free Hate in your Heart || 20 || Be Superficially Interested || 37 || Keep Free Hate in your Heart || 54 || Always Be Collecting
+|-
+| 4 || Keep Free Hate in your Heart || 21 || Be a Mind Master || 38 || Think Win-Lose || 55 || Work For Hours a Week
+|-
+| 5 || Be Superficially Interested || 22 || Be Superficially Interested || 39 || Think Win-Lose || 56 || Be a Mind Master
+|-
+| 6 || Keep Free Hate in your Heart || 23 || Be a Mind Master || 40 || Adapt to Change Eventually || 57 || Work For Hours a Week
+|-
+| 7 || ? || 24 || Keep Free Hate in your Heart || 41 || Keep Free Hate in your Heart || 58 || Work For Hours a Week
+|-
+| 8 || Be Superficially Interested || 25 || Be Superficially Interested || 42 || Be Superficially Interested || 59 || Keep Free Hate in your Heart
+|-
+| 9 || Adapt to Change Eventually || 26 || Always be Collecting || 43 || Work For Hours a Week || 60 || Keep Free Hate in your Heart
+|-
+| 10 || Be Superficially Interested || 27 || Keep Free Hate in your Heart || 44 || Adapt to Change Eventually || 61 || Keep Free Hate in your Heart
+|-
+| 11 || Be a Mind Master || 28 || Keep Free Hate in your Heart || 45 || Keep Free Hate in your Heart || 62 || Adapt to Change Eventually
+|-
+| 12 || ? || 29 || Be Superficially interested || 46 || ? || 63 || Always Be Collecting
+|-
+| 13 || Think Win-Lose || 30 || Be Superficially interested || 47 || ? || 64 || Keep Free Hate in your Heart
+|-
+| 14 || Keep Free Hate in your Heart || 31 || Be a Mind Master || 48 || ? || 66 || ?
+|-
+| 15 || ? || 32 || Think Win-Lose || 49 || ? || 67 || ?
+|-
+| 16 || ? || 33 || Be Superficially interested || 50 || ? || 68 || ?
+|-
+| 17 || ? || 34 || Adapt to Change Eventually || 51 || ? || 69 || ?
+|-
+| 18 || ? || 35 || Be Superficially interested || 52 || ? || 70 || ?
+|}
+
+=== Saw-Sharpening Quests ===
+Each message containing a Daily Affirmation also has a "Saw-Sharpening" quest that can be completed once per day. 
+*The quest is in the form of:
+;:"Cast [skill], once per fight, against [monster] [number] times (look in [location])."
+*Challenge paths that replace your regular skills will not show a message upon prism break.   However you can log out and when you log back on you will be given up to three Daily Affirmations and can complete that day's quest.
+*The quest must be completed during that ascension. While you can get a second correspondence for the day if you ascend, you will be unable to complete the quest you received prior to ascending whether that second correspondence assigns a new quest or not.
+*You can get a second quest per rollover under specific circumstances, but it is unknown what the specific trigger is for this (if there is one).
+*Locations chosen are dependent on zones that are unlocked and available. For example, closeting all of your [[empty agua de vida bottle]]s will prevent those zones from being chosen.
+*Only monsters that natively appear in zones as regular combats are eligible, meaning no non-combat-exclusive monsters and no wandering monsters. However, even though your New-You quest will never ask for a special monster, it '''will''' count those as monsters in the zone, meaning that even though [[The Icy Peak]] has 3 regular monsters and 2 special monsters ([[Knott Slanding]] and [[The ghost of Sam McGee]]), you will only be asked to use the assigned skill 8 times.
+*The number of skill casts required is dependent on the number of monsters in the location:
+{|cellpadding="3" cellspacing="0" border="1" style="text-align:center" align="center"
+|-
+! Number of monsters in the zone !! Skill casts needed
+|-
+| 1 || 40 (exception: [[lobsterfrogman]], 5)
+|-
+| 2 || 20
+|-
+| 3 || 14
+|-
+| 4 || 10
+|-
+| 5 || 8
+|-
+| 6 || 7
+|-
+| 7 || 6
+|-
+| 8+ || 5
+|}
+*''Each time you use the skill described against the monster, you get the in-combat message:''
+:<center>"You're really sharpening the old saw. You've done [number] out of [number]!"</center>
+:*You only need to encounter the monster and use the skill, whether or not the monster is defeated is unimportant. 
+:*In addition, you do not have to fight the monster in the suggested zone. Copies are valid as long as the skill ID and monster ID match the ones asked for in the quest. For monsters with the same name but different monster IDs (such as [[Orcish Frat Boy (Music Lover)|Orcish]] [[Orcish Frat Boy (Paddler)|Frat]] [[Orcish Frat Boy (Pledge)|Boys]]), you must find the correct one.
+:*The quest checks the monster you used the skill against after the skill is used. This makes certain quests impossible. If [[CLEESH]] is the skill, it will become a frog, newt, or salamander and not count as the target of your quest. If [[Sleepy mariachi]] is the monster, it will become a Surprised mariachi after using the skill and also not count.
+*''Completion of this quest will yield the in-combat message:''
+:<center>"You did it! Your saw is so sharp!" 
+*You will gain 1 VIP point immediately upon quest completion, although it is not reflected until the next New-You message is received.
+{|cellpadding="3" cellspacing="0" border="1" style="text-align:center" align="center"
+|-
+! VIP Level !! VIP Points !! VIP Bonus
+|-
+| 1 || 1 || [[Affirmation Cookie]] if yesterday's quest was completed
+|-
+| 2 || 7 || Free [[Affirmation Cookie]] on the first message of each new [[ascension]]
+|-
+| 3 || 14 || [[File:Newyou.gif]]<br>New-You [[Tattoo]]
+|-
+| 4 || 21 || Grants [[Incredible Self-Esteem]] skill on the next message and the first message of each new [[ascension]]
+|-
+| 5 || 30 and every 30 points afterwards || Randomly generated [[Custom title]]
+|}
+
+==References==
+*The description refers to various self-help books:
+**"Sharpen the saw" is the seventh [[Wikipedia:The 7 Habits of Highly Effective People|habit of highly effective people]].
+**''[[Wikipedia:Who Moved My Cheese?|Who Moved My Cheese?]]'' is a parable about reacting to change.
+**''[[Wikipedia:How to Win Friends and Influence People|How to Win Friends and Influence People]]'' was one of the first best-selling self-help books.
+*"I'm good enough, I'm smart enough, and doggone it, people like me." is a catchphrase of [[Wikipedia:Stuart Smalley|Stuart Smalley]].
+
+{{Collection|9478}}
+{{Mr Store 2017}}

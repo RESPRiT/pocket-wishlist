@@ -1,0 +1,35 @@
+{{item}}
+
+==Obtained From==
+;Obsoleted Areas/Methods
+;:;Stores
+:::[[Mr. Store]] (1 [[Mr. Accessory]])
+
+==When Squished==
+{{useitem|text=Shuddering, you squish the Spooky Putty into a new shape. {{HP|type=lose|amount=5% of your maximum|element=spooky}}|
+effect={{acquire|item=Spooky Putty ball}}
+''or''
+{{acquire|item=Spooky Putty leotard}}
+''or''
+{{acquire|item=Spooky Putty mitre}}
+''or''
+{{acquire|item=Spooky Putty sheet}}
+''or''
+{{acquire|item=Spooky Putty snake}}}}
+
+==Functionality==
+{{spooky putty}}
+
+==Notes==
+{{IotM Description|date=January 2009|desc=Squishable into various forms.}}
+
+==References==
+*Spooky Putty is fairly obviously a reference to [[Wikipedia::Silly_Putty|Silly Putty]].
+
+==See Also==
+*[[Foldables]]
+
+{{Collection|3661}}
+{{Mr Store 2009}}
+
+[[Category:Usable Items]]

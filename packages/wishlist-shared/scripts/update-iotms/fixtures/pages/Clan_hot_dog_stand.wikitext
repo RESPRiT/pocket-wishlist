@@ -1,0 +1,20 @@
+{{item}}
+
+==Obtained From==
+;Obsoleted Areas/Methods
+;:;Stores
+:::[[Mr. Store]] (3 {{plural|Mr. Accessory}})
+
+==When Used==
+:<center>You install the hot dog stand in your clan's VIP Lounge.</center>
+
+==Notes==
+{{IotM Description|date=July 2013|desc=Adds a fully-functional hot dog stand to your clan VIP Lounge, complete with a hot dog guy to sell hot dogs to all of the members of your clan.}}
+*True to the Mr. Store description, using this installs a [[Hot Dog Stand]] in the [[VIP Lounge|Clan VIP Lounge]].
+
+==History==
+*Was not implemented until 2 hours before rollover on July 3rd, 2013.
+*On an unknown date on or before August 20, 2014, this item became a free pull from Hagnk's.
+
+{{Collection|6582}}
+{{Mr Store 2013}}

@@ -1,0 +1,21 @@
+{{item}}
+
+==Obtained From==
+:;Stores
+::[[Mr. Store]] (1 Mr. Accessory)
+
+==When Used==
+{{useitem
+|text=You punch the catalog, and a packet of mushroom spores flies out of it.
+{{acquire|item=packet of mushroom spores}}}}
+
+*''If you already have one:''
+{{useitem|text=You've already got everything you need from that catalog. }}
+
+==Notes==
+{{IotM Description|date=March 2020|desc=Plant a mushroom garden at your campsite.}}
+
+==References==
+
+{{Collection|10481}}
+{{Mr Store 2020}}

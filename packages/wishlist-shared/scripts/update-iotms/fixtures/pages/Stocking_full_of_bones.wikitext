@@ -1,0 +1,21 @@
+{{item}}
+
+==Obtained From==
+;Obsoleted Areas/Methods
+;:;Stores
+:::[[Mr. Store]] (1 [[Mr. Accessory]])
+
+==When Used==
+{{useitem
+|text=The bones rattle like sleigh bells as they clamber out of their Crimbo stocking and assemble themselves into an ancient skeleton in a filthy gray overcoat.
+|type=familiar
+|fname={{SkeletonOfCrimboPastName}}
+|becomes=Skeleton of Crimbo Past}}
+
+==Notes==
+{{IotM Description|date=December 2025|desc=An ancient skeleton that helps you find items and knucklebones. Then he'll sell you stuff for knucklebones.}}
+* Mailed to subscribers December 1st.
+* In store December 2nd - January 4th.
+
+{{Collection|12049}}
+{{Mr Store 2025}}

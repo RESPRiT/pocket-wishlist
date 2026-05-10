@@ -1,0 +1,27 @@
+{{item}}
+
+==Obtained From==
+;Obsoleted Areas/Methods
+;:;Stores
+:::[[Mr. Store]] (1 [[Mr. Accessory]])
+
+==When Used==
+{{useitem|
+text=
+''If you have a workshed item already:''
+You remove the <item> from your workshed.
+{{acquire}}
+''Then:''
+You place the portable Mayo Clinic in your workshed.}}
+
+==Notes==
+{{IotM Description|date=May 2015|desc=Installs a full-featured medical clinic inside your campsite workshed.}}
+*Grants access to [[the Mayo Clinic]].
+*As of a trivial update on Dec 22, 2022, it is automatically placed in your inventory for you at the beginning of your run, with the message:
+*:What's grosser than gross? Oh yeah. {{acquire|item=portable Mayo Clinic}}
+
+==See Also==
+*[[Your Workshed]]
+
+{{Collection|8260}}
+{{Mr Store 2015}}

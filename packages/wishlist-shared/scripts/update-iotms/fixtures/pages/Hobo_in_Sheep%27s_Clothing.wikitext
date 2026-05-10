@@ -1,0 +1,52 @@
+{{familiar}}
+
+*After Combat:
+**Item Drops:
+**: <Name> roots around the area, looking for extra stuff.
+**: <Name> brushes some trash away with her tail, making it easier for you to see stuff.
+**: <Name> eats some of the nearby grass, making it easier for you to find stuff in it.
+**When not producing wool:
+**: <Name> absent-mindedly chews on her cigar.
+**: <Name> scratches her left flank by rubbing up against a mailbox.
+**: <Name> switches her cigar from her right cheek to her left.
+**: <Name> switches her cigar from her left cheek to her right.
+**: <Name> gets a drink from a nearby water fountain.
+**: <Name> pulls out a flask of whiskey and takes a big swig.
+**: <Name> scratches her belly with her hind leg.
+**: <Name> gnaws listlessly on a little patch of grass.
+**: <Name> whips her tail back and forth to shoo some flies away.
+**: <Name> blows a puff of cigar smoke at some bothersome gnats, driving them away.
+**: <Name> puffs on her cigar, silently taking in the scenery.
+**When producing wool:
+**: <Name> takes an extra-big puff of her cigar, then coughs up a little puff of wool.
+**: <Name> blows her nose on her flank, then knocks the dirty wool off with her hind leg.
+**: <Name> rolls around in a mud puddle, leaving a little wool behind.
+**:{{acquire|item=grubby wool}}
+**Stats:
+**: <Name> smiles at you, her cigar still gripped in her teeth. (+X Stats)
+**: <Name> flashes you a big grin with her nicotine-stained teeth. (+X Stats)
+**: <Name> baas her approval. (+X Stats)
+**: <Name> bleats at you with obvious admiration. (+X Stats)
+
+*Enthroned in the [[Crown of Thrones]]:
+*:A little glob of damp wool slides down your neck into your shirt.
+*:{{acquire|item=green pixel}}
+*Bjornified in the [[Buddy Bjorn]]: 
+*:A little glob of damp wool sloughs off of <Name> and lands in your pocket.
+*:{{acquire|item=green pixel}}
+*With [[lucky Tam O'Shanter]] equipped:
+*: <Name> rattles the tam around on top of her normal hat.
+*With [[miniature gravy-covered maypole]] equipped:
+*: <Name> clops around the Maypole on her hooves.
+*With [[wax lips]] equipped:<br>
+*: <Name> grins, clenching both the wax lips and her cigar in the same teeth.
+
+==Arena Messages==
+*None - familiar has no weaknesses.
+
+==Notes==
+*Drops a [[grubby wool]] after 10 combats, then after a further 20, then a further 30, etc.
+**I.e. The [[grubby wool]] drops on turns 10, 30, 60, 100, 150, ....
+
+==References==
+*''Shadows Over Loathing'' featured a cigar-chomping hobo lady in sheep's clothing, [https://loathing.wiki.gg/wiki/Beatrice_Loupe Beatrice Loupe].

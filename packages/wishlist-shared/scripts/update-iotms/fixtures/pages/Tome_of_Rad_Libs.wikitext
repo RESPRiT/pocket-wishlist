@@ -1,0 +1,22 @@
+{{item}}
+
+==Obtained From==
+;Store
+:[[KoL Con 13 Merch Table]] (8 [[Mr. Accessory|Mr. Accessories]])
+;Other
+:Only available for purchase at [[KoL Con]]. (since KoL Con IX)
+
+==When Used==
+*''Without a [[Your Mystical Bookshelf|mystical bookshelf]]'':
+{{useitem|text={{NeedsText}}}}
+*''With a [[Your Mystical Bookshelf|mystical bookshelf]] without a Tome of Rad Libs on it'':
+{{useitem|text=You carefully place the Tome on the bookshelf in your campsite.}}
+*''With a Tome of Rad Libs already on the [[Your Mystical Bookshelf|mystical bookshelf]]'':
+{{useitem|text=You've already got a copy of that Tome on your bookshelf.}}
+
+==Notes==
+*The description initially ended with: [CDM: Text when somebody summons "You tear a couple of Rad Libs out of the book, and mentally review how to spell 'boner' and 'farts.'"
+{{Mystic Book|skill=Summon Rad Libs}}
+
+{{Collection|5862}}
+{{KoL Con 13 Merch Table}}

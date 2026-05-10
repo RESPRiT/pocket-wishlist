@@ -1,0 +1,27 @@
+{{familiar}}
+
+*Regular combat messages:
+*:<name> busts some old-school dance moves, partying like it's either 1925 or 1998. She finishes a turn and winks suggestively at you.
+*Enthroned in the [[Crown of Thrones]]:
+*:<Name> refreshes you with a spritz of her perfume, then sprays your opponent, doing a stinky {{element|Stench|dmg=34}} damage. No accounting for taste, I guess. Er, smell, that is. {{HP}}
+*Bjornified in the [[Buddy Bjorn]]:
+*:<name> pops up over your shoulder and spritzes perfume into your foe's eyes, causing {{element|Stench|dmg=38}} and giving you a refreshing laugh. {{HP}}
+*With [[lucky Tam O'Shanter]] equipped:
+*:<name> throws the Tam into the air, spins around twice, and catches it on her head, winking broadly at you. 
+*With [[miniature gravy-covered maypole]] equipped:
+*:<name> does The Robot around the maypole. Nah, just kidding -- she does the Jitterbug, of course.
+*With [[wax lips]] equipped:
+*:<name> buzzes a catchy tune behind her wax lips.
+
+==Arena Messages==
+*None - familiar has no weaknesses.
+
+==References==
+*The description is a reference to the song "It Don't Mean a Thing (If It Ain't Got That Swing)" by [[Wikipedia:Duke Ellington|Duke Ellington]].
+*The description may also be a reference to the jazz standard "Jitterbug Waltz" by [[Wikipedia:Fats Waller|Fats Waller]].
+*The familiar equipment is a reference to ''[[Wikipedia:Jitterbug Perfume|Jitterbug Perfume]]'' by [[Wikipedia:Tom Robbins|Tom Robbins]].
+*The normal combat message mentioning partying like it's 1925 or 1998 refers not only to the song "1999" by Prince, but also to the fact that swing dancing (to which the Jitterbug is closely related) was a common dance style both in 1925 near its birth, and again in 1998 during a short-lived swing dance revival.
+
+==See Also==
+*[[Items from Monsters]]
+*[[Meat from Monsters]]

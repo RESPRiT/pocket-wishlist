@@ -1,0 +1,80 @@
+{{NeedsSpading|do all sources of pasta thrall xp gain +1?}}
+{{item}}
+
+==Obtained From==
+;Item
+:[[pasta wand loot box]]
+
+==Notes==
+*Is automatically placed in your inventory for you at the beginning of your run, with the message:
+*:<center>They say some are born with a silver spoon in their mouth, but you've been reborn with a pasta wand in your hand.</center>{{acquire|item=legendary pasta wand|legendary=1}}
+* The "Very Accurate!" enchantment gives a +1000 bonus to [[Hit Chance]]. 
+* Allows you to summon [[legendary noodles]]. If you have the [[Pastamastery]] skill, the legendary noodles are summoned alongside your [[dry noodles]]. If you lack the [[Pastamastery]] skill, the pasta wand grants the [[Wave your Pasta Wand]] skill to summon standalone legendary noodles. 
+** If the pasta wand is in your [[Your Colossal Closet|Closet]], then legendary noodles will not be summoned. 
+** See the [[legendary noodles]] page for cooking recipes. 
+* [[Pasta Thralls]] gain new abilities at Level 11, and non-Pastamancer thrall buffs are tripled: 
+{| class="wikitable"
+|-
+! Thrall
+! Level 11 ability
+! Non-Pastamancer Effect<br>(10 turns)
+|-
+|[[Vampieroghi]]
+|Slight Spooky Resistance (+1)
+|
+[[Legendary Bloody Potato Bits]]<br />
+Regenerate 9-15 HP per Adventure
+|-
+|[[Vermincelli]]
+|Occasionally makes fighting a rat not take an adventure 
+(First 3 fights, then very occasionally. Up to 11 per day total.)
+|
+[[Legendary Slinking Noodle Glob]]<br />
+Maximum MP +45
+|-
+|[[Angel Hair Wisp]]
+| +20 Mysticality
+|
+[[Legendary Whispering Strands]]<br />
++30% Combat Initiative
+|-
+|[[Elbow Macaroni]]
+| +20 Muscle
+|
+[[Legendary Macaroni Coating]]<br />
++30 Muscle
+|-
+|[[Penne Dreadful]]
+| +20 Moxie
+|
+[[Legendary Penne Fedora]]<br />
++30 Moxie
+|-
+|[[Spaghetti Elemental (Pasta Thrall)|Spaghetti Elemental]]
+| +10 Spooky Damage
+| n/a
+|-
+|[[Lasagmbie]]
+|Occasionally refills your Mana Points<br>(up to 10,000 MP, 11 times per day)
+| 
+[[Legendary Pasta Eyeball]]<br />
++30% Meat
+|-
+|[[Spice Ghost]]
+|Makes the first thing you eat each day a bit spicier.<br>(Grants 2 adventures to the first food consumed with Spice Ghost active)
+|
+[[Legendary Spice Haze]]<br />
++15% Item Drops from Monsters
+|}
+*Legendary Pasta Thrall effects are mutually exclusive with each other and with regular Pasta Thrall effects.
+
+*Additional Thrall experience is only gained when the wand is equipped.
+
+==See Also==
+* [[Bonus Spell Damage]]
+* [[Critical Spell Chance]]
+* [[legendary noodles]]
+* [[Free Crafting]]
+* [[Pasta Thralls]]
+
+{{Collection|12223}}

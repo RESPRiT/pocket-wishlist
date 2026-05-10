@@ -1,0 +1,18 @@
+{{item}}
+
+==Obtained From==
+;Stores
+:[[Mr. Store]] (1 [[Mr. Accessory]])
+
+==When Used==
+{{useitem|text=You open the package and behold the majesty of the Eternity Codpiece!
+{{acquire|item=The Eternity Codpiece}}}}
+''Or, if you already possess The Eternity Codpiece'':
+<center>Where would you even put a second codpiece?</center>
+
+==Notes==
+{{IotM Description|date=2026|year=1|desc=A handy place to store all your favorite gems and jewels and unlock their eternal cosmic power, or something.}}
+* In-store January 1, 2026, - January {{NeedsText}}, 2027. 
+
+{{Collection|12066}}
+{{Mr Store 2026}}

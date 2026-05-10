@@ -1,0 +1,20 @@
+{{item}}
+
+==Obtained From==
+;Store
+:[[KoL Con 13 Merch Table]] (10 [[Mr. Accessory|Mr. Accessories]])
+;Other
+:Only available for purchase at [[KoL Con]]. (since KoL Con VII)
+
+==When Used==
+{{useitem|
+text=The tutu is completely destroyed as a hippo ballerina bursts forth from it and pliés across your terrarium.|
+type=familiar|
+becomes=Hippo Ballerina|
+fname={{Familiar name|gender=f}}}}
+
+==Notes==
+*This is a reference to [http://forums.kingdomofloathing.com/vb/showthread.php?t=182621 a thread on the Forums of Loathing] which makes a big deal out of demanding a new picture for [[Hippo Ballet To You]].
+
+{{Collection|4709}}
+{{KoL Con 13 Merch Table}}

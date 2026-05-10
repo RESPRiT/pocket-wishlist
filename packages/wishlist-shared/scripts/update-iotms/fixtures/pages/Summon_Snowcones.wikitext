@@ -1,0 +1,10 @@
+{{NeedsSpading|Rate of acquisition of black snowcones.}}
+{{skill}}
+
+==Notes==
+{{Tome Note}}
+*Each snowcone's effect lasts for 20 turns.  You may only have one Tongue effect active at once.
+*On January 3, 2008, this skill was no longer attainable. The functionality was instead moved to the [[Your Mystical Bookshelf|mystical bookshelf]].
+*The skill used to summon three snowcones at once, for 5 MP, and was usable once per day.  Rarely, it would summon a black snowcone instead of three regular snowcones, with the message: "You mess up the incantation, and instead of summoning three snowcones, you end up with one big mixed-up one."
+*Black snowcone rate [http://kolspading.com/forums/viewtopic.php?f=2&t=251 is being spaded].
+{{Snowcones}}

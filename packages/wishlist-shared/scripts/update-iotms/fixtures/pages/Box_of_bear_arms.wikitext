@@ -1,0 +1,37 @@
+{{item}}
+
+==Obtained From==
+
+;Items
+
+:Using a [[left bear arm]] when the [[right bear arm]] is unequipped.
+
+;Zombie Slayer Challenge Path
+
+:[[Dawn of the D'oh]] (if you had repacked arms before ascending)
+
+;Obsoleted Areas/Methods
+;:;Stores
+:::[[Mr. Store]] (1 [[Mr. Accessory|Mr. Accessory]])
+
+==When Used==
+{{useitem|text=You upend the box and dump it out. Turns out they weren't kidding -- there really were two bear arms in there.|
+effect={{acquire|item=right bear arm}}
+
+{{acquire|item=left bear arm}}
+}}
+
+==Notes==
+{{IotM Description|date=September 2012|desc=Contains two bear arms, which give you the right to attack things with a variety of bear puns.}}
+*You don't have to pull this item in [[Zombie Slayer]] runs, you get it automatically if you own it when you get the rake.
+
+==References==
+*The [[Wikipedia:Second Amendment to the United States Constitution|Second Amendment]] to the [[Wikipedia:United States Constitution|United States Constitution]] states ''"A well regulated militia being necessary to the security of a free state, the right of the people to keep and bear arms shall not be infringed."''
+
+==See Also==
+*[[Bear skills]]
+
+{{Bear Skills}}
+
+{{Collection|5790}}
+{{Mr Store 2012}}

@@ -1,0 +1,19 @@
+{{item}}
+
+==Obtained From==
+;Obsoleted Areas/Methods
+;:;Stores
+:::[[Mr. Store]] (1 [[Mr. Accessory]])
+
+==When Used==
+{{useitem|text=You carefully unwrap the club to reveal that it is of <span style="background-color: black; color: #ff8000;">LEGENDARY</span> quality.  You try to imagine how excited you'd be if you lived in a world where Items of the Month weren't <i>always</i> really good. {{acquire|item=legendary seal-clubbing club|legendary=1}}}}
+''Or, if you already have a legendary seal-clubbing club'':
+<center>You've already got one of these. Have you ever heard a legend about a person with two clubs? If so, I don't want to you to tell me about it because it sounds scary.</center>
+
+==Notes==
+{{IotM Description|date=January 2026|desc=Club monsters forwards in time, backwards in time, and all over the place with this powerful club.}}
+* Mailed to subscribers December 31st.
+* In store January 1st - February 3rd.
+
+{{Collection|12133}}
+{{Mr Store 2026}}

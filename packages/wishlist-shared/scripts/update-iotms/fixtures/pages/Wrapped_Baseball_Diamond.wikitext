@@ -1,0 +1,21 @@
+{{item}}
+
+==Obtained From==
+;Obsoleted Areas/Methods
+;:;Stores
+:::[[Mr. Store]] (1 [[Mr. Accessory]])
+
+==When Used==
+{{useitem
+|text=You unwrap the package to discover your very own baseball diamond. Play Ball!
+{{acquire|item=Baseball Diamond}}}}
+''Or, if you already have a Baseball Diamond'':
+<center>You already own a baseball diamond.</center>
+
+==Notes==
+{{IotM Description|date=April 2026|desc=Grab your favorite enemies and play some baseball!}}
+* Mailed to subscribers March 31st.
+* In store April 1st - May 3rd.
+
+{{Collection|12215}}
+{{Mr Store 2026}}

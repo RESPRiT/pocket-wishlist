@@ -1,0 +1,63 @@
+{{item}}
+
+==Obtained From==
+;Items
+:[[rune-strewn spoon cocoon]]
+
+==When Used==
+* From inventory, by clicking [tune moon], if you've already done that this ascension:
+
+<center>
+
+You can't figure out the angle to see the moon's reflection in the spoon anymore.
+
+
+</center>
+
+* From inventory, by clicking [tune moon] the first time this ascension:
+
+<center>
+
+You notice that the reflection of the moon looks different in the bowl of the spoon.
+
+{moon sign menu}
+
+{{button|Change Moon Sign!}}
+
+''You feel like this is not something you'll be able to do again, at least not in this life.'' 
+
+
+</center>
+
+* After selecting a moon sign and clicking Change Moon Sign!:
+
+<center>
+
+You twist the spoon around until the reflection of the moon in the bowl looks just like you intended.
+
+</center>
+
+* Attempting to switch away from [[Bad Moon]] in Bad Moon's "aftercore":
+
+<center>
+
+This moon is too bad to change.
+
+</center>
+
+==Notes==
+*Grants one of the following combat skills, depending on your class' mainstat:
+**[[Dragoon Platoon]] for [[Muscle]] classes
+**[[Spittoon Monsoon]] for [[Mysticality]] classes
+**[[Festoon Buffoon]] for [[Moxie]] classes
+*In combat, randomly replaces various words by another that rhymes, and puts them in ''italic''.
+*Sometimes drop a [[cartoon harpoon]] after combat.
+*Is automatically placed in your inventory for you at the beginning of your run, with the message:
+:You are reborn with a hewn moon-run spoon in your mouth.{{acquire|item=hewn moon-rune spoon}}
+
+==History==
+* The tune moon function was added on [http://forums.kingdomofloathing.com/vb/showthread.php?p=5038042#post5038042 Jun 21st, 2019].
+
+{{Collection|10254}}
+
+[[Category:Equipment That Drops Items]]

@@ -1,0 +1,21 @@
+{{item}}
+
+==Obtained From==
+;Obsoleted Areas/Methods
+;:;Stores
+:::[[Mr. Store]] (1 [[Mr. Accessory]])
+
+==When Used==
+*''Without a [[Your Mystical Bookshelf|mystical bookshelf]]'':
+{{useitem|text=You take the Tome to your campsite, and a strange shimmering bookshelf appears near your dwelling. You put the Tome on it.}}
+*''With a [[Your Mystical Bookshelf|mystical bookshelf]] without a Scratch 'n' Sniff Sticker Tome on it'':
+{{useitem|text=You carefully place the Tome on the bookshelf in your campsite.}}
+*''With a Scratch 'n' Sniff Sticker Tome already on the [[Your Mystical Bookshelf|mystical bookshelf]]'':
+{{useitem|text=You've already got a copy of that Tome on your bookshelf.}}
+
+==Notes==
+{{IotM Description|date=November 2008|desc=Contains a lot of stickers that you can use to make a groovy customized weapon.}}
+{{Mystic Book|skill=Summon Stickers}}
+
+{{Collection|3507}}
+{{Mr Store 2008}}

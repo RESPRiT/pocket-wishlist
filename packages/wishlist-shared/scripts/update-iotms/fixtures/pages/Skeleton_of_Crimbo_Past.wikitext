@@ -1,0 +1,122 @@
+{{familiar}}
+
+*Regular messages:
+*:
+
+*After Combat:
+*: The Skeleton of Crimbo Past shuffles along behind you, in a way that sort of reminds you of a fairy dancing even though it's absolutely nothing like that.
+*: <name> wordlessly points out a knucklebone you knocked loose from your opponent.{{acquire|item=knucklebone}}
+*: The Skeleton of Crimbo Past, whom you have nicknamed <name>, silently gestures at a loose knucklebone lying on the ground.{{acquire|item=knucklebone}}
+*: The Skeleton of Crimbo Past picks something up off the ground and tosses it to you. Ugh, it's an old knucklebone. Creepy.{{acquire|item=knucklebone}}
+
+
+*Enthroned in the [[Crown of Thrones]]:
+*:From atop your head, %hsn%{{sic}} throws a bone at your foe for {{element|Spooky|dmg=5}} damage.
+*Bjornified in the [[Buddy Bjorn]]: 
+*:%hsn%{{sic}} throws a bone over your shoulder at your foe for {{element|Spooky|dmg=5}} damage.
+*With [[lucky Tam O'Shanter]] equipped:
+*:The Skeleton of Crimbo Past would definitely give you a sly wink from under that Tam O'Shanter, if he had eyelids.
+*With [[miniature gravy-covered maypole]] equipped:
+*:Not his preferred holiday reference, but the Skeleton of Crimbo Past does a slouchy, rattly jig around the maypole anyway.
+*With [[wax lips]] equipped:
+*:Nothing says "memento mori" like an ancient skull wearing a pair of wax lips.
+
+==Resting Messages==
+* For the first five rests at your campsite (neither [[Chateau Mantegna|chateau]] nor [[Your Campsite Away From Your Campsite|your campsite away from your campsite]]) per day with familiar equipped, randomly: 
+:: You take a nap, and dream of sugarplums. Sugarplums dancing. Oh my god they're everywhere! They're everywhere! They're dancing ''everywhere!'' They're all over you! You're suffocating! You're drowning in sugarplums! They're dancing down your throat, and into your ears! Get them off! Get them out! Arrrghghghgulghaugh! You wake up screaming, and find a knucklebone under your pillow.
+{{acquire|item=knucklebone}}
+:: You take a nap, and have one of those awful teeth-falling-out dreams. Except instead of your teeth, it's your fingers. They all just kinda pop off and oh god, what are you gonna pick them up with?? When you wake up, you find a knucklebone under your pillow. Fortunately, all of yours are accounted for.
+{{acquire|item=knucklebone}}
+:: You take a nap, and find yourself back in middle school, having forgotten to go to one of your classes for... well, however long it's been since you were in middle school. (And if you're still in middle school, ''ah jeez.'' Don't tell your parents about all the booze jokes.) Anyway I forgot where I was going with this, but when you wake up, you find a knucklebone under your pillow.
+{{acquire|item=knucklebone}}
+:: You take a nap, and have a dream about %fn{{sic}}, the Skeleton of Crimbo Past, coming up to your bed while you're asleep and slipping a knucklebone under your pillow. When you wake up, you find a knucklebone under your pillow, and %fn{{sic}} is standing there! Wait... was it all not a dream? What a strange inversion of the usual trope!
+{{acquire|item=knucklebone}}
+:: You take a nap, and have a dream that you end up forgetting completely when you wake up, which means I don't have to write it. Yeah, it's a cop-out, but come on. You know how boring it is to hear someone describe a dream they had. Imagine having to write it! Anyway there's a knucklebone under your pillow.
+{{acquire|item=knucklebone}}
+
+==Arena Messages==
+None. This familiar has no weaknesses.
+
+==Notes==
+{{NeedsSpading|is drop rate spading complete?}}
+* Has a (chat) link that takes you to [[Visiting the Skeleton of Crimbo Past]]
+* The maximum of 100 knucklebones per day includes both combat and resting. If you get 5 knucklebones from resting, then you can only get 95 from combat. If you get 100 knucklebones from combat, then you won't get any from resting.
+* Knucklebone drop rate depends on whether you have the [[small peppermint-flavored sugar walking crook]] equipped (a flat +10% chance) and on the monster's [[phylum]] (and whether it's a [[:Category:Skeletons|skeleton]]).
+:{| class="wikitable"
+|-
+! Phylum !! Drop Chance !! Drop Chance <br>(with familiar equipment)
+|-
+| Skeleton
+| 90%
+| 100%
+|-
+| Orc<br>Pirate
+| 70%
+| 80%
+|-
+| Dude<br>Elf<br>Hobo
+| 50%
+| 60%
+|-
+| Beast<br>Demon<br>Goblin<br>Humanoid<br>Undead
+| 30%-40%
+| 40%-50%
+|-
+| Fish<br>Penguin<br>Weird
+| 20%
+| 30%
+|-
+| Construct
+| 10%
+| 20%
+|-
+| Bug
+| 5%
+| 15%
+|-
+| Constellation<br>Elemental<br>Hippy<br>Horror<br>Mer-kin<br>Plant<br>Slime<br>
+| 0%
+| 10%
+|}
+:* The following zones are recommended for fantastic skeletons and where to find them:
+{| class="wikitable"
+|-
+! Zone !! Rate !! Notes
+|-
+| [[The Skeleton Store]]
+| 100%
+| This is the simplest place to gather knucklebones from!
+|-
+| [[The Defiled Nook]]
+| 100%
+| Unavailable after zone completion
+|-
+| [[The Tower of Procedurally-Generated Skeletons]]
+| 100%
+| Unavailable after zone completion
+|-
+| [[Dreadsylvanian Castle]]
+| 0-100%
+| Requires clan dungeon access and Vampire banishes
+|-
+| [[The Haunted Conservatory]]
+| 50%
+| 3/6 monsters are skeletons
+|-
+| 
+[[The Corpse Bog]]<br>
+[[The Haunted Ballroom]]<br>
+[[The Haunted Laboratory]]<br>
+[[The Haunted Wine Cellar]]
+| 33%
+| 1/3 monsters are skeletons
+|-
+| [[The VERY Unquiet Garves]]
+| 30%
+| 3/10 monsters are skeletons, chance for Ultra-Rare
+|-
+| [[The Unquiet Garves]]
+| 29%
+| 2/7 monsters are skeletons, chance for Ultra-Rare
+|}
+:

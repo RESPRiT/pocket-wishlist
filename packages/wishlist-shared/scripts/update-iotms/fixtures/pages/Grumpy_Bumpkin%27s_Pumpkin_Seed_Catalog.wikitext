@@ -1,0 +1,23 @@
+{{item}}
+
+==Obtained From==
+;Obsoleted Areas/Methods
+;:;Stores
+:::[[Mr. Store]] (1 [[Mr. Accessory]])
+
+==When Used==
+*Without [[A Pumpkin Patch]] in your campground:
+{{useitem|
+text=You pull out the order form in the back of the magazine, fill it out, and drop it in a mailbox. Then you wait 6-8 weeks, and pretty soon a packet of pumpkin seeds arrives in the mail.
+|
+effect={{acquire|item=packet of pumpkin seeds}}}}
+
+*Otherwise:
+{{useitem|
+text=Pumpkin patches are like soul patches -- you can't have more than one of them. No sense in ordering more seeds.}}
+
+==Notes==
+{{IotM Description|date=November 2010|desc=Lets you plant a Pumpkin Patch in your campsite. From which you can... pick pumpkins.}}
+
+{{Collection|4759}}
+{{Mr Store 2010}}

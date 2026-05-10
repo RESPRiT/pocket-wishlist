@@ -1,0 +1,28 @@
+{{item}}
+
+==Obtained From==
+;Store
+:[[KoL Con 13 Merch Table]] (9 [[Mr. Accessory|Mr. Accessories]])
+;Other
+:Only available for purchase at [[KoL Con]]. (since KoL Con VIII)
+
+==When Used==
+*''Without a [[Your Mystical Bookshelf|mystical bookshelf]]'':
+{{useitem|
+text=You take the Libram to your campsite, and a strange shimmering bookshelf appears near your dwelling. You put the Libram on it.}}
+
+*''With a [[Your Mystical Bookshelf|mystical bookshelf]] without a Gygaxian Libram on it'':
+{{useitem|text=You place the Libram carefully on the bookshelf in your campsite. }}
+
+*''With a Libram of Gygaxian Libram already on the [[Your Mystical Bookshelf|mystical bookshelf]]'':
+{{useitem|text=You've already got a copy of that Libram on your bookshelf.}}
+
+==Notes==
+{{Mystic Book|skill=Summon Dice}}
+
+==References==
+*This item refers to [[Wikipedia:Gary Gygax|Gary Gygax]], credited with the co-creation of [[Wikipedia:Dungeons & Dragons|Dungeons & Dragons]]
+*A "libram" is a type of spellbook in the contexts of many RPGs.  It is not a standard English word.  While first found in Vance's [[wikipedia:The Dying Earth|The Dying Earth]], Gary Gygax's use of it in D&D is [http://phrontistery.info/disq6.html responsible] for its ubiquity in the fantasy genre.
+
+{{Collection|5284}}
+{{KoL Con 13 Merch Table}}

@@ -1,0 +1,792 @@
+[[File:misterstore.gif|center|Mr. Store]]
+__NOTOC__
+[[Mr. Store]] is a high-class store in [[Market Square]]. Mr. Shopkeeper doesn't deal in such piffling currency as Meat; instead, shoppers trade in [[Mr. Accessory|Mr. Accessories]] to buy things.  In addition to the regular offerings, there is a Special of the Month which changes monthly.
+
+----
+{| style="margin-left: auto; margin-right: auto;"
+|-
+| [[File:mrshopkeeper.gif]]
+| Hi there. I'm Mr. Shopkeeper, and this is Mr. Store. Here, you can trade Mr. Accessories and Uncle Bucks for other groovy stuff. You can get some Mr. Accessories by <u>donating</u> or <u>subscribing</u> to support The Kingdom of Loathing.
+|}
+
+<center>You have <X> Mr. Accessories to trade.</center>
+
+<center>You have <X> Uncle Bucks to trade.</center>
+
+==Current Items Sold==
+<center><div class="mrbox">{{MrStoreItem|May's Item-of-the-Month|pasta wand loot box|A legendary wand, summon legendary noodles, make legendary food, be a legend!|1}}</div><div class="mrbox">{{MrStoreItem|2026's Item-of-the-Year|discreetly-wrapped Eternity Codpiece|A handy place to store all your favorite gems and jewels and unlock their eternal cosmic power, or something.|1}}</div><br>
+<div class="mrbox">{{MrStoreItem|Other Stuff!|Monster Manuel|Lets you collect interesting facts (and boring statistics) about the monsters you encounter.|1}}</div><div class="mrbox">{{MrStoreItem|Other Stuff!|Golden Mr. Accessory|Lets you demonstrate your support for the Kingdom of Loathing in a very big way!|5}}</div><br>
+<div class="mrbox">{{MrStoreItem|Mr. Family|Mr. Accessory Jr.|As adorable as he is helpful: a whole lot! He increases item drops!|5|currency=Buck}}</div><div class="mrbox">{{MrStoreItem|Mr. Family|Sister Accessory|The eldest child, she is ruthless in her pursuit of funds. She increases Meat drops!|5|currency=Buck}}</div><div class="mrbox">{{MrStoreItem|Character Customization|Fly-By-Knight Heraldry form|Entitles the bearer (or somebody else) to a Custom Title.|5|currency=Buck}}</div><div class="mrbox">{{MrStoreItem|Character Customization|name change form|Entitles the bearer to change their in-game player name.|1}}</div><div class="mrbox">{{MrStoreItem|Temporary Boost!|Boosty Juice|Greatly increases the rate at which you gain stat points.|1|currency=Buck}}</div>
+</center>
+
+If you have a Mr. Accessory or 10 Uncle Bucks (or more), these buttons appear next to your Mr. Accessory/Uncle Buck count, which allow you to convert one from the other:
+
+<center>[[File:convert_a_to_b.gif]] [[File:convert_b_to_a.gif]]</center>
+
+''When converting a Mr. Accessory into 10 Uncle Bucks:''<br/>
+You drop a Mr. Accessory into the nearest julienne slicer and split it into ten Uncle Bucks.
+{{acquire|item=Uncle Buck|num=10}}
+
+''When converting 10 Uncle Bucks into a Mr. Accessory:''<br/>
+You drop ten Uncle Bucks into the nearest meat grinder and extrude yourself a Mr. Accessory.
+{{acquire|item=Mr. Accessory}}
+
+You are in Hardcore mode, and you have at least one Mr. Accessory in Hagnk's Ancestral Mini-Storage. <u>Click here</u> to pull one of your Mr. Accessories out of storage. You won't be able to equip them, but you'll be able to spend them in Mr. Store.
+
+''When pulled:''<br/>
+You pull a Mr. Accessory out of storage.
+
+{{acquire|item=Mr. Accessory}}
+
+You are in Hardcore mode, and you have at least one Uncle Buck in Hagnk's Ancestral Mini-Storage. <u>Click here</u> to pull one of your Uncle Bucks out of storage. You won't be able to equip them, but you'll be able to spend them in Mr. Store.
+
+''When pulled:''<br/>
+You pull an Uncle Buck out of storage.
+
+{{acquire|item=Uncle Buck}}
+
+{{button|Purchase}}
+:Thanks for your patronage!
+{{acquire}}
+
+==Monthly Offerings==
+*Shaded cells indicate items that add to the Clan [[VIP Lounge]]; these cost three Mr. Accessories each. In months in which VIP items are sold, Mr. Store also sells the {{InlineItem|Clan VIP Lounge invitation}} for one Mr. Accessory each.
+*Green cells indicate items which are currently (for paths starting in 2026) allowed under [[standard restrictions]] which apply to [[Standard]] ascensions and the current season's [[special challenge path]].
+{|cellpadding="1" cellspacing="0" border="1" style="text-align:center; max-width:800px; font-size:75%;"
+|- style="background-color: rgba(200,200,200,.3)"
+|
+!Jan
+!Feb
+!Mar
+!Apr
+!May
+!Jun
+!Jul
+!Aug
+!Sep
+!Oct
+!Nov
+!Dec
+|-style="background-color: #DDFFDD;"
+! style="background-color: rgba(200,200,200,.3)" | 2026
+| {{StackItem|seal-clubbing club loot box}}
+| {{StackItem|boxed Heartstone}}
+| {{StackItem|boxed Archaeologist's Spade}}
+| {{StackItem|wrapped Baseball Diamond}}
+|{{StackItem|pasta wand loot box}}
+|
+|
+|
+|
+|
+|
+|
+|-style="background-color: #DDFFDD;"
+! style="background-color: rgba(200,200,200,.3)" | 2025
+| {{StackItem|McHugeLarge deluxe ski set}}
+| {{StackItem|new-in-box toy Cupid bow}}
+| {{StackItem|assemble-it-yourself Leprecondo}}
+| {{StackItem|Packaged April Shower Thoughts Calendar}}
+| {{StackItem|Unpeeled Peridot of Peril}}
+| {{StackItem|packaged prismatic beret}}
+| {{StackItem|yeti in a travel cooler}}
+| {{StackItem|möbius ring box}}
+| {{StackItem|Packaged Monodent of the Sea}}
+| {{StackItem|Lab-grown blood cubic zirconia}}
+| {{StackItem|shrunken head in a duffel bag}}
+| {{StackItem|stocking full of bones}}
+|-style="background-color: #DDFFDD;"
+! style="background-color: rgba(200,200,200,.3)" | 2024
+| {{StackItem|baby chest mimic}}
+| {{StackItem|in-the-box spring shoes}}
+| {{StackItem|packaged Everfull Dart Holster}}
+| {{StackItem|boxed Apriling band helmet}}
+| {{StackItem|boxed Mayam Calendar}}
+| {{StackItem|mini kiwi egg}}
+| {{StackItem|packaged Roman Candelabra}}
+| {{StackItem|untorn tearaway pants package}}
+| {{StackItem|boxed Sept-Ember Censer}}
+| style="background-color: rgba(128,128,128,.3)"|{{StackItem|boxed bat wings}}<br>{{StackItem|photo booth sized crate}}
+| {{StackItem|peace turkey outline}}
+| {{StackItem|Sealed TakerSpace letter of Marque}}
+|-
+! style="background-color: rgba(200,200,200,.3)" | 2023
+| {{StackItem|Rock Garden Guide}}
+| {{StackItem|S.I.T. Course Voucher}}
+| {{StackItem|closed-circuit phone system}}
+| {{StackItem|cursed monkey glove}}
+| {{StackItem|shrink-wrapped Cincho de Mayo}}
+| {{StackItem|shrink-wrapped 2002 Mr. Store Catalog}}
+| {{StackItem|sleeping patriotic eagle}}
+| {{StackItem|boxed august scepter}}
+| {{StackItem|book of facts}}
+| {{StackItem|Dark Jill-of-All-Trades}}
+| {{StackItem|A Guide to Burning Leaves}}
+| {{StackItem|wrapped candy cane sword cane}}
+|-
+! style="background-color: rgba(200,200,200,.3)" | 2022
+| {{StackItem|undrilled cosmic bowling ball}}
+| {{StackItem|combat lover's locket lockbox}}
+| {{StackItem|grey gosling}}
+| {{StackItem|undamaged Unbreakable Umbrella}}
+| {{StackItem|MayDay™ contract}}
+| {{StackItem|packaged June cleaver}}
+| {{StackItem|designer sweatpants (new old stock)}}
+| {{StackItem|unopened tiny stillsuit}}
+| {{StackItem|packaged Jurassic Parka}}
+| {{StackItem|boxed autumn-aton}}
+| {{StackItem|mummified entombed cookbookbat}}
+| {{StackItem|packaged model train set}}
+|-
+! style="background-color: rgba(200,200,200,.3)" | 2021
+| {{StackItem|packaged miniature crystal ball}}
+| {{StackItem|emotion chip}}
+| {{StackItem|power seed}}
+| {{StackItem|packaged backup camera}}
+| {{StackItem|shortest-order cook}}
+| {{StackItem|packaged familiar scrapbook}}
+| style="background-color: rgba(128,128,128,.3)" |{{StackItem|clan underground fireworks shop}}
+| {{StackItem|Our Daily Candles™ order form}}
+| {{StackItem|packaged industrial fire extinguisher}}
+| {{StackItem|bottled Vampire Vintner}}
+| {{StackItem|Packaged Daylight Shavings Helmet}}
+| {{StackItem|packaged cold medicine cabinet}}
+|-
+! style="background-color: rgba(200,200,200,.3)" | 2020
+| {{StackItem|unopened Bird-a-Day calendar}}
+| {{StackItem|mint-in-box Powerful Glove}}
+| {{StackItem|Better Shrooms and Gardens catalog}}
+| {{StackItem|sinistral homunculus}}
+| {{StackItem|Guzzlr application}} 
+| {{StackItem|bag of Iunion stones}}
+| {{StackItem|Baby camelCalf}}
+| {{StackItem|packaged SpinMaster™ lathe}}
+| {{StackItem|bagged Cargo Cultist Shorts}}
+| {{StackItem|Comprehensive Cartographic Compendium}}
+| {{StackItem|packaged knock-off retro superhero cape}}
+| {{StackItem|box o' ghosts}}
+|-
+! style="background-color: rgba(200,200,200,.3)" | 2019
+| {{StackItem|Kramco Industries packing carton}}
+| {{StackItem|mint condition Lil' Doctor™ bag}}
+| {{StackItem|vampyric cloake pattern}}
+| {{StackItem|PirateRealm membership packet}}
+| {{StackItem|Fourth of May Cosplay Saber Kit}}
+| {{StackItem|rune-strewn spoon cocoon}}
+| {{StackItem|Beach Comb Box}}
+| {{StackItem|Distant Woods Getaway Brochure}}
+| {{StackItem|packaged Pocket Professor}}
+| {{StackItem|Unopened Eight Days a Week Pill Keeper}}
+| {{StackItem|unopened diabolic pizza cube box}}
+| {{StackItem|red-spotted snapper roe}}
+|-
+! style="background-color: rgba(200,200,200,.3)" | 2018
+| {{StackItem|January's Garbage Tote (unopened)}}
+| style="background-color: rgba(128,128,128,.3)" | {{StackItem|Clan Carnival Game}}
+| {{StackItem|Pokéfam Guide to Capturing All of Them}}
+| {{StackItem|FantasyRealm membership packet}}
+| {{StackItem|God Lobster Egg}}
+| {{StackItem|SongBoom™ BoomBox Box}}
+| {{StackItem|kitten burglar}}
+| {{StackItem|Bastille Battalion control rig crate}}
+| {{StackItem|Neverending Party invitation envelope}}
+| {{StackItem|Latte lovers club card}}
+| {{StackItem|voter registration form}}
+| {{StackItem|Boxing Day care package}}
+|-
+! style="background-color: rgba(200,200,200,.3)" | 2017
+| {{StackItem|space planula}}
+| {{StackItem|heart-shaped crate}}
+| {{StackItem|unpowered Robortender}}
+| {{StackItem|Spacegate access badge}}
+| {{StackItem|New-You Club Membership Form}}
+| {{StackItem|suspicious package}}
+| {{StackItem|LI-11 Motor Pool voucher}}
+| {{StackItem|Pocket Meteor Guide}}
+| {{StackItem|corked genie bottle}}
+| {{StackItem|xo-skeleton-in-a-box}}
+| {{StackItem|pantogram}}
+| {{StackItem|locked mumming trunk}}
+|-
+! style="background-color: rgba(200,200,200,.3)" | 2016
+| {{StackItem|X-32-F snowman crate}}
+| {{StackItem|LT&T telegraph office deed}}
+| {{StackItem|Witchess Set}}
+| style="background-color: rgba(128,128,128,.3)" | {{StackItem|Clan Floundry}}
+| {{StackItem|disconnected intergnat}}
+| {{StackItem|Source terminal}}
+| {{StackItem|detective school application}}
+| {{StackItem|DIY protonic accelerator kit}}
+| {{StackItem|Dear Past Self Package}}
+| {{StackItem|li'l orphan tot}}
+| {{StackItem|Granny Tood's Thanksgarden Catalog}}
+| {{StackItem|Build-a-City Gingerbread kit}}
+|-
+! style="background-color: rgba(200,200,200,.3)" | 2015
+| {{StackItem|Chateau Mantegna room key}}
+| {{StackItem|bottle of lovebug pheromones}}
+| {{StackItem|Ed the Undying exhibit crate}}
+| {{StackItem|airplane charter: Dinseylandfill}}
+| {{StackItem|portable Mayo Clinic}}
+| {{StackItem|yellow puck}}
+| {{StackItem|Pack of Every Card}}
+| {{StackItem|airplane charter: That 70s Volcano}}
+| {{StackItem|shrine to the Barrel god}}
+| {{StackItem|haunted doghouse}}
+| {{StackItem|airplane charter: The Glaciest}}
+| {{StackItem|machine elf capsule}}
+|-
+! style="background-color: rgba(200,200,200,.3)" | 2014
+| {{StackItem|Discontent™ Winter Garden Catalog}}
+| {{StackItem|Buddy Bjorn}}
+| {{StackItem|Sneaky Pete's leather jacket}}
+| {{StackItem|Little Geneticist DNA-Splicing Lab}}
+| {{StackItem|airplane charter: Spring Break Beach}}
+| {{StackItem|still grill}}
+| style="background-color: rgba(128,128,128,.3)" | {{StackItem|Clan speakeasy}}
+| {{StackItem|The Confiscator's Grimoire}}
+| {{StackItem|Thor's Pliers}}
+| {{StackItem|airplane charter: Conspiracy Island}}
+| {{StackItem|fist turkey outline}}
+| {{StackItem|Crimbo sapling}}
+|-
+! style="background-color: rgba(200,200,200,.3)" | 2013
+| {{StackItem|Snow Suit}}
+| {{StackItem|GameInformPowerDailyPro subscription card|Game&#173;Inform&#173;Power&#173;Daily&#173;Pro subscription card}} ­  
+| {{StackItem|Jarlsberg's pan}}
+| {{StackItem|Libram of Pulled Taffy}}
+| {{StackItem|Order of the Green Thumb Order Form}}
+| {{StackItem|adventurer clone egg}}
+| style="background-color: rgba(128,128,128,.3)" | {{StackItem|Clan hot dog stand}}
+| {{StackItem|Folder Holder}}
+| {{StackItem|KoLHS Pep Squad Box}}
+| {{StackItem|deanimated reanimator's coffin}}
+| {{StackItem|Pantsgiving}}
+| {{StackItem|The Smith's Tome}}
+|-
+! style="background-color: rgba(200,200,200,.3)" | 2012
+| {{StackItem|Libram of Resolutions}}
+| {{StackItem|can of Rain-Doh}}
+| {{StackItem|Small Medium}}
+| {{StackItem|Boris's Helm}}
+| style="background-color: rgba(128,128,128,.3)" | {{StackItem|Olympic-sized Clan crate|Olympic-sized Clan crate}}
+| {{StackItem|Moping Artistic Goth Kid}}
+| {{StackItem|Camp Scout backpack}}
+| {{StackItem|Unagnimated Gnome}}
+| {{StackItem|Box of bear arms}}
+| {{StackItem|Pete & Jackie's Dragon Tooth Emporium Catalog}}
+| {{StackItem|deactivated nanobots}}
+| {{StackItem|Thinknerd's Grimoire of Geeky Gifts}}
+|-
+! style="background-color: rgba(200,200,200,.3)" | 2011
+| {{StackItem|Loathing Legion knife}}
+| {{StackItem|a cute angel}}
+| {{StackItem|Sorcerers of the Shore Grimoire}}<br />{{StackItem|Alice's Army booster box}}
+| style="background-color: rgba(128,128,128,.3)" | {{StackItem|Clan shower}}
+| {{StackItem|My Own Pen Pal kit}}
+| {{StackItem|mysterious chest}}
+| {{StackItem|Operation Patriot Shield}}
+| {{StackItem|fairy-worn boots}}
+| {{StackItem|Tome of Clip Art}}
+| {{StackItem|Make-Your-Own-Vampire-Fangs kit|Make-Your-<br />Own-Vampire-<br />Fangs kit}}
+| {{StackItem|stuffed-shirt scarecrow}}
+| {{StackItem|Mint Salton Pepper's Peppermint Seed Catalog}}
+|-
+! style="background-color: rgba(200,200,200,.3)" | 2010
+| {{StackItem|stinky cheese ball}}
+| {{StackItem|Libram of BRICKOs}}
+| style="background-color: rgba(128,128,128,.3)" | {{StackItem|Clan looking glass}}
+| {{StackItem|panicked kernel}}
+| {{StackItem|Crown of Thrones}}
+| {{StackItem|glowing frisbee}}
+| {{StackItem|Juju Mojo Mask}}
+| {{StackItem|Schmalz's First Prize Beer}}
+| {{StackItem|Greatest American Pants}}
+| {{StackItem|organ grinder}}
+| {{StackItem|Grumpy Bumpkin's Pumpkin Seed Catalog}}
+| {{StackItem|hibernating robot reindeer}}
+|-
+! style="background-color: rgba(200,200,200,.3)" | 2009
+| {{StackItem|container of Spooky Putty}}
+| {{StackItem|Libram of Love Songs}}
+| {{StackItem|Apathargic Bandersnatch}}
+| ''April 1st on this and subsequent years''<br />{{StackItem|tiny costume wardrobe}}<br />{{StackItem|Elvish sunglasses}}
+| style="background-color: rgba(128,128,128,.3)" | {{StackItem|clan pool table}}
+| {{StackItem|infant sandworm}}
+| {{StackItem|Bag o' Tricks}}
+| {{StackItem|floaty stone sphere}}
+| {{StackItem|Tome of Sugar Shummoning}}
+| {{StackItem|Squamous polyp}}
+| {{StackItem|moveable feast}}
+| {{StackItem|suspicious stocking}}
+|-
+! style="background-color: rgba(200,200,200,.3)" | 2008
+| {{StackItem|Libram of Divine Favors}}
+| {{StackItem|Naughty origami kit}}
+| {{StackItem|Sane hatrack}}
+| {{StackItem|Sp'n-Zor's Grimoire of "Tasteful" Gifts}}
+| {{StackItem|Packet of mayfly bait}}
+| {{StackItem|llama lama cria}}
+| {{StackItem|little box of fireworks}}
+| {{StackItem|cotton candy cocoon}}
+| {{StackItem|Haiku katana}}
+| {{StackItem|Spooky rattling cigar box}}
+| {{StackItem|Scratch 'n' Sniff Sticker Tome}}
+| {{StackItem|candy cornucopia}}
+|-
+! style="background-color: rgba(200,200,200,.3)" | 2007
+| {{StackItem|Great Ball of Frozen Fire}}
+| {{StackItem|Libram of Candy Heart Summoning}}
+| {{StackItem|dandy lion cub}}
+| {{StackItem|bad penguin egg}}
+| {{StackItem|Mayflower bouquet}}
+| {{StackItem|bottled green pixie}}
+| {{StackItem|bottle-rocket crossbow}}
+| {{StackItem|wizard action figure}}
+| {{StackItem|Navel ring of navel gazing}}
+| {{StackItem|Class five ecto-larva}}
+| {{StackItem|V for Vivala mask}}
+| {{StackItem|Crimbo P. R. E. S. S. I. E. (hatchling)|Crimbo P. R. E. S. S. I. E.}}
+|-
+! style="background-color: rgba(200,200,200,.3)" | 2006
+| {{StackItem|Tome of Snowcone Summoning}}
+| {{StackItem|iceberglet}}
+| {{StackItem|March hat}}
+| {{StackItem|McPhee's Grimoire of Hilarious Object Summoning}}
+| {{StackItem|homeless hobo spirit}}
+| {{StackItem|astral badger}}
+| {{StackItem|jewel-eyed wizard hat}}
+| {{StackItem|Comma Chameleon egg}}
+| {{StackItem|Travoltan trousers}}
+| {{StackItem|plastic pumpkin bucket}}
+| {{StackItem|pilgrim shield}}
+| {{StackItem|Yuletide troll chrysalis}}
+|-
+! style="background-color: rgba(200,200,200,.3)" | 2005
+| {{StackItem|orphan baby yeti}}
+| {{StackItem|silk garter snake}}
+| {{StackItem|lucky Tam O'Shanter}}
+| ''April 1st only''<br/>{{StackItem|emo roe}}<br/>{{StackItem|personal raindrop}}
+| {{StackItem|miniature gravy-covered maypole|miniature gravy-<br />covered maypole}}
+| {{StackItem|deflated inflatable dodecapede}}
+| {{StackItem|wax lips}}
+| {{StackItem|pygmy bugbear shaman}}
+| {{StackItem|Jekyllin hide belt}}
+| {{StackItem|doppelshifter egg}}
+| {{StackItem|miniscule temporal rip}}
+| {{StackItem|sweet nutcracker}}
+|-
+! style="background-color: rgba(200,200,200,.3)" | 2004
+| &nbsp;
+| &nbsp;
+| &nbsp;
+| &nbsp;
+| &nbsp;
+| &nbsp;
+| &nbsp;
+| &nbsp;
+| &nbsp;
+| {{StackItem|Dark Jill-O-Lantern}}
+| {{StackItem|hand turkey outline}}
+| {{StackItem|crimbo elfling}}
+|}
+
+==Yearly Offerings ==
+* History of Items-of-the-Year: 
+**From Mr. Store's founding in 2004 until 2011, Mr. Store had two familiars for sale at the cost of two {{plural|Mr. Accessory}}. One of them increased item drops like a [[Baby Gravy Fairy]] and increased meat drops like a [[Leprechaun]], and the other increased stat gains from combat like a [[Blood-Faced Volleyball]] and increased meat drops like a [[Leprechaun]]. These familiars were available for one year, from early October one year until early October the next year.
+**Beginning in January 2012, the familiars began rotating at the start of the year, and through 2015 they each had a new ability: the Fairy/Leprechaun also dropped items which [[Content Familiar|unlocked additional content]], and the Volleyball/Leprechaun dropped consumables which gave adventures for [[spleen]].
+**Beginning in January 2016, Mr. Store replaced the Fairy/Leprechaun and Volleyball/Leprechaun with a single familiar that increases stat gains from combat like a [[Blood-Faced Volleyball]] and increases item drops like a [[Baby Gravy Fairy]]. It also drops consumables, but they neither unlock new content nor give adventures for [[spleen]]. In 2016, a separately purchased consumable unlocked additional content; no new annual content was available in 2017, 2018, nor 2019. Some of Mr. Store's monthly items continue to [[:Category:Content Unlockers|unlock additional content]], however.  In 2018, the annual familiar was one that also increases item drops like a [[Baby Gravy Fairy]], but restores HP and MP like a [[Ghuol Whelp]] instead of increasing stat gains. 
+**Beginning in January 2020, Mr. Store replaced the familiar offering with an item offering. The price was also lowered from two {{plural|Mr. Accessory}} to one.
+**In January 2025, Mr. Store had the item offering act as a [[:Category:Content Unlockers|content unlocker]], but the price was reraised to two {{plural|Mr. Accessory}}. However, 2026 saw the return of the 2020-2024 ''status quo ante''. 
+
+{| cellpadding="3" cellspacing="0" border="1" style="text-align:center;"
+|- style="background-color: rgba(200,200,200,.3)"
+|
+! Store Item
+! Item
+! Cost
+|-style="background-color:#DDFFDD;"
+! style="background-color: rgba(200,200,200,.3)" | 2026
+| {{StackItem|discreetly-wrapped Eternity Codpiece}}
+| {{StackItem|The Eternity Codpiece}}
+| [[File:Mracc.gif|link=Mr. Accessory]]
+|-
+|-style="background-color:#DDFFDD;"
+! style="background-color: rgba(200,200,200,.3)" | 2025
+| {{StackItem|CyberRealm keycode}}
+| {{StackItem|server room key}}
+| [[File:Mracc.gif|link=Mr. Accessory]][[File:Mracc.gif|link=Mr. Accessory]]
+|-
+|-style="background-color:#DDFFDD;"
+! style="background-color: rgba(200,200,200,.3)" | 2024
+| {{StackItem|Black and White Apron Enrollment Form}}
+| {{StackItem|Black and White Apron Meal Kit}}
+| [[File:Mracc.gif|link=Mr. Accessory]]
+|-
+! style="background-color: rgba(200,200,200,.3)" | 2023
+| {{StackItem|unoccupied sheep suit}}
+| {{StackItem|Hobo in Sheep's Clothing}}<br/>[[Blood-Faced Volleyball|Volleyball]]/[[Baby Gravy Fairy|Fairy]]
+| [[File:Mracc.gif|link=Mr. Accessory]]
+|- 
+! style="background-color: rgba(200,200,200,.3)" | 2022
+| {{StackItem|mint condition magnifying glass}}
+| {{StackItem|cursed magnifying glass}}
+| [[File:Mracc.gif|link=Mr. Accessory]]
+|-
+! style="background-color: rgba(200,200,200,.3)" | 2021
+| {{StackItem|fresh can of paint}}
+| {{StackItem|fresh coat of paint}}
+| [[File:Mracc.gif|link=Mr. Accessory]]
+|-
+! style="background-color: rgba(200,200,200,.3)" | 2020
+| {{StackItem|Retrospecs try-at-home kit}}
+| {{StackItem|Retrospecs}}
+| [[File:Mracc.gif|link=Mr. Accessory]]
+|-
+! style="background-color: rgba(200,200,200,.3)" | 2019
+| {{StackItem|elf sleeper agent}}
+| {{StackItem|Elf Operative}}<br/>[[Blood-Faced Volleyball|Volleyball]]/[[Baby Gravy Fairy|Fairy]]
+| [[File:Mracc.gif|link=Mr. Accessory]][[File:Mracc.gif|link=Mr. Accessory]]
+|-
+! style="background-color: rgba(200,200,200,.3)" | 2018
+| {{StackItem|kerosene-soaked skip}}
+| {{StackItem|Garbage Fire}}<br/>[[Baby Gravy Fairy|Fairy]]/[[Ghuol Whelp|Whelp]]
+| [[File:Mracc.gif|link=Mr. Accessory]][[File:Mracc.gif|link=Mr. Accessory]]
+|-
+! style="background-color: rgba(200,200,200,.3)" | 2017
+| {{StackItem|hopeful candle}}
+| {{StackItem|Optimistic Candle}}<br/>[[Blood-Faced Volleyball|Volleyball]]/[[Baby Gravy Fairy|Fairy]]
+| [[File:Mracc.gif|link=Mr. Accessory]][[File:Mracc.gif|link=Mr. Accessory]]
+|- style="background-color: rgba(200,200,200,.3)"
+| 
+! Familiar combo
+! Content
+! Cost
+|-
+! style="background-color: rgba(200,200,200,.3)" | 2016
+| {{StackItem|basking robin}}<br/>[[Blood-Faced Volleyball|Volleyball]]/[[Baby Gravy Fairy|Fairy]]
+| {{StackItem|Batfellow comic}}
+| '''Familiar:'''<br>[[File:Mracc.gif|link=Mr. Accessory]][[File:Mracc.gif|link=Mr. Accessory]]<br>'''Content:'''<br>[[File:Unclebuck.gif|link=Uncle Buck]]
+|- style="background-color: rgba(200,200,200,.3)"
+| 
+! [[Blood-Faced Volleyball|Volleyball]]/[[Leprechaun]] combo
+! [[Leprechaun]]/[[Baby Gravy Fairy|Fairy]] combo
+! Cost<br>(Each)
+|-
+! style="background-color: rgba(200,200,200,.3)" | 2015
+| {{StackItem|golden monkey statuette}}
+| {{StackItem|Professor of Spelunkology}}
+| [[File:Mracc.gif|link=Mr. Accessory]][[File:Mracc.gif|link=Mr. Accessory]]
+|-
+! style="background-color: rgba(200,200,200,.3)" | 2014
+| {{StackItem|praying Grim Brother}}
+| {{StackItem|hibernating Grimstone Golem}}
+| [[File:Mracc.gif|link=Mr. Accessory]][[File:Mracc.gif|link=Mr. Accessory]]
+|-
+! style="background-color: rgba(200,200,200,.3)" | 2013
+| {{StackItem|avatar of the Unconscious Collective}}
+| {{StackItem|dreaming Jung man}}
+| [[File:Mracc.gif|link=Mr. Accessory]][[File:Mracc.gif|link=Mr. Accessory]]
+|-
+! style="background-color: rgba(200,200,200,.3)" | 2012
+| {{StackItem|The Groose in the Hoose}}
+| {{StackItem|The Kloop in the Coop}}
+| [[File:Mracc.gif|link=Mr. Accessory]][[File:Mracc.gif|link=Mr. Accessory]]
+|-
+! style="background-color: rgba(200,200,200,.3)" | 2010-2011
+| {{StackItem|rehearsing dramatic hedgehog}}
+| {{StackItem|sleeping piano cat}}
+| [[File:Mracc.gif|link=Mr. Accessory]][[File:Mracc.gif|link=Mr. Accessory]]
+|-
+! style="background-color: rgba(200,200,200,.3)" | 2009-2010
+| {{StackItem|hungover chauvinist pig}}
+| {{StackItem|perfectly ordinary frog}}
+| [[File:Mracc.gif|link=Mr. Accessory]][[File:Mracc.gif|link=Mr. Accessory]]
+|-
+! style="background-color: rgba(200,200,200,.3)" | 2008-2009
+| {{StackItem|uniclops egg}}
+| {{StackItem|passed-out psychedelic bear}}
+| [[File:Mracc.gif|link=Mr. Accessory]][[File:Mracc.gif|link=Mr. Accessory]]
+|-
+! style="background-color: rgba(200,200,200,.3)" | 2007-2008
+| {{StackItem|unemployed hunchbacked minion}}
+| {{StackItem|siesta-ing Casagnova gnome}}
+| [[File:Mracc.gif|link=Mr. Accessory]][[File:Mracc.gif|link=Mr. Accessory]]
+|-
+! style="background-color: rgba(200,200,200,.3)" | 2006-2007
+| {{StackItem|nervous tick egg}}
+| {{StackItem|jitterbug larva}}
+| [[File:Mracc.gif|link=Mr. Accessory]][[File:Mracc.gif|link=Mr. Accessory]]
+|-
+! style="background-color: rgba(200,200,200,.3)" | 2005-2006
+| {{StackItem|unwound cymbal-playing monkey}}
+| {{StackItem|calm attention-deficit demon}}
+| [[File:Mracc.gif|link=Mr. Accessory]][[File:Mracc.gif|link=Mr. Accessory]]
+|-
+! style="background-color: rgba(200,200,200,.3)" | 2004-2005
+| {{StackItem|Cheshire Bitten}}
+| {{StackItem|coffee sprite}}
+| [[File:Mracc.gif|link=Mr. Accessory]][[File:Mracc.gif|link=Mr. Accessory]]
+|}
+
+==Progression Skips ==
+Sold in various challenge paths for skipping progression. The store description is always the same for example:
+
+{|style="margin: auto; text-align: center;"
+|-
+|{{MrStoreItem|For Fun-Ruiners|cosmic bucket|Please do not buy this.|1}}
+|-
+|}
+
+{| cellpadding="3" cellspacing="0" border="1" style="text-align:center;"
+|- style="background-color: rgba(200,200,200,.3)"
+! Path
+! Store Item
+! Cost
+|-
+! style="background-color: rgba(200,200,200,.3)" | [[Avant Guard]]
+| 
+| 
+|-
+! style="background-color: rgba(200,200,200,.3)" | [[11 Things I Hate About U]]
+| 
+| 
+|-
+! style="background-color: rgba(200,200,200,.3)" | [[WereProfessor]]
+| {{StackItem|research fragment}}
+| {{StackItem|Uncle Buck}}
+|- 
+! style="background-color: rgba(200,200,200,.3)" | [[A Shrunken Adventurer am I]]
+| 
+| 
+|-
+! style="background-color: rgba(200,200,200,.3)" | [[Legacy of Loathing]]
+| {{StackItem|replica Ten Dollars}}
+| {{StackItem|Uncle Buck}}
+|-
+! style="background-color: rgba(200,200,200,.3)" | [[Avatar of Shadows Over Loathing]]
+| {{StackItem|shadowy cheat sheet}}
+| {{StackItem|Uncle Buck}}
+|- 
+! style="background-color: rgba(200,200,200,.3)" | [[Fall of the Dinosaurs]]
+| 
+| 
+|-
+! style="background-color: rgba(200,200,200,.3)" | [[Journeyman]]
+| 
+| 
+|-
+! style="background-color: rgba(200,200,200,.3)" | [[Grey You]]
+| 
+| 
+|-
+! style="background-color: rgba(200,200,200,.3)" | [[Wildfire]]
+| 
+| 
+|-
+! style="background-color: rgba(200,200,200,.3)" | [[Quantum Terrarium]]
+| 
+| 
+|-
+! style="background-color: rgba(200,200,200,.3)" | [[You, Robot]]
+| 
+| 
+|-
+! style="background-color: rgba(200,200,200,.3)" | [[Grey Goo]]
+| 
+| 
+|-
+! style="background-color: rgba(200,200,200,.3)" | [[Low Key Summer]]
+| 
+| 
+|-
+! style="background-color: rgba(200,200,200,.3)" | [[Path of the Plumber]]
+| 
+| 
+|-
+! style="background-color: rgba(200,200,200,.3)" | [[Kingdom of Exploathing]]
+| 
+| 
+|-
+! style="background-color: rgba(200,200,200,.3)" | [[Two Crazy Random Summer]]
+| 
+| 
+|-
+! style="background-color: rgba(200,200,200,.3)" | [[Dark Gyffte]]
+| {{StackItem|bucket of ancient Vampyre blood}}
+| {{StackItem|Uncle Buck}}
+|-
+! style="background-color: rgba(200,200,200,.3)" | [[Disguises Delimit]]
+| 
+| 
+|-
+! style="background-color: rgba(200,200,200,.3)" | [[G-Lover]]
+| 
+| 
+|-
+! style="background-color: rgba(200,200,200,.3)" | [[Pocket Familiars]]
+| 
+| 
+|-
+! style="background-color: rgba(200,200,200,.3)" | [[Live. Ascend. Repeat.]]
+| 
+| 
+|-
+! style="background-color: rgba(200,200,200,.3)" | [[License to Adventure]]
+| {{StackItem|Lazenby's Life Lesson}}
+| {{StackItem|Uncle Buck}}
+|-
+! style="background-color: rgba(200,200,200,.3)" | [[Gelatinous Noob]]
+| {{StackItem|Gummi-Memory}}
+| {{StackItem|Uncle Buck}}
+|-
+! style="background-color: rgba(200,200,200,.3)" | [[Nuclear Autumn]]
+| 
+| 
+|-
+! style="background-color: rgba(200,200,200,.3)" | [[The Source]]
+| 
+| 
+|-
+! style="background-color: rgba(200,200,200,.3)" | [[Avatar of West of Loathing]]
+| {{StackItem|Memories of Cow Punching}}<br />{{StackItem|Memories of Beanslinging}}<br />{{StackItem|Memories of Snake Oiling}}
+| {{StackItem|Uncle Buck}}
+|-
+! style="background-color: rgba(200,200,200,.3)" | [[Community Service]]
+| 
+| 
+|-
+! style="background-color: rgba(200,200,200,.3)" | [[One Crazy Random Summer]]
+| 
+| 
+|-
+! style="background-color: rgba(200,200,200,.3)" | [[Actually Ed the Undying]]
+| {{StackItem|talisman of Seshat}}
+| {{StackItem|Uncle Buck}}
+|-
+! style="background-color: rgba(200,200,200,.3)" | [[Picky]]
+| 
+| 
+|-
+! style="background-color: rgba(200,200,200,.3)" | [[Heavy Rains]]
+| 
+| 
+|-
+! style="background-color: rgba(200,200,200,.3)" | [[Slow and Steady]]
+| 
+| 
+|-
+! style="background-color: rgba(200,200,200,.3)" | [[Avatar of Sneaky Pete]]
+| {{StackItem|jug of Sneaky Pete's Mojo}}
+| {{StackItem|Mr. Accessory}}
+|-
+! style="background-color: rgba(200,200,200,.3)" | [[Class Act II: A Class For Pigs]]
+| 
+| 
+|-
+! style="background-color: rgba(200,200,200,.3)" | [[KOLHS]]
+| 
+| 
+|-
+! style="background-color: rgba(200,200,200,.3)" | [[BIG!]]
+| 
+| 
+|-
+! style="background-color: rgba(200,200,200,.3)" | [[Avatar of Jarlsberg]]
+| {{StackItem|cosmic bucket}}
+| {{StackItem|Mr. Accessory}}
+|-
+! style="background-color: rgba(200,200,200,.3)" | [[Class Act]]
+| 
+| 
+|-
+! style="background-color: rgba(200,200,200,.3)" | [[Zombie Slayer]]
+| 
+| 
+|-
+! style="background-color: rgba(200,200,200,.3)" | [[Bugbear Invasion]]
+| 
+| 
+|-
+! style="background-color: rgba(200,200,200,.3)" | [[Avatar of Boris]]
+| 
+| 
+|-
+! style="background-color: rgba(200,200,200,.3)" | [[Trendy]]
+| 
+| 
+|-
+! style="background-color: rgba(200,200,200,.3)" | [[Way of the Surprising Fist]]
+| 
+| 
+|-
+! style="background-color: rgba(200,200,200,.3)" | [[Bees Hate You]]
+| 
+| 
+|}
+
+==Notes==
+*Players making donations through a [[Options#Account|subscription]] may choose to receive the Item of the Month directly, which will be kmailed to them by SubscriptionBot, usually about a day before it is released into Mr. Store.
+*While in [[Hardcore]], players who have one or more {{plural|Mr. Accessory}} in [[Hagnk's Ancestral Mini-Storage]] may pull them out of storage in order to spend them in Mr. Store. They can not be equipped in Hardcore. If they drop Hardcore that day, they will find that these pulls have counted against their 20-pull limit.
+*While in Hardcore, players can place Mr. Store familiars into their [[Familiar-Gro™ Terrarium (Campground)|Familiar-Gro™ Terrarium]], put books into their Mystical Bookshelf, and use most other IotMs that are available or auto-pulled at the start of a run.  However, trying to equip an IotM in Hardcore that isn't auto-pulled for the path you're on (for example, choosing Zombie Slayer, dropping the path and trying to equip the bear arms) will return the following instead:
+*:You can't equip your <item name> while in Hardcore mode.
+*In a [[Zombie Slayer]] run, Mr. Shopkeeper has changed (but the store is still open):
+{| style="margin-left: auto; margin-right: auto;"
+|-
+| [[File:mrkeeper_z.gif]]
+| Braaaaains. Traaaade. Mr. Graaaaagh.
+|}
+*During a [[Twitch Livestream World Event]], Mr. Store sells an additional item:
+{|style="margin: auto; text-align: center;"
+|-
+|{{MrStoreItem|Twitch Event Special!|time-twitching toolbelt|A groovy belt that will be available only during this (and all future) Twitch.TV live-development event.|1}}
+|-
+|}
+
+==History==
+*On each anniversary of Mr. Store before 2011, both the [[Blood-Faced Volleyball]]/[[Leprechaun]]-type hatchling and the [[Leprechaun]]/[[Baby Gravy Fairy|Fairy]]-type hatchling were replaced with new, but functionally identical familiars. The yearly offerings for 2012 gained extra new abilities, and were released on New Year's day.
+**An exception to this is the [[Dancing Frog]], which has an alternative equipment allowing it to breathe underwater.
+*On January 31st, 2007, [[Jick]] released the February Item-of-the-Month early. This resulted in both January's and February's items being available for one day.
+*Prior to the implementation of [[Your Mystical Bookshelf]], when used, the [[Tome of Snowcone Summoning]], [[McPhee's Grimoire of Hilarious Object Summoning|Grimoire of Hilarious Object Summoning]], and [[Libram of Candy Heart Summoning]] each granted skills that were automatically marked as Hardcore Permanent ('''HP'''). As such, these skills would be retained through all ascensions, with the exception of [[Bad Moon]]. Under the Bad Moon sign these skills remained listed in the account's character page, but could not be accessed from the skills menu.
+*On April 1, 2009 the [[tiny costume wardrobe]] appeared in the Mr. Store with the message "'''NOTE:''' This item will appear in Mr. Store every April 1 from now on." This promise was fulfilled every subsequent year through 2013.
+*In July of 2010, when the [[Juju Mojo Mask]] was introduced, the [[glowing frisbee]] was left in Mr. Store for an additional week due to [[The Game Grid|the Game Grid Arcade]]'s unfinished state.
+*On September 18, 2012 the [[Monster Manuel]] appeared in the Mr. Store with the message "A new item has been added (permanently) to Mr. Store. Monster Manuel, who will help you gather interesting facts and boring statistics about the monsters you encounter."
+*On April 9, 2013, the layout was changed from a row-style to the current format.
+*June 2013's item of the month stayed until 2 hours before rollover on July 3rd, 2013, due to them having no internet.
+*July 2013's item of the month stayed an extra day, because they were busy from making the new clan dungeon [[Dreadsylvania]].
+*The familiars of the year of 2014 were delayed until 12:27 PM (Arizona time) January 20th, 2014, due to the Asymmetric Team being "slack-ass slackers".
+*The June 2014 item of the month was delayed 2 days.
+*The August 2014 item of the month was delayed until 2:07 PM (Arizona time) August 1st, 2014.
+*On December 1st, 2014, [[Jick]] released the December Item-of-the-Month late. This resulted in both November's and December's items being available for one day.
+*Starting December 02, 2014, this notice was added below Mr. Shopkeeper's introduction (where X is the days until December 07, 2014):
+*:'''BREAKING NEWS:''' To help pave the way for a slight restructuring of Mr. Store, sales of the Ms. Accessory will be discontinued in X days. Get it while you can, if you want it for some reason.
+*Also starting December 02, 2014, this line was added in a new paragraph below [[Ms. Accessory]]'s description (where X is the same number as above):
+*:'''Only <font size="+2">X</font> days left to get one!'''
+*On December 7th, 2014, with the discontinuation of Ms. Accessory, [[Uncle Buck]]s were added to the Store, which are obtainable with $1 donations. [[Sister Accessory]] and [[Boosty Juice]] were also added as a permanent offering to Mr. Store, which are payable in Uncle Bucks. Mr. Store also added the function to convert Mr. Accessories into Uncle Bucks (and vice versa). The Mr. Shopkeeper introduction was changed from:
+*:Hi there. I'm Mr. Shopkeeper, and this is Mr. Store.<br />Here, you can trade Mr. Accessories for other groovy stuff.
+*The text prior to the discontinuation of Ms. Accessory was:
+*:Just like a Mr. Accessory, only it's a lady!
+*Also on December 7th, 2014, [[Mr. Accessory Jr.]] and [[Fly-By-Knight Heraldry form]] received a price reduction, both its costs going from 1 Mr. Accessory to 5 Uncle Bucks, albeit with the Heraldry form no longer having a Buy One, Get One Free deal:
+*:Entitles the bearer (or somebody else) to a Custom Title.<br /><br />''BUY ONE GET ONE FREE''
+*February 2015's IotM came out in the middle of the day February 2.
+*On February 21, 2015, the Mr. Store image was changed. The old image was:
+: [[file:mrstore.gif]]
+*On October 28, 2015, it was announced that the November 2015 IotM would be released on the 2nd, and IotMs would, in general, no longer be released on weekends. This made official a policy that had been in place unofficially (only mentioned on the radio show) for several months.
+*Between August 10, 2017 and August 10, 2018, the [[Horsery contract]] was sold for 2 Mr. Accessories. Its in-store description was as follows: 
+*:Unlocks [[A_Horsery|a horsery]] in Seaside Town, and grants a Steam DLC Key for [http://store.steampowered.com/app/597220/West_of_Loathing West of Loathing] horse armor.
+*:<br>
+*:It's definitely the least money you'll spend on horse armor this year.
+*Prior to January 1, 2020 players could purchase a custom avatar form. These were silently removed with no announcement.
+<center><div class="mrbox">{{MrStoreItem|Character Customization|custom avatar form|Entitles the bearer to a Custom Avatar (see guidelines)<br /><br />''Custom Avatar Forms are only available during the first week of each month.''|5}}</div></center>
+*On November 11, 2022, the [[deed to Oliver's Place]] was added for a limited time, and is sold for 1 Mr. Accessory.
+*On June 22, 2023, the [[name change form]] was added as a permanent offering to Mr. Store in response to frequent requests for a name change system, and costs 1 Mr. Accessory.
+
+==References==
+*In the Mel Brooks film ''[[Wikipedia:Spaceballs|Spaceballs]]'', the bridge of Dark Helmet's ''SpaceBall One'' had all of the important systems (Radar, Coffee, Rental) labeled as "Mr. [System]", which is itself a reference to the brand [[Wikipedia:Mr. Coffee|Mr. Coffee]].
+
+==See Also==
+* [[IotM and Challenge Path Interactions]]
+*[[Tradeable IoTM Analysis]]
+*[[Hardcore IOTM Analysis]]
+
+[[Category:NPC Stores]]

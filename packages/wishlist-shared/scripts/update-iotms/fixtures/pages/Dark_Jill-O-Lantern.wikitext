@@ -1,0 +1,26 @@
+''Not to be confused with [[Dark Jill-of-All-Trades]] (October 2023's IoTM).''
+
+{{item}}
+
+==Obtained From==
+;Obsoleted Areas/Methods
+;:;Stores
+:::[[Mr. Store]] (1 [[Mr. Accessory]])
+;:;Prize
+:::[[The Raffle House]]
+
+==When Used==
+{{useitem|
+text=She begins to glow and hover above the ground. Spoooooky.|
+type=familiar|
+becomes=Jill-O-Lantern|
+fname={{Familiar name|gender=f}}
+}}
+
+==Notes==
+{{IotM Description|date=October 2004}}
+*The first item of the month in [[Mr. Store]].
+*First prize in [[The Raffle House]] on February 19, 2008.
+
+{{Collection|894}}
+{{Mr Store 2004}}

@@ -1,0 +1,7 @@
+{{skill}}
+
+==Notes==
+*The summon message ends with "a little" with a single summon, "a bit" with a double summon, and "a lot!" with a triple summon
+{{Tome Note}}
+
+{{Sugar sheets}}

@@ -1,0 +1,21 @@
+{{item}}
+
+==Obtained From==
+;Obsoleted Areas/Methods
+;:;Stores
+:::[[Mr. Store]] (1 Mr. Accessory)
+
+==When Used==
+{{useitem
+|text=It immediately grows into its adult form, and you have to watch it for a while and poke it with a stick until it learns not to drain the life essences of all your other familiars.
+|type=familiar
+|becomes=Space Jellyfish}}
+
+==Notes==
+{{IotM Description|date=January 2017|desc=Hatches into a useful space jellyfish pal!}}
+
+==References==
+* It is basically a [[Wikipedia:Metroid (fictional species)|Metroid]] from the ''[[Wikipedia:Metroid|Metroid]]'' video game series.
+
+{{Collection|9296}}
+{{Mr Store 2017}}

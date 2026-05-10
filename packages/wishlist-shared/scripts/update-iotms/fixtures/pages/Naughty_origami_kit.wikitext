@@ -1,0 +1,42 @@
+{{item}}
+
+==Obtained From==
+;Obsoleted Areas/Methods
+;:;Stores
+:::[[Mr. Store]] (1 [[Mr. Accessory]])
+
+==When Folded==
+{{useitem|
+text=You unfold the pieces of paper, if you know what I mean.
+{{HP|type=lose|amount=5% of your maximum|element=sleaze}}
+Blushing, you re-fold them into a new object.|
+effect={{acquire|item=naughty paper shuriken}}
+''or''
+{{acquire|item=origami pasties}}
+''or''
+{{acquire|item=origami riding crop}}
+''or''
+{{acquire|item=origami "gentlemen's" magazine}}
+''or''
+{{acquire|item=naughty fortune teller}}}}
+
+==Functionality==
+{{origami}}
+
+==Notes==
+{{IotM Description|date=February 2008|desc=Can be folded into a variety of useful forms. Not usable in Hardcore.}}
+*You must have [[Torso Awaregness]] for an item to fold into the [[origami pasties]].
+
+==References==
+*This item is possibly a reference to the book ''[http://www.amazon.com/Very-Naughty-Origami-Nick-Robinson/dp/0789312077 Very Naughty Origami]''.
+*The last line should be sung to the tune of "[[Wikipedia:Camptown Races|Camptown Races]]", possibly in reference to the use of cadence in newspaper headlines.
+*The phrase "if you know what I mean" refers to innuendo and double-entendres.
+
+==See Also==
+*[[Foldables]]
+
+{{Collection|3192}}
+{{Mr Store 2008}}
+
+[[Category:Usable Items]]
+[[Category:Songs_that_Camptown_ladies_sing]]

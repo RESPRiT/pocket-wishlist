@@ -1,0 +1,23 @@
+{{item}}
+
+==Obtained From==
+;Obsoleted Areas/Methods
+::Stores
+:::[[Mr. Store]] (1 [[Mr. Accessory]])
+
+==When Used==
+*If you haven't already used an invitation:
+{{useitem|
+text=You head over to the '''Wrong Side of the Tracks''', find the party (it's not hard, you just follow the noise and trails of broken beer bottles) and check in with the bouncer.
+
+He writes your name down on his clipboard and gestures for you to head inside.}}
+
+*Otherwise:
+<center>You're already on the guest list for the Neverending Party.</center>
+
+==Notes==
+{{IotM Description|date=September 2018|desc=Unlocks a party zone on the Wrong Side of the Tracks, full of new quests and items and drinks and snacks.}}
+*Allows access to [[The Neverending Party]] located in the '''Wrong Side of the Tracks'''.
+
+{{Collection|9942}}
+{{Mr Store 2018}}

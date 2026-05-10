@@ -1,0 +1,15 @@
+{{item}}
+
+==Obtained From==
+;Items
+:[[boxed Archaeologist's Spade]]
+
+==Notes==
+*Is automatically placed in your inventory for you at the beginning of your run, with the message:
+*:<center>Ironically, you dig your Archaeologist's Spade out of the ether without your spade.{{acquire|item=Archaeologist's Spade}}</center>
+* Has a [dig] link that takes you to [[Dig at Location]]. Unless there are no digs remaining in which case shows the message:
+*:You've run out of digging energy for the day. Archaeology is hard work!
+* Trying to dig if your last adventure was not at a valid [[Areas by Number|adventuring location]] returns the message:
+*: You don't have anywhere in particular to dig right now. Try adventuring somewhere else.
+
+{{Collection|12184}}

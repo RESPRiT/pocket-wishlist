@@ -1,0 +1,27 @@
+{{item}}
+
+==Obtained From==
+;Obsoleted Areas/Methods
+;:;Stores
+:::[[Mr. Store]] (2 [[Mr. Accessory|Mr. Accessories]])
+;:;Prize
+:::[[The Raffle House]]
+
+==When Used==
+{{useitem|
+text=She begins to dance in the way the bees in the breeze and the bats in the trees can't.|
+type=familiar|
+becomes=Jitterbug|
+fname={{Familiar name|gender=f}}}}
+
+==Notes==
+*Formerly Available in [[Mr. Store]] for 2 [[Mr. Accessory|Mr. Accessories]].
+*Introduced on October 6, 2006 as a replacement for the [[calm attention-deficit demon]].
+*First prize in [[The Raffle House]] on January 23, 2008.
+
+==References==
+*The second-to-last sentence of the description is a reference to the song ''Jump, Jive, and Wail'' by [[wikipedia:Louis Prima|Louis Prima]] (and later covered by [[wikipedia:Brian Setzer|Brian Setzer]] among others).
+*The "When Used" message is a reference to [[wikipedia:The Jitterbug|''The Jitterbug'']], a song from the soundtrack of [[wikipedia:The Wizard of Oz (1939 film)|''The Wizard of Oz'']], sung by [[wikipedia:Judy Garland|Judy Garland]].
+
+{{Collection|1967}}
+{{Mr Store 2007}}

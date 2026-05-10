@@ -1,0 +1,13 @@
+{{skill}}
+
+==Notes==
+{{Tome Note}}
+*Three random stickers are created each time the skill is used, for a maximum of nine stickers per day.
+*These stickers grant a bonus to your scratch 'n' sniff sword/crossbow. Up to three can be stuck to the weapon at a time, and duplicate effects stack.
+*Each sticker lasts for 20 combats with the weapon equipped. At the end of its 20th combat, a sticker will disappear with the message:
+:A sticker falls off your weapon, faded and torn.
+*Free runaways '''do''' wear off stickers.
+*Adventures in areas such as [[The Briny Deeps]], where combats normally consume 2 adventures, do not wear out stickers faster than normal combats.
+*When viewing the stickers on your scratch 'n' sniff weapon, each sticker will be described as "shiny" if it's relatively new and as "dull" if it's close to wearing out.
+
+{{Stickers}}

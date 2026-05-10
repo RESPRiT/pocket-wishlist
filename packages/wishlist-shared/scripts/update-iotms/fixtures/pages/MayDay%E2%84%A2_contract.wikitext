@@ -1,0 +1,20 @@
+{{item}}
+
+==Obtained From==
+;Obsoleted Areas/Methods
+;:;Stores
+:::[[Mr. Store]] (1 [[Mr. Accessory]])
+
+==When Used==
+
+*''If you don't have one:''
+*:You sign the contract, fold it into a paper airplane, and hurl it as far as you can. Surely that'll get where it's meant to go.<p>'''You have signed up for the [[MayDay™ supply package|MayDay™ survival package]] delivery service!'''
+
+*''If you already have one:''
+*:You've already signed up for MayDay™ and come what may, they'll always be there for you.
+
+==Notes==
+{{IotM Description|date=May 2022|desc=Receive a useful supply package each day!}}
+
+{{Collection|10900}}
+{{Mr Store 2022}}

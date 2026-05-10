@@ -1,0 +1,46 @@
+{{item}}
+
+==Obtained From==
+;Item
+:[[seal-clubbing club loot box]]
+
+==Variables==
+{{ShowVars}}
+
+==Combat Messages==
+*50% chance, after combat (if not at max [[Fury]]), gain an extra gallon:
+*:[[File:leg_club.gif|link=]] Swinging this legendary seal-clubbing club around makes you furious!
+
+==Notes==
+*Increases Maximum [[Fury]] by 1 gallon when equipped by a [[Seal Clubber]] that knows [[Wrath of the Wolverine]].
+** Without [[Ire of the Orca]], this increases max Fury to 4 gallons. With it, max Fury will be 6 gallons.
+*Is automatically placed in your inventory for you at the beginning of your run, with the message:
+*:<center>Looks like you swung your legendary seal-clubbing club so hard in a past life, it shifted into this life.</center>{{acquire|item=legendary seal-clubbing club|legendary=1}}
+*Grants 3 combat skills when worn:
+{| border="1px" cellspacing="0" cellpadding="3" class="wikitable"
+|-
+! align="center" |Name
+! align="center" |Function 
+! align="center" |Notes
+|-
+| align="center" | {{StackItem|Club 'Em Across the Battlefield}}
+| align="center" | Instakill that additionally rolls drops against a monster in your last zone
+| Preserves meat and regular item drops
+|-
+| align="center" | {{StackItem|Club 'Em Into Next Week}}
+| align="center" | Instakill that creates a wandering monster 7 adventures from now (8 if the fight was free)
+| Preserves meat and regular item drops
+|-
+| align="center" | {{StackItem|Club 'Em Back in Time}}
+| align="center" | Free kill
+| '''Destroys meat and regular item drops!'''
+|}
+
+==See Also==
+* [[Muscle Modifiers]]
+* [[Bonus Weapon Damage]]
+* [[Combat Initiative]]
+* [[Hit Chance]]
+* [[Fury]]
+
+{{Collection|12134}}

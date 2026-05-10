@@ -1,0 +1,23 @@
+{{item}}
+
+==Obtained From==
+;Obsoleted Areas/Methods
+;:;Stores
+:::[[Mr. Store]] (1 [[Mr. Accessory]])
+
+==When Used==
+*''With a bottle already used:''
+*:You already see lovebugs wherever you go. There's no need to attract more.
+
+*''Otherwise:''
+*:Why do bugs suddenly appear, every time you are near? Because you just slathered yourself up with bug pheromones, that's why.<p>'''[[Lovebug abilities and encounters]]''' have been permanently unlocked. Watch out!</p>
+
+==Notes==
+{{IotM Description|date=February 2015|desc=Attracts helpful bugs to do your bidding and bring you gifts.}}
+* The skills are granted and persist regardless of ascension path, including [[Picky]] and [[Actually Ed the Undying]].
+
+==References==
+*The use text is a reference to the song "[[Wikipedia:(They Long to Be) Close to You|(They Long to Be) Close to You]]", a [[Wikipedia:Burt Bacharach|Bacharach]]/[[Wikipedia:Hal David|David]] song most famously covered by [[Wikipedia:The Carpenters|The Carpenters]].
+
+{{Collection|8134}}
+{{Mr Store 2015}}

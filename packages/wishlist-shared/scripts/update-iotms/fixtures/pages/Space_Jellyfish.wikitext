@@ -1,0 +1,109 @@
+{{NeedsSpading|Details on the extra stuff this does}}
+{{familiar}}
+
+*Before combat, granting you initiative when you would have failed to get the jump:
+*:It turns out when a giant space jellyfish drains out your vital life force, you get kind of slow? So you get to go first.
+*:Your opponent seems a bit slowed down by the giant space jellyfish covering their head and face, so you get the jump on them.
+*:Your opponent seems too busy screaming about the giant space jellyfish draining out their life essences, so you go first.
+*Regular messages:
+*:<name> puts your foe's entire head in its mouth, which your foe seems to find distracting.
+*:<name> sucks out some of your opponent's life essences, which makes them a little sleepy.
+*:<name> puts your foe's entire head in its mouth, and your foe doesn't like that one bit.
+*:<name> latches onto your foe and drains some of their vital life essences. This makes them weaker, because life essences are important for strength.
+*:<name> puts your foe's entire head in its mouth -- wait, is that <name>'s mouth? It's on the underneath, so it could also be its butt, right?
+*:<name> drops onto your foe's head like a big gloopy helmet, and sucks out some of their life essences. This naturally makes them a little weak, physically speaking.
+{{delevel|att=Y|def=Y}}
+*After combat, granting +items:
+*:<Familiar nane> hovers circles around you, making weird -- but happy, I guess? -- burbling noises.
+*:<Familiar name> dances, and you know it must be a space jellyfish because space jamfish don't shake like that.
+*:<Familiar name> dances a jiggly space jellyfish dance.
+*After combat, granting +stats:
+*:<Familiar name>... uh, well, <Familiar name> doesn't really have a mouth to smile with. But it has fangs? And it kind of waggles them?
+*:<Familiar name> bobs up and down next to you in a way that you think might be meant to substitute for smiling.
+*:<Familiar name> gives you that slow blink that cats do because cats can't really smile? Like a jellyfish?
+
+*Enthroned in the [[Crown of Thrones]]:
+*:<name> drools some weird liquid on you. Which is disgusting, but it makes you feel a little better, so ok I guess? {{HP}} {{MP}}
+*Bjornified in the [[Buddy Bjorn]]: 
+*:<name> drools some weird liquid on you. Which is disgusting, but it makes you feel a little better, so ok I guess? {{HP}} {{MP}}
+*With [[lucky Tam O'Shanter]] equipped:
+*:<name> winks one of its three eyes at you while getting your Tam O'Shanter all slimy.
+*With [[miniature gravy-covered maypole]] equipped:
+*:<name> hovers around the maypole, waving its tentacles in a dance-like way
+*With [[wax lips]] equipped:<br>
+*:You reposition the wax lips on <name>'s dome before they slide off.
+
+==Arena Messages==
+* None - familiar has no weaknesses.
+
+==Notes==
+*Delevels by weight/2 like a [[Barrrnacle (familiar)|Barrrnacle]] but acts at the start of every combat.
+*Sometimes helps you get the jump on an enemy if your [[Combat Initiative]] is not sufficient.
+*Grants stats & items [[Underwater adventuring|underwater]].
+*Having this familiar active enables a number of beneficial encounters:
+:*In [[The Hole in the Sky]], adds the adventure [[Space Directions]] on the third turn attempted (then tenth, then seventeenth…) which lets you choose to fight an [[Astronomer]], [[Camel's Toe]] or [[Skinflute]].
+:*Once a day, you can [[Approach the Jellyfish]] in [[The Sea]] to obtain [[sea jelly]].
+:*When defeating an [[acoustic electric eel]]:
+::<name> swims over to the eel and wraps its tentacles around the electro-gland. And then swims over to you and...
+{{acquireEffect|effect=Super-Electrified|duration=20}}
+:*At [[Marinara Trench]], the adventure [[There is Sauce at the Bottom of the Ocean]] gives an additional option to obtain a [[globe of Deep Sauce]] once a day with no adventure cost.
+:*Also at Marinara Trench, the adventure [[Into the Abyss]] allows a Space Jellyfish that [[Familiar Weight|weighs]] 400-lbs to obtain a [[crushed steamer trunk]].
+:*In [[The Wreck of the Edgar Fitzsimmons]], the adventure [[Down at the Hatch]] gives an additional option to unlock [[tarnished luggage key adventure|an adventure]] that gives you a [[tarnished luggage key]]. The key opens the crushed steamer trunk to reveal [[recovered cufflinks]].
+:*In [[An Octopus's Garden]], the adventure [[In the Shade]] allows you to obtain [[sea truffle]]s.
+:*In The Domed Cities of [[Domed City of Ronaldus|Ronaldus]] and [[Domed City of Grimacia|Grimacia]], drops an extra [[lunar isotope]] after combat, 50% of the time:
+::<name> wanders over and drops something that it found out of its... bottom parts.
+{{acquire|item=lunar isotope}}
+:*In [[the Tunnel of L.O.V.E.]], you can choose 2 {{plural|toast}} from the [[L.O.V. Emporium]]. The Space Jellyfish does not need to be the active familiar for this option to appear.
+*Grants the skill [[Extract Jelly]], which produces size 1 [[spleen]] consumables from elementally-aligned monsters, with a diminishing chance of success based on the number of jellies extracted that day. Consuming a jelly gives 50 turns of an effect and enables a beneficial action, which will occur once per jelly consumed.
+:*Jelly may also be cooked with [[toast]] to produce a 1 fullness food item that provides the same benefit, but only 25 turns of the effect.
+:{| class="wikitable" align="center" style="text-align:center"
+|- style="background-color: #EEEEEE"
+! Jelly
+! Toast
+! Effect
+! Benefit (activates once per jelly consumed)
+|-
+| {{StackItem|hot jelly}}
+| {{StackItem|toast with hot jelly}}
+| style="font-size:80%;"|[[Hot Jellied]]<br />+3 Muscle Stats Per Fight<br />+5 Hot Damage<br />Muscle +30%
+|Grants one use of the skill [[Breathe Out]], a free [[Run Away|run away]] and [[Banishing|banish]] for 20 turns
+|-
+| {{StackItem|cold jelly}}
+| {{StackItem|toast with cold jelly}}
+| style="font-size:80%;"|[[Cold Jellied]]<br />+3 Mysticality Stats per fight<br />+5 Cold Damage<br />+30% Mysticality
+|The next booze you drink will produce one base booze per potency.
+|-
+| {{StackItem|sleaze jelly}}
+| {{StackItem|toast with sleaze jelly}}
+| style="font-size:80%;"|[[Sleazy Jellied]]<br />+3 Moxie Stats per fight<br />+5 Sleaze Damage<br />+30% Moxie
+|Gives a 10% discount on the next item purchased from an [[NPC Stores|NPC store]].
+|-
+| {{StackItem|spooky jelly}}
+| {{StackItem|toast with spooky jelly}}
+| style="font-size:80%;"|[[Spooky Jellied]]<br />+5 Stats per fight<br />+5 Spooky Damage<br />+10% to all attributes
+|Forces all non-conditional items to drop in the next combat you win, like a [[Yellow ray strategy|yellow ray]] without the cooldown.
+|-
+| {{StackItem|stench jelly}}
+| {{StackItem|toast with stench jelly}}
+| style="font-size:80%;"|[[Stench Jellied]]<br />+30% Item Drops<br />+5 Stench Damage<br />+10% to all attributes
+|Attempts to force a [[Combat Frequency|noncombat]] in the next eligible place you adventure, just like [[Clara's bell]] and [[Eight Days a Week Pill Keeper|Sneakisol]].
+|}
+:* The chance of any given extraction's success diminishes based on how many successful extracts you've already had today. The first extraction is guaranteed, the second has a 1/2 chance of success, the third has a 1/3 chance of success, the fourth has a 1/4 chance of success, the fifth has a 1/5 chance of success, and all extracts after that have a 1/20 chance of success.
+:{| class="wikitable"
+|-
+! Number of successes today !! Chance of success for the next extract
+|-
+| 0 || 100%
+|-
+| 1 || 1/2
+|-
+| 2 || 1/3
+|-
+| 3 || 1/4
+|-
+| 4 || 1/5
+|-
+| 5+ || 1/20
+|}
+
+[[Category:Water-breathing Familiars]]

@@ -1,0 +1,19 @@
+{{item}}
+
+==Obtained From==
+;Stores
+:[[Mr. Store]] (1 [[Mr. Accessory]])
+
+==When Used==
+{{useitem|text=You peel off the shrinkwrap and behold the glory of your spoon. I mean the glory of your wand.{{acquire|item=legendary pasta wand|legendary=1}}}}
+''Or, if you already have a legendary pasta wand'':
+<center>You might have two hands, but you only need one wand.</center>
+
+==Notes==
+{{IotM Description|date=May 2026|desc=
+A legendary wand, summon legendary noodles, make legendary food, be a legend!}}
+* Mailed to subscribers April 30th.
+* In store May 1st - {{NeedsText}}.
+
+{{Collection|12222}}
+{{Mr Store 2026}}

@@ -1,0 +1,35 @@
+''Not to be confused with [[Jill-of-All-Trades]] (October 2023's IoTM familiar).''
+
+{{familiar}}
+
+*Regular messages:
+*:<name> shoots fiery beams from her eyes, doing X (+{{element|Hot|dmg=Y}}) damage.
+*:<name> shoots fiery beams from her eyes, doing X (+{{element|Spooky|dmg=Y}}) damage.
+*:<name> smiles luminously.
+*Enthroned in the [[Crown of Thrones]]:
+*:<Name>'s eyes flash pink light, and she smiles coquettishly at you. It's unsettling, and doubly so because it feels so good. {{HP|amount=8-10}}
+*Bjornified in the [[Buddy Bjorn]]:
+*:You feel some sort of weird healing energy coming from behind you. You appreciate it, but decide not to look around because frankly, <name> is kind of creepy. {{HP|amount=8-10}}
+*With [[lucky Tam O'Shanter]] equipped:
+*:<name> shines even brighter, revealing some meat your foe dropped during the tussle. You know, while y'all was rasslin'.
+*With [[miniature gravy-covered maypole]] equipped:
+*:<name> does a Halloweeny dance around the maypole.
+*With [[wax lips]] equipped:
+*:<name> smiles brightly with her wax lips, pleased to finally have a full set of teeth.
+
+==Arena Messages==
+*None - familiar has no weaknesses.
+
+==Notes==
+*Was available in the [[Mr. Store]] during October, 2004.
+*Damage done is typically two portions: One portion that is non-[[Elements|elemental]], and a second portion that is either {{element|hot|}} (60% of the time) or {{element|spooky|}} (40% of the time).
+*Does from int((wt+2)/2) to wt+2 in damage, split evenly between physical and elemental damage. Extra points go to elemental damage.
+*Attacks 25% of the time, regardless of weight.
+*Grants stat gains based on the volleyball formula: SquareRoot(Weight).
+
+==References==
+*The first line of the description, "Hail the pumpkin queen", is a play on "Everyone hail to the Pumpkin King", an emphasized lyric of the song "This Is Halloween" from the movie ''[[Wikipedia:The Nightmare Before Christmas|The Nightmare Before Christmas]]''.
+*It is also possibly a play on the character names from "[[Wikipedia:Jack and Jill (song)|Jack and Jill]]": a Jack-O-Lantern/Jill-O-Lantern.
+
+==See Also==
+*[[Stat Gains from Fights]]

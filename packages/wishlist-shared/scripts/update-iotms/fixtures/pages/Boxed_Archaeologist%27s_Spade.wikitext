@@ -1,0 +1,21 @@
+{{item}}
+
+==Obtained From==
+;Obsoleted Areas/Methods
+;:;Stores
+:::[[Mr. Store]] (1 [[Mr. Accessory]])
+
+==When Used==
+{{useitem
+|text=The box is full of styrofoam packing peanuts, so it takes you a while to dig the spade out. Would've been easier if you'd had the spade to begin with.
+{{acquire|item=Archaeologist's Spade}}}}
+''Or, if you already have an Archaeologist's Spade'':
+<center>You already have an Archaeologist's Spade. You got it in the past. It doesn't make any sense to dig for stuff from the future.</center>
+
+==Notes==
+{{IotM Description|date=March 2026|desc=Dig up cool stuff 11 times a day!}}
+* Mailed to subscribers February 28th.
+* In store March 1st - April 3rd.
+
+{{Collection|12185}}
+{{Mr Store 2026}}

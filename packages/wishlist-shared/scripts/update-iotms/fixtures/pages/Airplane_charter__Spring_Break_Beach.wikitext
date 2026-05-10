@@ -1,0 +1,21 @@
+{{item}}
+
+==Obtained From==
+;Obsoleted Areas/Methods
+;:;Stores
+:::[[Mr. Store]] (1 [[Mr. Accessory]])
+
+==When Used==
+{{useitem|
+text=You present your charter to the ticket lady at Elemental International Airport (near the '''Right Side of the Tracks''' in Seaside Town.) Your name gets added to the registry of wealthy Adventurers who are allowed to go to Spring Break Beach whenever they want to.<br /><br />Spring Break! Wooooooo! Spring Break!}}
+*''Or, after having already used the item'':
+<center>You already have access to that place. You shouldn't waste the charter.</center>
+
+==Notes==
+{{IotM Description|date=May 2014|desc=Permanently unlocks Spring Break Beach, a new area with cool zones and cool quests and items and stuff.}}
+*Allows access to [[Spring Break Beach]].
+
+{{Collection|7466}}
+{{Mr Store 2014}}
+
+[[Category:Content Unlockers]]

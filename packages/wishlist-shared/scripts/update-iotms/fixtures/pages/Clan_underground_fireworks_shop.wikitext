@@ -1,0 +1,16 @@
+{{item}}
+
+==Obtained From==
+;Obsoleted Areas/Methods
+;:;Stores
+:::[[Mr. Store]] (3 {{plural|Mr. Accessory}})
+
+==When Used==
+{{useitem|text=You haul the crate up to your clan's VIP Lounge and open it up. A set of stairs burrows through the floor and a sign above the entrance reads "Fireworks Sold Here".}}
+
+==Notes==
+{{IotM Description|date=July 2021|desc=Let your clan access a fireworks shop under the VIP lounge!}}
+*Using this installs an [[Underground Fireworks Shop]] in the [[VIP Lounge|Clan VIP Lounge]].
+
+{{Collection|10761}}
+{{Mr Store 2021}}

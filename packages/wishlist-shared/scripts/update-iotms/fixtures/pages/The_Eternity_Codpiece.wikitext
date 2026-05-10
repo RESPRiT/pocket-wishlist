@@ -1,0 +1,19 @@
+{{item}}
+
+==Obtained From==
+;Item
+:[[discreetly-wrapped Eternity Codpiece]]
+
+==Notes==
+*Is automatically placed in your inventory for you at the beginning of your run, with the message:
+*:<center>Whoa, whoa, whoa. You nearly forgot your codpiece. And your codpiece is eternal!</center>
+* Has a [decorate] link.
+** Takes you to [[Decorate Your Eternity Codpiece]].
+** Link chat macro: <code>/goto inventory.php?pwd='+pwdhash+'&action=docodpiece</code>
+*[[:Category:Gems|Gems]] placed in The Eternity Codpiece grant bonuses. See "[[Decorate Your Eternity Codpiece]]" for the list. 
+**Gems can be freely added and removed, and persist across the Astral Gash and into your next ascension. 
+**If a gem that grants a skill is placed in the codpiece, that skill can still be used (''e.g.'', [[Peridot of Peril]], [[blood cubic zirconia]], [[Heartstone]], [[Baseball Diamond]]). However, you don't get the regular enchantment bonuses of those gems -- only their skills, and the Codpiece's enchantment bonuses for them.
+**[[Standard restrictions]] have no bearing on the attachment or detachment of gems. You may attach any gem you have, including restricted ones, while on any ascension path.
+*According to Jick, the [[Cursed black pearl onion|cursed black pearl union]] was not included because they "discussed it but concluded that people probably didn't want stinky onions near their crotches."
+
+{{Collection|12067}}

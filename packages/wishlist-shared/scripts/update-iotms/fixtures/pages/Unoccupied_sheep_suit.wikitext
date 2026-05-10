@@ -1,0 +1,19 @@
+{{item}}
+
+==Obtained From==
+;Stores
+:[[Mr. Store]] (1 [[Mr. Accessory]])
+
+==When Used==
+{{useitem|
+text=A hobo pops out from behind a rock and slips into the suit with a sigh of relief.|
+type=familiar|
+becomes=Hobo in Sheep's Clothing|
+fname={{Familiar name|gender=f}}|
+gender=f}}
+
+==Notes==
+{{IotM Description|date=2023|year=1|desc=Causes you to earn more stat points and your opponents to drop more items. Also drops wool that can be used to make neat stuff.}}
+
+{{Collection|11089}}
+{{Mr Store 2023}}

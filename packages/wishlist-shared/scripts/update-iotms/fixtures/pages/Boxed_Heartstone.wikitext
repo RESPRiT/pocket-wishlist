@@ -1,0 +1,19 @@
+{{item}}
+
+==Obtained From==
+;Obsoleted Areas/Methods
+;:;Stores
+:::[[Mr. Store]] (1 [[Mr. Accessory]])
+
+==When Used==
+{{useitem|text=You get on one knee and open the box.{{acquire|item=Heartstone}}}}
+''Or, if you already have a Heartstone'':
+<center>A human only needs one heart, so why would a human need more than one Heartstone?</center>
+
+==Notes==
+{{IotM Description|date=February 2026|desc=Steal the heart (middle letter) from monsters and make words to make cool stuff happen.}}
+* Mailed to subscribers February 2nd.
+* In store February 3rd - March 3rd.
+
+{{Collection|12180}}
+{{Mr Store 2026}}

@@ -1,0 +1,29 @@
+{{familiar}}
+
+*At the end of combat:
+**<name> strikes a dramatic pose, squints his cute li'l eyes, and declaims: <Line from the list below.> You applaud, and he smiles graciously.
+*** "Forgive my use of the Gallic tongue, but Cameron is so apprehensive, if thou placed a lump of charred wood betwixt his buttocks, in twelve fortnights thou wouldst have a gem." 
+*** "Welcome to the Melee Society. The first commandment of the Melee Society is: thou mustn't speak of the Melee Society. The second commandment of the Melee Society is: THOU MUSTN'T SPEAK OF THE MELEE SOCIETY."
+*** "This is what befalls thee, Larry! This is what befalls thee when thou buggerest a stranger! This is what befalls thee, Larry! This is what befalls thee when thou buggerest a stranger!"
+*** "Ray, if someone enquireth if thou art a deity, say unto her 'VERILY!'"
+***  "Knows't thou what befalls a toad when Zeus strikes it with a mighty bolt? Verily, the same fate that befalls every other living thing."
+***  "What meanest thou that I amuse thee? Is it my manner of speech? What? How do I divert you? Am I like unto Pierrot, that I entertain you? What in the depths of hell dost thou find so amusing about me?"
+***  "Bugger thee! That is my name. Knowst thou why? Because thou rodest here on a broken down mare, and I rode a meat-bedecked warhorse. That's my name."
+***  "Knows't thou what I received for Christ's Mass? Verily, it was a year for ensigns for the clan of Bender. I received a barrel of pipe-weed."
+***  "How seemeth the visage of fair Marcellus to thee? Does he have the visage of a harlot? Then why dost thou attempt to bed him thus?"
+***  "Art thou conversing with me? Art thou conversing with me? Then with whom are you conversing? Verily, there art none other in the vicinity. Art thou conversing with me?"
+*Enthroned in the [[Crown of Thrones]]:
+*:<name> shoots it a withering glare. "What is it that you want? In the depths of your ignorance, what is it that you want?" <name> says. "I wouldn't direct any living actor in Shakespeare like this! It's impossible!" It looks abashed and contrite, while you feel roundly entertained. {{HP}}
+*Bjornified in the [[Buddy Bjorn]]:
+*:<name> leaps out of the Buddy Bjorn and performs the tragic death scene from ''Much Ado About Nothing''. Impressed, your opponent applauds, giving you a moment to catch your breath. {{HP}}
+*With [[lucky Tam O'Shanter]] equipped:
+*:<name> uses the Tam O'Shanter to get into character, and gives you a wink while speaking a flawless brogue.
+*With [[miniature gravy-covered maypole]] equipped:
+*:<name> takes a minute to get his motivation, then does a remarkable impression of someone enjoying dancing around a Maypole.
+*With [[wax lips]] equipped:
+*:<name> does his best to enunciate through the Wax Lips, intoning "Round and round the rugged rocks the ragged rascal ran."
+
+==References==
+*This familiar is a play on the [http://www.youtube.com/watch?v=a1Y73sPHKxw Dramatic Chipmunk] (which is actually a prairie dog).
+*It may also be a reference to [[wikipedia:List of Toy Story characters#Mr. Pricklepants|Mr. Pricklepants]] (an excessively theatrical hedgehog toy) from Toy Story 3.
+*The end-of-combat lines are all Shakespearean versions of famous lines from modern-day movies. In order, they are: [http://www.imdb.com/title/tt0091042/quotes?qt0441226 Ferris Bueller's Day Off], [http://www.imdb.com/title/tt0137523/quotes?qt0479119 Fight Club], [http://www.imdb.com/title/tt0118715/quotes?qt0464754 The Big Lebowski], [http://www.imdb.com/title/tt0087332/quotes?qt0475875 Ghost Busters], [http://www.imdb.com/title/tt0120903/quotes?qt0439779 X-Men], [http://www.imdb.com/title/tt0099685/quotes?qt0434772 Goodfellas], [http://www.imdb.com/title/tt0104348/quotes?qt0295092 Glengarry Glen Ross], [http://www.imdb.com/title/tt0088847/quotes?qt0475642 The Breakfast Club], [http://www.refspace.com/quotes/Pulp_Fiction/marsellus-wallace Pulp Fiction], and [http://www.imdb.com/title/tt0075314/quotes?qt0252592 Taxi Driver].

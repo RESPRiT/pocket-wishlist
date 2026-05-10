@@ -1,0 +1,1 @@
+{"id":"int-006569a7","kind":"field_change","created_at":"2026-05-10T06:28:55.903517326Z","actor":"RESPRiT","issue_id":"pocket-wishlist-1tg","extra":{"field":"status","new_value":"closed","old_value":"in_progress","reason":"Implemented at packages/wishlist-shared/scripts/update-iotms/. 42 tests, all passing. Covers 33 historical IOTMs (every type) + 4 support pages."}}

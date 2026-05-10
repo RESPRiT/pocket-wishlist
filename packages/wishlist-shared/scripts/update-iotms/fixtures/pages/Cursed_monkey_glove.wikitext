@@ -1,0 +1,25 @@
+{{item}}
+
+==Obtained From==
+;Obsoleted Areas/Methods
+;:;Stores
+:::[[Mr. Store]] (1 [[Mr. Accessory]])
+
+==When used==
+''If you already have a cursed monkey paw:''
+
+<center>You already tempted fate, opening that first monkey's paw.</center>
+
+''Otherwise:''
+
+<center>You peel the glove back to reveal exactly what you expected.
+{{acquire|item=cursed monkey's paw}}</center>
+
+==Notes==
+{{IotM Description|date=April 2023|desc=Grants wishes, does stuff in combat, is kinda spooky.}}
+
+==References==
+* [[wikipedia:The Monkey's Paw|The Monkey's Paw]] is a horror story about a mummified monkey's paw granting wishes with bad consequences.
+
+{{Collection|11187}}
+{{Mr Store 2023}}

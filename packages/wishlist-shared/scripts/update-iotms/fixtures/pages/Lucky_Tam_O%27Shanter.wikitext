@@ -1,0 +1,29 @@
+{{item}}
+
+==Obtained From==
+;Obsoleted Areas/Methods
+;:;Stores
+:::[[Mr. Store]] (1 [[Mr. Accessory]])
+;:;Prize
+:::[[The Raffle House]]
+
+==Messages==
+*Every familiar this can be equipped to gets a custom end of combat message.  See each individual [[:Category:Familiars|familiar's page]] for details.
+
+==Notes==
+{{IotM Description|date=March 2005}}
+*Cannot be equipped on a [[Comma Chameleon]].
+*This item's enchantment used to be +10 lbs. of [[Leprechaun]].
+*[[Mr Skullhead]] was unaware when he created this item that the Tam O'Shanter is Scottish and not Irish and not, perhaps, the best choice of hat for a leprechaun.
+*First non-familiar Item Of The Month.
+*There exists an [[lucky Tam O'Shatner|alternate version]] of this item.
+*First prize in [[The Raffle House]] on February 12, 2008.
+
+==See Also==
+*[[Meat from Monsters]]
+
+==Zapping==
+{{ZAP Lucky Tams}}
+
+{{Collection|1040}}
+{{Mr Store 2005}}

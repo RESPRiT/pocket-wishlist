@@ -1,0 +1,26 @@
+{{item}}
+
+==Obtained From==
+;Obsoleted Areas/Methods
+;:;Stores
+:::[[Mr. Store]] (2 [[Mr. Accessory|Mr. Accessories]])
+;:;Prize
+:::[[The Raffle House]]
+
+==When Used==
+{{useitem|
+text=It quickly matures into a Cheshire Bat and grins at you unsettlingly.|
+type=familiar|
+becomes=Cheshire Bat}}
+
+==Notes==
+*Formerly available from [[Mr. Store]] (for 2 [[Mr. Accessory|Mr. Accessories]]). It was replaced by the nearly identical [[unwound cymbal-playing monkey]] on the first anniversary of Mr. Store.
+*There exists a [[stuffed Cheshire bitten|stuffed]] version of this hatchling.
+*First prize in [[The Raffle House]] on February 17, 2008.
+*First prize in [[The Raffle House]] on November 20, 2024.
+
+==References==
+*The item name is a play (Cheshire Kitten) on the affectionate diminuitive of [[wikipedia:Cheshire Cat|Cheshire Cat]], a character from [[wikipedia:Lewis Carroll|Lewis Carroll]]'s ''[[wikipedia:Alice's Adventures in Wonderland|Alice's Adventures in Wonderland]]''.
+
+{{Collection|898}}
+{{Mr Store 2005}}
