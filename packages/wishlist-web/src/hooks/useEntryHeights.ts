@@ -184,6 +184,47 @@ export function useEntryHeights(virtualItems: VirtualListItem[]) {
     return map;
   }, [virtualItems, fontsReady, probe, headingHeight]);
 
+  // Re-probe when the layout viewport changes — clamps in the entry path
+  // interpolate with `vw`, so a probe taken at one vp is wrong at another.
+  //
+  // Exception: at and above the lg breakpoint (1024px), every clamp in the
+  // entry geometry is saturated at its max, the container is capped by
+  // `lg:max-w-5xl`, and the row is `flex-nowrap`. The geometry is fully
+  // static in that regime, so two probes both ≥ 1024 produce identical
+  // measurements — no need to re-probe within the desktop band.
+  //
+  // rAF-throttled: at most one re-probe per frame, aligned with the
+  // browser's render cycle.
+  const probeVpRef = useRef<number | null>(null);
+  probeVpRef.current = probe?.vp ?? null;
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const LG_BREAKPOINT = 1024;
+    let rafId: number | null = null;
+    const handleResize = () => {
+      if (rafId !== null) return;
+      rafId = requestAnimationFrame(() => {
+        rafId = null;
+        const probeVp = probeVpRef.current;
+        const vp = layoutVp();
+        if (probeVp === vp) return;
+        if (
+          probeVp !== null &&
+          probeVp >= LG_BREAKPOINT &&
+          vp >= LG_BREAKPOINT
+        )
+          return;
+        setProbe(null);
+        setHeadingHeight(null);
+      });
+    };
+    window.addEventListener("resize", handleResize);
+    return () => {
+      window.removeEventListener("resize", handleResize);
+      if (rafId !== null) cancelAnimationFrame(rafId);
+    };
+  }, []);
+
   // Page height tracker (separate concern, used by ListMiniMap).
   const { isTransitioning } = useTheme();
   useEffect(() => {
