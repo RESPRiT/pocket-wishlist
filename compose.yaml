@@ -1,40 +1,46 @@
-# Deploy:
-#   ssh hzr "cd ~/pocket-wishlist && docker compose pull && docker compose up -d"
-# Requires .env with GITHUB_OWNER, SECRET. IMAGE_TAG optional (default 'latest').
+# Deployed via Coolify (Docker Compose resource). Coolify's Traefik proxy
+# handles TLS termination and routing via the labels below.
+#
+# Routing:
+#   kol.resprit.com/*     -> web:3000
+#   kol.resprit.com/api/* -> api:3001  (prefix /api is stripped before forwarding)
 
 services:
-  api:
-    image: ghcr.io/${GITHUB_OWNER}/pocket-wishlist-api:${IMAGE_TAG:-latest}
-    environment:
-      SECRET: ${SECRET}
-      CORS_ORIGIN: https://kol.resprit.com
-      DB_PATH: /data/wishlist.db
-      PORT: "3001"
-    volumes:
-      - api_data:/data
-    restart: unless-stopped
-
   web:
     image: ghcr.io/${GITHUB_OWNER}/pocket-wishlist:${IMAGE_TAG:-latest}
     environment:
       PORT: "3000"
     restart: unless-stopped
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=coolify
+      - traefik.http.routers.pocket-wishlist-web.entryPoints=https
+      - traefik.http.routers.pocket-wishlist-web.rule=Host(`kol.resprit.com`)
+      - traefik.http.routers.pocket-wishlist-web.tls=true
+      - traefik.http.routers.pocket-wishlist-web.tls.certresolver=letsencrypt
+      - traefik.http.routers.pocket-wishlist-web.priority=1
+      - traefik.http.services.pocket-wishlist-web.loadbalancer.server.port=3000
 
-  caddy:
-    image: caddy:2
-    ports:
-      - "80:80"
-      - "443:443"
+  api:
+    image: ghcr.io/${GITHUB_OWNER}/pocket-wishlist-api:${IMAGE_TAG:-latest}
+    environment:
+      SECRET: ${SECRET}
+      DB_PATH: /data/wishlist.db
+      PORT: "3001"
     volumes:
-      - ./Caddyfile:/etc/caddy/Caddyfile:ro
-      - caddy_data:/data
-      - caddy_config:/config
+      - api_data:/data
     restart: unless-stopped
-    depends_on:
-      - api
-      - web
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=coolify
+      - traefik.http.routers.pocket-wishlist-api.entryPoints=https
+      - traefik.http.routers.pocket-wishlist-api.rule=Host(`kol.resprit.com`) && PathPrefix(`/api`)
+      - traefik.http.routers.pocket-wishlist-api.tls=true
+      - traefik.http.routers.pocket-wishlist-api.tls.certresolver=letsencrypt
+      - traefik.http.routers.pocket-wishlist-api.priority=10
+      - traefik.http.routers.pocket-wishlist-api.middlewares=pocket-wishlist-api-strip
+      - traefik.http.middlewares.pocket-wishlist-api-strip.stripprefix.prefixes=/api
+      - traefik.http.services.pocket-wishlist-api.loadbalancer.server.port=3001
 
 volumes:
   api_data:
-  caddy_data:
-  caddy_config:

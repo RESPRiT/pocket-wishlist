@@ -1,7 +1,0 @@
-kol.resprit.com {
-	reverse_proxy web:3000
-}
-
-api.kol.resprit.com {
-	reverse_proxy api:3001
-}
