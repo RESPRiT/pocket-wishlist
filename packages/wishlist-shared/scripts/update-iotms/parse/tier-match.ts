@@ -150,12 +150,32 @@ function candidateNames(iotm: IOTM): string[] {
 }
 
 function normalize(s: string): string {
-  return s
+  return decodeEntities(s)
     .toLowerCase()
     .replace(/[™®©]/g, "")
     .replace(/[\s_]+/g, " ")
     .replace(/[^a-z0-9 '-]/g, "")
     .trim();
+}
+
+/**
+ * Tier-list rows sometimes contain HTML entities (`&trade;`, `&eacute;`)
+ * because they were copy-pasted from the wiki. Decode the common ones so
+ * names like "Pok&eacute;fam Guide" match iotms.ts's "Pokéfam Guide".
+ */
+function decodeEntities(s: string): string {
+  return s
+    .replace(/&trade;/g, "™")
+    .replace(/&reg;/g, "®")
+    .replace(/&copy;/g, "©")
+    .replace(/&amp;/g, "&")
+    .replace(/&eacute;/g, "é")
+    .replace(/&aacute;/g, "á")
+    .replace(/&iacute;/g, "í")
+    .replace(/&oacute;/g, "ó")
+    .replace(/&uacute;/g, "ú")
+    .replace(/&#(\d+);/g, (_, n) => String.fromCharCode(Number(n)))
+    .replace(/&#x([0-9a-fA-F]+);/g, (_, n) => String.fromCharCode(parseInt(n, 16)));
 }
 
 /**
