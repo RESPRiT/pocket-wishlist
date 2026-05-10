@@ -1,6 +1,6 @@
 import type { IOTM } from "../../schemas/data";
 import { parseIndex, type IndexEntry } from "./parse/mr-store";
-import { parseItemPage } from "./parse/item-page";
+import { parseItemPageWithReview } from "./parse/item-page";
 import {
   matchAftercoreTier,
   matchSpeedTier,
@@ -51,6 +51,13 @@ export type ScrapeOptions = {
 export type ScrapeResult = {
   /** Newly discovered IOTMs, in chronological order. */
   newIotms: IOTM[];
+  /**
+   * Per-IOTM list of fields whose values came from a heuristic fallback
+   * rather than a confident detection. Codegen surfaces these as TODO
+   * comments so the human reviewer knows what to double-check in the PR.
+   * Keyed by packaged_name.
+   */
+  reviewNotes: Record<string, readonly (keyof IOTM)[]>;
   /** Tier-list rows we couldn't match to any wiki name (for human review). */
   unmatchedTierRows: { source: "speed" | "aftercore"; name: string; year?: number }[];
 };
@@ -69,15 +76,17 @@ export async function scrape(opts: ScrapeOptions): Promise<ScrapeResult> {
   // Fetch + parse each new entry. Page slugs in the wiki are MediaWiki-style:
   // first letter capitalized, spaces → underscores, then URL-encode the rest.
   const newIotms: IOTM[] = [];
+  const reviewNotes: Record<string, readonly (keyof IOTM)[]> = {};
   for (const entry of newEntries) {
     const slug = wikiSlug(entry.packaged_name);
-    const iotm = await parseItemPage(wiki, mafia, {
+    const { iotm, needsReview } = await parseItemPageWithReview(wiki, mafia, {
       packaged_name: entry.packaged_name,
       packaged_slug: slug,
       year: entry.year,
       ...(entry.month !== undefined ? { month: entry.month } : {}),
     });
     newIotms.push(iotm);
+    if (needsReview.length > 0) reviewNotes[iotm.packaged_name] = needsReview;
   }
 
   // Tier pass.
@@ -114,7 +123,7 @@ export async function scrape(opts: ScrapeOptions): Promise<ScrapeResult> {
     }
   }
 
-  return { newIotms, unmatchedTierRows };
+  return { newIotms, reviewNotes, unmatchedTierRows };
 }
 
 /** Sort key for an IndexEntry. IOTYs (no month) sort to month 13. */

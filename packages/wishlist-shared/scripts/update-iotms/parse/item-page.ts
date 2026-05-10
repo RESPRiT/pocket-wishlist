@@ -10,6 +10,7 @@ import {
   type MafiaItem,
   type MafiaSkill,
 } from "./mafia-data";
+import { TRADEABLE_CUTOFF_YEAR, TRADEABLE_PACKAGED_IDS } from "./tradeable-overrides";
 
 export type ParseItemContext = {
   packaged_name: string;
@@ -39,15 +40,35 @@ async function loadMafia(mafia: MafiaDataClient) {
   return cachedMafia;
 }
 
+export type ParseItemResult = {
+  iotm: IOTM;
+  /** Field names whose values came from a heuristic fallback rather than a
+   * confident detection. Codegen surfaces these as TODO comments. */
+  needsReview: readonly (keyof IOTM)[];
+};
+
 /**
  * Fetches and parses one IOTM and any secondary pages it links to. Tier
  * values are NOT populated here — they come from the tier-list pass.
+ *
+ * Returns the IOTM directly. To get the heuristic-fallback flags, call
+ * `parseItemPageWithReview()` instead.
  */
 export async function parseItemPage(
   wiki: WikiClient,
   mafia: MafiaDataClient,
   ctx: ParseItemContext
 ): Promise<IOTM> {
+  return (await parseItemPageWithReview(wiki, mafia, ctx)).iotm;
+}
+
+/** Like {@link parseItemPage} but also returns the list of fields whose
+ * values came from a heuristic fallback. */
+export async function parseItemPageWithReview(
+  wiki: WikiClient,
+  mafia: MafiaDataClient,
+  ctx: ParseItemContext
+): Promise<ParseItemResult> {
   const { itemsByName, familiarsByName, skillsByName } = await loadMafia(mafia);
 
   // Look up the package itself in items.txt.
@@ -80,26 +101,39 @@ export async function parseItemPage(
     .filter((x): x is MafiaSkill => x !== undefined)
     .sort((a, b) => a.id - b.id);
 
+  // Equipment slot: only relevant for item-type IOTMs whose opened/headline
+  // form is wearable equipment. Read it from the appropriate items.txt row.
+  const headlineItemEarly = opened[0] ?? pkg;
+  const headlineSlot = equipmentSlotFor(headlineItemEarly);
+
   // Type discrimination, in priority order. Strong signals (skill / familiar
   // links) take precedence over wikitext heuristics.
-  const type = inferType({ wt, pkg, hasOpened: opened.length > 0, hasFamiliar: familiars.length > 0, hasSkill: skills.length > 0 });
+  const typeInf = inferType({
+    wt,
+    pkg,
+    hasOpened: opened.length > 0,
+    hasFamiliar: familiars.length > 0,
+    hasSkill: skills.length > 0,
+    ...(headlineSlot !== undefined ? { headlineSlot } : {}),
+  });
+  const type = typeInf.type;
 
   // iotms.ts img convention: always the package image. (A handful of recent
   // entries use the opened/familiar image instead, but the overwhelming
   // majority — including all old familiar IOTMs — use the package.)
   const img = pkg.image;
 
-  // Equipment slot: only relevant for item-type IOTMs whose opened/headline
-  // form is wearable equipment. Read it from the appropriate items.txt row.
-  const headlineItem = opened[0] ?? pkg;
-  const equipment_slot = equipmentSlotFor(headlineItem);
+  // equipment_slot resolved up-front via `headlineSlot` (used by inferType
+  // and reused here so we don't recompute).
+  const equipment_slot = headlineSlot;
 
-  // Tradeable: KoLmafia's `t` access flag indicates mall-tradeable, but
-  // iotms.ts uses a stricter notion (related to whether the IOTM as a whole
-  // can be exchanged among players, which depends on Mr. A trade rules and
-  // is not derivable from items.txt alone). Default to false; the human
-  // reviewer flips for the rare tradeable IOTMs.
-  const tradeable = false;
+  // Tradeable: not derivable from any external source (KoLmafia's `t` flag
+  // means mall-tradeable, which doesn't match iotms.ts semantics). Empirically
+  // every IOTM from 2017+ is untradeable; for older IOTMs we look up against
+  // a static list extracted from canonical iotms.ts. New IOTMs (always 2026+)
+  // therefore reliably default to false with no human review needed.
+  const tradeable =
+    ctx.year < TRADEABLE_CUTOFF_YEAR && TRADEABLE_PACKAGED_IDS.has(pkg.id);
 
   const isIoty = ctx.month === undefined;
 
@@ -141,7 +175,10 @@ export async function parseItemPage(
   if (equipment_slot !== undefined) result.equipment_slot = equipment_slot;
   if (isIoty) result.is_ioty = true;
 
-  return result;
+  const needsReview: (keyof IOTM)[] = [];
+  if (!typeInf.confident) needsReview.push("type");
+
+  return { iotm: result, needsReview };
 }
 
 type Linked = {
@@ -172,14 +209,18 @@ function discoverLinks(wt: string): Linked {
   const familiars: string[] = [];
   const skills: string[] = [];
 
-  // {{useitem|...}} blocks can span multiple lines. Extract each whole block
-  // by counting balanced braces from "{{useitem".
+  // Restrict acquire-scanning to the "When Used" / "When Folded" /
+  // "When Squished" section so we don't pick up unrelated drop tables,
+  // reward listings, or reference notes from elsewhere on the page.
+  const whenUsedSection = extractSection(wt, /^==\s*When [\w]+\s*==/m);
+
+  // {{useitem|...}} blocks. `becomes=` directly identifies what the package
+  // turns into; `type=familiar` flags it as a familiar package.
   for (const block of extractTemplateBlocks(wt, "useitem")) {
     const args = parseTemplateArgs(block);
     if (args.type === "familiar") {
-      // The package opens a familiar. `becomes` is the familiar's species
-      // name (canonical); `fname` is sometimes a templated placeholder for
-      // the user's chosen nickname, so it's not safe to rely on.
+      // Prefer `becomes` (the familiar's species). `fname` is sometimes a
+      // templated placeholder for the user's chosen nickname.
       const famName = args.becomes ?? args.fname;
       if (famName) familiars.push(stripWikitext(famName));
     } else if (args.becomes) {
@@ -187,23 +228,41 @@ function discoverLinks(wt: string): Linked {
     }
   }
 
-  // {{Mystic Book|skill=Foo}} for tomes/librams.
-  for (const block of extractTemplateBlocks(wt, "Mystic Book")) {
-    const args = parseTemplateArgs(block);
-    if (args.skill) skills.push(stripWikitext(args.skill));
+  // Skill grants: {{Mystic Book|skill=Foo}} (older) and
+  // {{acquireSkill|skill=Foo}} (modern, used inside posteffect=).
+  for (const tplName of ["Mystic Book", "acquireSkill"]) {
+    for (const block of extractTemplateBlocks(wt, tplName)) {
+      const args = parseTemplateArgs(block);
+      if (args.skill) skills.push(stripWikitext(args.skill));
+    }
   }
 
-  // {{acquire|item=foo|...}} inside useitem text — used for packages that
-  // explicitly hand you specific items on use (e.g. naughty origami kit).
-  // Only count if no `becomes=` was found (otherwise we double-count).
-  if (openedItems.length === 0) {
-    for (const block of extractTemplateBlocks(wt, "acquire")) {
-      const args = parseTemplateArgs(block);
+  // Item grants via {{acquire|item=foo}}. These appear in two places: nested
+  // inside useitem (origami kit, box of bear arms) or as siblings just after
+  // (cursed monkey glove, packaged cold medicine cabinet). We accept both
+  // by scanning the entire "When Used" section, but skip if `becomes=`
+  // already gave us the answer (avoids double-counting).
+  if (openedItems.length === 0 && whenUsedSection) {
+    for (const acqBlock of extractTemplateBlocks(whenUsedSection, "acquire")) {
+      const args = parseTemplateArgs(acqBlock);
       if (args.item) openedItems.push(stripWikitext(args.item));
     }
   }
 
   return { openedItems, familiars, skills };
+}
+
+/**
+ * Returns the wikitext between the heading matched by `headingPattern` and
+ * the next `==`-level heading (or end of document). `null` if not found.
+ */
+function extractSection(wt: string, headingPattern: RegExp): string | null {
+  const headerMatch = headingPattern.exec(wt);
+  if (!headerMatch) return null;
+  const start = headerMatch.index + headerMatch[0].length;
+  const rest = wt.slice(start);
+  const next = /^==\s*\w/m.exec(rest);
+  return next ? rest.slice(0, next.index) : rest;
 }
 
 /** Extract `{{name|...}}` blocks (brace-balanced) from wikitext. */
@@ -308,26 +367,72 @@ function stripWikitext(s: string): string {
     .trim();
 }
 
+/**
+ * Infer the iotms.ts `type` discriminator. Strong link signals (familiar /
+ * skill) take precedence; everything else uses wikitext heuristics. The
+ * `confident` flag distinguishes deterministic detections from heuristic
+ * fallbacks — the latter get a TODO marker in codegen for human review.
+ */
+export type TypeInference = { type: string; confident: boolean };
+
 function inferType(args: {
   wt: string;
   pkg: MafiaItem;
   hasOpened: boolean;
   hasFamiliar: boolean;
   hasSkill: boolean;
-}): string {
-  if (args.hasFamiliar) return "familiar";
-  if (args.hasSkill) return "skill";
+  headlineSlot?: string;
+}): TypeInference {
+  if (args.hasFamiliar) return { type: "familiar", confident: true };
+  if (args.hasSkill) return { type: "skill", confident: true };
 
-  // Heuristics for non-equipment item subtypes.
-  // VIP lounge items cost 3 Mr. Accessories instead of the usual 1.
-  if (/3 \[\[Mr\. Accessor/.test(args.wt) || /Clan VIP Lounge/i.test(args.wt)) return "vip";
+  const wt = args.wt;
 
-  // Campground items install themselves at the campsite when used.
-  if (/(your |the )?campsite|campground/i.test(args.wt) && /workshed|garden|patch|installs?/i.test(args.wt))
-    return "campground";
+  // VIP Lounge items cost 3 Mr. Accessories instead of 1 and are installed
+  // into the clan's shared infrastructure.
+  if (/3\s*\[\[Mr\.\s*Accessor/i.test(wt) || /Clan VIP Lounge/.test(wt)) {
+    return { type: "vip", confident: true };
+  }
 
-  // Eudora subscriptions show up under the Eudora menu after use.
-  if (/[Ee]udora|subscription/.test(args.wt)) return "eudora";
+  // Eudora correspondence subscriptions surface in the Eudora menu.
+  if (/\{\{Eudora/.test(wt) || /\[\[Correspondence\]\]/.test(wt) || /Eudora menu/i.test(wt)) {
+    return { type: "eudora", confident: true };
+  }
 
-  return "item";
+  // Campground items install at the campsite (garden, workshed, dwelling).
+  // Multiple variants because the wiki uses different verbs across years.
+  if (
+    /in your (workshed|campsite|campground|garden|dwelling|kitchen)/i.test(wt) ||
+    /campground (garden|patch)/i.test(wt) ||
+    /\[\[A Pumpkin Patch\]\]/.test(wt) ||
+    /(install|set up|build|plant|hang|place)s? (a |an |the )?[\w- ]+ in (your |the )?(workshed|campsite|campground|kitchen)/i.test(wt) ||
+    /Adds? \[\[A [\w ]+\]\] to your campsite/i.test(wt)
+  ) {
+    return { type: "campground", confident: true };
+  }
+
+  // Content unlockers: zone/realm/area access. Multiple signals because
+  // tagging is inconsistent across pages.
+  if (
+    /\[\[Category:Content Unlockers\]\]/.test(wt) ||
+    /Allows access to \[\[/.test(wt) ||
+    /access to \[\[[\w '_-]+(?:\|[^\]]+)?\]\]/.test(wt) ||
+    /Unlocks? a (?:new )?(?:realm|zone|area|world|city|facility)/i.test(wt) ||
+    /Unlocks? \[\[[\w '_-]+(?:\|[^\]]+)?\]\] in (Seaside Town|the [\w ]+)/i.test(wt)
+  ) {
+    return { type: "content", confident: true };
+  }
+
+  // Slotless one-time unlocks (lovebug pheromones, MayDay-style perks)
+  // permanently grant something with no campground/workshed/zone footprint.
+  if (/permanently unlocked/i.test(wt) || /signed up for the/i.test(wt) || /granted .* skill/i.test(wt)) {
+    return { type: "slotless", confident: true };
+  }
+
+  // Equipment items: anything with a headline equipment slot. Less
+  // confident here since iotms.ts sometimes uses bespoke types
+  // (e.g. type="accessory" for the lone Eternity Codpiece).
+  if (args.headlineSlot) return { type: "item", confident: false };
+
+  return { type: "item", confident: false };
 }

@@ -283,4 +283,17 @@ describe("scrape (end-to-end)", () => {
       expect(parsed.packaged_id).toBeGreaterThan(0);
     }
   });
+
+  test("reviewNotes only contains entries from result.newIotms", async () => {
+    const result = await scrape({
+      wiki,
+      tiers,
+      mafia,
+      knownIotms: knownBefore(2025, 12),
+    });
+    const names = new Set(result.newIotms.map((i) => i.packaged_name));
+    for (const noteName of Object.keys(result.reviewNotes)) {
+      expect(names.has(noteName), `reviewNotes references unknown IOTM "${noteName}"`).toBe(true);
+    }
+  });
 });
