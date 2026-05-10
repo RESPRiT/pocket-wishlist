@@ -127,12 +127,19 @@ export async function parseItemPageWithReview(
 
   // Type discrimination, in priority order. Strong signals (skill / familiar
   // links) take precedence over wikitext heuristics.
+  // The package itself being a "usable" in items.txt is a strong signal that
+  // this is a regular item-type IOTM (vs a campground/eudora/etc. that gets
+  // installed somewhere). Equipment uses don't count here — those are
+  // already handled by the headlineSlot path.
+  const pkgIsUsable = /\b(usable|multiple|grow|reusable)\b/.test(pkg.use);
+
   const typeInf = inferType({
     wt,
     pkg,
     hasOpened: opened.length > 0,
     hasFamiliar: familiars.length > 0,
     hasSkill: skills.length > 0,
+    hasItemForm: pkgIsUsable && opened.length === 0 && headlineSlot === undefined,
     ...(headlineSlot !== undefined ? { headlineSlot } : {}),
   });
   const type = typeInf.type;
@@ -401,6 +408,10 @@ function inferType(args: {
   hasFamiliar: boolean;
   hasSkill: boolean;
   headlineSlot?: string;
+  /** True if the package itself or its opened form is in items.txt as a
+   * non-equipment "usable" — used to confidently default to type=item even
+   * when there's no equipment slot. */
+  hasItemForm?: boolean;
 }): TypeInference {
   if (args.hasFamiliar) return { type: "familiar", confident: true };
   if (args.hasSkill) return { type: "skill", confident: true };
@@ -448,10 +459,17 @@ function inferType(args: {
     return { type: "slotless", confident: true };
   }
 
-  // Equipment items: anything with a headline equipment slot. Less
-  // confident here since iotms.ts sometimes uses bespoke types
-  // (e.g. type="accessory" for the lone Eternity Codpiece).
-  if (args.headlineSlot) return { type: "item", confident: false };
+  // Equipment items: anything with a headline equipment slot is reliably
+  // an item-type IOTM. (The lone Eternity Codpiece uses type="accessory"
+  // instead — a one-off iotms.ts choice the human reviewer would correct.)
+  if (args.headlineSlot) return { type: "item", confident: true };
 
+  // Package opens to or is itself a regular usable item — type=item is
+  // the right default. Slotless items (shrines, subscriptions, etc.) get
+  // detected by the heuristics above; what's left here is genuinely just
+  // an item that doesn't equip.
+  if (args.hasOpened || args.hasItemForm) return { type: "item", confident: true };
+
+  // No clear signal — could be slotless or item; flag for review.
   return { type: "item", confident: false };
 }
