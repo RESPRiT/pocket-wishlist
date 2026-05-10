@@ -4,6 +4,9 @@ import ListView from "./components/ListView";
 import { WishlistProvider } from "./contexts/WishlistContext";
 import { useTheme } from "./contexts/ThemeContext.tsx";
 import { cn } from "./lib/utils.ts";
+// TEMP: import for Phase 2 validation side-effect (registers window globals).
+// Remove once pretext is wired into the production height path.
+import "./lib/entryNameHeight";
 
 function App({ userId }: { userId?: number }) {
   const { isTransitioning } = useTheme();
