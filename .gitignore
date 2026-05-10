@@ -9,3 +9,9 @@ node_modules
 .dolt/
 *.db
 .beads-credential-key
+
+# Beads passive exports + local-only state — source of truth is the Dolt DB.
+# Tracking these creates churn on every commit via hooks.
+.beads/issues.jsonl
+.beads/interactions.jsonl
+.beads/metadata.json
