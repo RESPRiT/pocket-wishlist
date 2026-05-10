@@ -14,6 +14,11 @@ services:
     labels:
       - traefik.enable=true
       - traefik.docker.network=coolify
+      - traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https
+      - traefik.http.routers.pocket-wishlist-web-http.entryPoints=http
+      - traefik.http.routers.pocket-wishlist-web-http.rule=Host(`kol.resprit.com`)
+      - traefik.http.routers.pocket-wishlist-web-http.middlewares=redirect-to-https
+      - traefik.http.routers.pocket-wishlist-web-http.priority=1
       - traefik.http.routers.pocket-wishlist-web.entryPoints=https
       - traefik.http.routers.pocket-wishlist-web.rule=Host(`kol.resprit.com`)
       - traefik.http.routers.pocket-wishlist-web.tls=true
@@ -33,6 +38,10 @@ services:
     labels:
       - traefik.enable=true
       - traefik.docker.network=coolify
+      - traefik.http.routers.pocket-wishlist-api-http.entryPoints=http
+      - traefik.http.routers.pocket-wishlist-api-http.rule=Host(`kol.resprit.com`) && PathPrefix(`/api`)
+      - traefik.http.routers.pocket-wishlist-api-http.middlewares=redirect-to-https
+      - traefik.http.routers.pocket-wishlist-api-http.priority=10
       - traefik.http.routers.pocket-wishlist-api.entryPoints=https
       - traefik.http.routers.pocket-wishlist-api.rule=Host(`kol.resprit.com`) && PathPrefix(`/api`)
       - traefik.http.routers.pocket-wishlist-api.tls=true
