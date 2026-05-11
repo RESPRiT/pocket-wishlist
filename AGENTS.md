@@ -19,6 +19,19 @@ reference is injected each session — don't duplicate it here.
 
 If hooks aren't running for some reason, run `bd prime` manually.
 
+## Worktrees and PRs
+
+When work happens on a worktree branch (e.g. one created via
+`EnterWorktree`), **do not merge it into `main` locally**. Push the
+branch to the remote and open a pull request instead — that's the
+intended integration path, and it's the whole reason the work was
+isolated on a branch in the first place. Local fast-forward merges
+collapse that review surface and ship straight to whatever is watching
+`main` (Coolify, in this repo's case).
+
+Use `gh pr create` once the branch is pushed. Don't merge the PR
+yourself; leave that for the user.
+
 ## React Compiler
 
 `packages/wishlist-web` is built with the React Compiler (Forget) via
