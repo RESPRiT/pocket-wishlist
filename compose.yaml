@@ -25,6 +25,9 @@ services:
       - traefik.http.routers.pocket-wishlist-web.tls.certresolver=letsencrypt
       - traefik.http.routers.pocket-wishlist-web.priority=1
       - traefik.http.services.pocket-wishlist-web.loadbalancer.server.port=3000
+      - traefik.http.services.pocket-wishlist-web.loadbalancer.healthcheck.path=/health
+      - traefik.http.services.pocket-wishlist-web.loadbalancer.healthcheck.interval=30s
+      - traefik.http.services.pocket-wishlist-web.loadbalancer.healthcheck.timeout=5s
 
   api:
     image: ghcr.io/${GITHUB_OWNER}/pocket-wishlist-api:${IMAGE_TAG:-latest}
@@ -50,6 +53,11 @@ services:
       - traefik.http.routers.pocket-wishlist-api.middlewares=pocket-wishlist-api-strip
       - traefik.http.middlewares.pocket-wishlist-api-strip.stripprefix.prefixes=/api
       - traefik.http.services.pocket-wishlist-api.loadbalancer.server.port=3001
+      # Probes backend directly — bypasses the /api stripprefix middleware,
+      # so the path is /health (not /api/health).
+      - traefik.http.services.pocket-wishlist-api.loadbalancer.healthcheck.path=/health
+      - traefik.http.services.pocket-wishlist-api.loadbalancer.healthcheck.interval=30s
+      - traefik.http.services.pocket-wishlist-api.loadbalancer.healthcheck.timeout=5s
 
 volumes:
   api_data:
