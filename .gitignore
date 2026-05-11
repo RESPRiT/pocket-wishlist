@@ -5,6 +5,12 @@ node_modules
 .env.local
 .env.production
 
+# Local dev artifacts from packages/wishlist-api scripts (probe HTML dumps,
+# local SQLite). Never want these tracked.
+mall*.html
+local.db
+local.db-*
+
 # Beads / Dolt files (added by bd init)
 .dolt/
 *.db
