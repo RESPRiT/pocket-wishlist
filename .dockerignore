@@ -7,8 +7,12 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-# Unneeded for Build
+# Unneeded for Build. The bare `node_modules` pattern only matches at the
+# context root, so nested ones (packages/*/node_modules) leak in unless we
+# also glob them explicitly — and on a dev machine those contain stale
+# symlinks into ~/.bun/install that resolve to nothing inside the image.
 node_modules
+**/node_modules
 *.local
 dev
 eslint.config.js
