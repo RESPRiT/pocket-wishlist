@@ -20,3 +20,5 @@ local.db-*
 # Tracking these creates churn on every commit via hooks.
 .beads/issues.jsonl
 .beads/interactions.jsonl
+*.swp
+*.swo
