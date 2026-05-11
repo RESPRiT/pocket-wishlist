@@ -60,5 +60,15 @@ if (dumpPath) {
   console.log(`Wrote raw HTML (${html.length} bytes) to ${dumpPath}`);
 }
 
-const price = await searchLowestPrice(session, itemName);
-console.log(`Lowest mall price for "${itemName}": ${price ?? "null"}`);
+const result = await searchLowestPrice(session, itemName);
+switch (result.kind) {
+  case "listed":
+    console.log(`Lowest mall price for "${itemName}": ${result.price}`);
+    break;
+  case "empty":
+    console.log(`No mall listings for "${itemName}" (empty)`);
+    break;
+  case "error":
+    console.log(`Mall search error for "${itemName}": ${result.reason}`);
+    break;
+}

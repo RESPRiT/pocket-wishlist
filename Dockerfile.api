@@ -8,6 +8,13 @@ COPY package.json bun.lock ./
 COPY /packages/wishlist-api ./packages/wishlist-api
 COPY /packages/wishlist-shared ./packages/wishlist-shared
 
+# Belt-and-suspenders: .dockerignore already excludes **/node_modules, but if
+# anything slips through (e.g. a dev's stale workspace symlinks pointing to
+# ~/.bun/install paths that don't exist in the image), `bun install` below
+# won't clean them up and module resolution from a nested package will fail
+# with ENOENT on the dangling link before walking up to the hoisted copy.
+RUN find packages -name node_modules -type d -exec rm -rf {} + 2>/dev/null || true
+
 RUN bun install
 
 WORKDIR /home/bun/app/packages/wishlist-api
