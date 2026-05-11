@@ -1,0 +1,7 @@
+{
+  "database": "dolt",
+  "backend": "dolt",
+  "dolt_mode": "embedded",
+  "dolt_database": "pocket_wishlist",
+  "project_id": "1f8cdaa1-2301-4216-a24e-768e2c0c6d94"
+}
