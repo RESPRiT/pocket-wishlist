@@ -8,6 +8,12 @@
 services:
   web:
     image: ghcr.io/${GITHUB_OWNER}/pocket-wishlist:${IMAGE_TAG:-latest}
+    # Coolify's GET /api/v1/deploy?force=true recreates containers without
+    # running `docker compose pull` first (coollabsio/coolify#5318), so a
+    # tag-push that bumps :latest leaves the VPS running the cached image.
+    # `pull_policy: always` makes docker compose re-pull on every recreate,
+    # which is what we want for our :latest-rolling deploy.
+    pull_policy: always
     environment:
       PORT: "3000"
     restart: unless-stopped
@@ -31,6 +37,8 @@ services:
 
   api:
     image: ghcr.io/${GITHUB_OWNER}/pocket-wishlist-api:${IMAGE_TAG:-latest}
+    # See pull_policy note on the `web` service.
+    pull_policy: always
     environment:
       SECRET: ${SECRET}
       DB_PATH: /data/wishlist.db
