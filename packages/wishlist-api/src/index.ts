@@ -19,5 +19,9 @@ startRefreshCron();
 
 export default {
   port: Number(process.env.PORT ?? 3001),
+  // POST /refresh-prices runs the full mall scrape inline (~30-60s for ~300
+  // items). 255s is Bun.serve's max — enough headroom that callers see the
+  // summary instead of a connection-closed mid-flight.
+  idleTimeout: 255,
   fetch: app.fetch,
 };
