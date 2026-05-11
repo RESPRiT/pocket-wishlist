@@ -11,6 +11,7 @@ if (corsOrigin) {
 }
 
 app.get("/", (c) => c.text("howdy!"));
+app.get("/health", (c) => c.text("ok"));
 app.route("/", mall);
 app.route("/", wishlist);
 

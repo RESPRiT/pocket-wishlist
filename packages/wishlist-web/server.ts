@@ -528,6 +528,8 @@ async function initializeServer() {
       // Serve static assets (preloaded or on-demand)
       ...routes,
 
+      "/health": () => new Response("ok", { status: 200 }),
+
       // Fallback to TanStack Start handler for all other routes
       "/*": (req: Request) => {
         try {
