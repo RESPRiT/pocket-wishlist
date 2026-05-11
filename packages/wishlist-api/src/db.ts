@@ -75,8 +75,11 @@ function getLowestMall(): MallPrice {
   return out;
 }
 
-function getPricesLastUpdate(): number | undefined {
-  return selectMaxUpdatedStmt.get()?.max_updated ?? undefined;
+function getPricesLastUpdate(): number {
+  // MAX(updated_at) is null on an empty table; return epoch so consumers see
+  // a valid Date (interpreted as "very stale, please refresh") rather than
+  // having `MallPriceResponseSchema.parse` choke on undefined.
+  return selectMaxUpdatedStmt.get()?.max_updated ?? 0;
 }
 
 function setLowestMall(value: MallPrice): void {
