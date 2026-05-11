@@ -38,23 +38,38 @@ export async function searchLowestPrice(
 /**
  * Pull the cheapest unit price out of a mall.php response.
  *
- * Each store listing has an `mallstore.php?...whichitem=N...` link where N is
- * `itemId * 10^9 + unitPrice` (price padded with leading zeros to 9 digits).
- * Extracting via this URL parameter is more stable than parsing the visible
- * price cell, which has comma separators and surrounding markup that varies.
+ * KoL embeds each store listing's price in `mallstore.php?...whichitem=N.P...`
+ * where N is the item ID and P is the unit price. The dotted form is what
+ * the live mall.php emits today; older/alternate KoL endpoints sometimes use
+ * `whichitem=NNNPPPPPPPPP` (itemId * 10^9 + price) per KoLmafia's source
+ * comments. We accept either.
  */
 const PRICE_DIVISOR = 1_000_000_000;
 
 export function extractLowestPrice(html: string): number | null {
   let lowest = Number.POSITIVE_INFINITY;
   let found = false;
-  for (const m of html.matchAll(/whichitem=(\d{10,})/g)) {
-    const encoded = Number.parseInt(m[1]!, 10);
-    if (!Number.isFinite(encoded)) continue;
-    const price = encoded % PRICE_DIVISOR;
-    if (price <= 0) continue;
-    if (price < lowest) lowest = price;
-    found = true;
+
+  for (const m of html.matchAll(/whichitem=(\d+)\.(\d+)/g)) {
+    const price = Number.parseInt(m[2]!, 10);
+    if (Number.isFinite(price) && price > 0 && price < lowest) {
+      lowest = price;
+      found = true;
+    }
   }
+
+  // Fallback for the concatenated encoding (no dot, 10+ digits = itemId + price).
+  if (!found) {
+    for (const m of html.matchAll(/whichitem=(\d{10,})\b/g)) {
+      const encoded = Number.parseInt(m[1]!, 10);
+      if (!Number.isFinite(encoded)) continue;
+      const price = encoded % PRICE_DIVISOR;
+      if (price > 0 && price < lowest) {
+        lowest = price;
+        found = true;
+      }
+    }
+  }
+
   return found ? lowest : null;
 }

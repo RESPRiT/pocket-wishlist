@@ -2,6 +2,21 @@ import { describe, expect, it } from "bun:test";
 import { extractLowestPrice } from "./mall.ts";
 
 describe("extractLowestPrice", () => {
+  it("parses the dot-separated whichitem form (live KoL format)", () => {
+    // Real fragment from mall.html — Mr. A at 63,822,000 meat
+    const html = `mallstore.php?buying=1&quantity=1&whichitem=194.63822000&ajax=1&pwd=abc`;
+    expect(extractLowestPrice(html)).toBe(63822000);
+  });
+
+  it("picks the minimum across several dot-form listings", () => {
+    const html = `
+      <a href="mallstore.php?whichitem=3980.4455">x</a>
+      <a href="mallstore.php?whichitem=3980.5000">x</a>
+      <a href="mallstore.php?whichitem=3980.1500">x</a>
+    `;
+    expect(extractLowestPrice(html)).toBe(1500);
+  });
+
   it("returns the minimum across multiple listings", () => {
     // itemId=3980 across three stores at 4455, 5000, 9999 unit prices
     const html = `
