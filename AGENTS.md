@@ -1,5 +1,9 @@
 # Agent Instructions
 
+## Domain Glossary
+
+@wiki/GLOSSARY.md
+
 ## Issue Tracking
 
 This project uses **bd** (beads). The Claude Code SessionStart hook in

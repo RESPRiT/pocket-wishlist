@@ -28,6 +28,13 @@ is the authoritative source.
 
 - **IOTM** — *Item of the Month.* A monthly premium item KoL releases. The
   current IOTM rotates; once an IOTM leaves rotation, it is discontinued.
+- **Packaged** / **opened** — IOTMs start in a tradeable "packaged" form
+  which a player then *opens* to acquire an untradeable item. For some older
+  IOTMs the packaged form *is* the opened form: the IOTM is used directly,
+  and can still be traded afterwards. In `iotms.ts` this maps to
+  `packaged_id` / `packaged_name` (always present) and the optional
+  `opened_ids` / `opened_names` (which may be a single value or an array).
+  Mall searches target `packaged_name`.
 - **IOTY** — *Item of the Year.* Annual standout IOTM. Rotates each year.
 - **KOL Con** — Convention exclusive (an IOTM tied to a real-world KoL
   convention; now, a virtual convention).
