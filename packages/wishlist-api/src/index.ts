@@ -1,5 +1,6 @@
 import { Hono } from "hono";
 import { cors } from "hono/cors";
+import { startRefreshCron } from "./cron.ts";
 import mall from "./mall.ts";
 import wishlist from "./wishlist.ts";
 
@@ -13,6 +14,8 @@ if (corsOrigin) {
 app.get("/", (c) => c.text("howdy!"));
 app.route("/", mall);
 app.route("/", wishlist);
+
+startRefreshCron();
 
 export default {
   port: Number(process.env.PORT ?? 3001),

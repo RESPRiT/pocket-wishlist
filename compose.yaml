@@ -32,6 +32,12 @@ services:
       SECRET: ${SECRET}
       DB_PATH: /data/wishlist.db
       PORT: "3001"
+      # KoL credentials for the lowest-mall scrape job (daily cron +
+      # POST /refresh-prices). Cron disables itself when these are unset.
+      KOL_USERNAME: ${KOL_USERNAME:-}
+      KOL_PASSWORD: ${KOL_PASSWORD:-}
+      # Hour-of-day (UTC) for the daily refresh. Default 8.
+      REFRESH_HOUR_UTC: ${REFRESH_HOUR_UTC:-8}
     volumes:
       - api_data:/data
     restart: unless-stopped
