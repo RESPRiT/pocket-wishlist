@@ -67,8 +67,8 @@ import path from "node:path";
 
 // Configuration
 const SERVER_PORT = Number(process.env.PORT ?? 3000);
-const CLIENT_DIRECTORY = "./dist/client";
-const INDEX_HTML_PATH = "./dist/client/index.html";
+const CLIENT_DIRECTORY = "./dist";
+const INDEX_HTML_PATH = "./dist/index.html";
 
 // Internal API base for server-to-server fetches during request transform.
 // Falls back to the browser-facing base (VITE_API_BASE) — useful when the
