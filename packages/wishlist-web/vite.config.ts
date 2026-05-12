@@ -5,16 +5,21 @@ import tailwindcss from "@tailwindcss/vite";
 import { tanstackStart } from "@tanstack/react-start/plugin/vite";
 import { resolve } from "path";
 
+// SPA-only build. The production server (server.ts) injects API bootstrap
+// data into the prerendered shell rather than rendering React server-side.
+// GH_PAGES only flips the base path; both targets share the SPA artifact.
+const isGhPages = process.env.GH_PAGES === "true";
+
 // https://vitejs.dev/config/
 export default defineConfig({
-  base: process.env.SSR === "false" ? "/pocket-wishlist/" : "/",
+  base: isGhPages ? "/pocket-wishlist/" : "/",
   plugins: [
     tsConfigPaths({
       projects: ["./tsconfig.json"],
     }),
     tanstackStart({
       spa: {
-        enabled: process.env.SSR === "false",
+        enabled: true,
         prerender: { outputPath: "index" },
         maskPath: "/pocket-wishlist/",
       },

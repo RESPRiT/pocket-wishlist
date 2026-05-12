@@ -7,7 +7,7 @@
     "dev": "vite dev --host 0.0.0.0",
     "dev-spa": "vite dev dist/client --base=/pocket-wishlist/",
     "build": "vite build",
-    "build-spa": "SSR=false bun run build",
+    "build-spa": "GH_PAGES=true bun run build",
     "start": "bun run server.ts",
     "lint": "eslint .",
     "preview": "vite preview",

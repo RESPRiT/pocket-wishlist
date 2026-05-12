@@ -68,7 +68,17 @@ import path from "node:path";
 // Configuration
 const SERVER_PORT = Number(process.env.PORT ?? 3000);
 const CLIENT_DIRECTORY = "./dist/client";
-const SERVER_ENTRY_POINT = "./dist/server/server.js";
+const INDEX_HTML_PATH = "./dist/client/index.html";
+
+// Internal API base for server-to-server fetches during request transform.
+// Falls back to the browser-facing base (VITE_API_BASE) — useful when the
+// containers share a network and the URL is identical from both sides.
+const API_BASE_INTERNAL =
+  process.env.API_BASE_INTERNAL ?? process.env.VITE_API_BASE ?? "";
+
+const BOOTSTRAP_FETCH_TIMEOUT_MS = Number(
+  process.env.BOOTSTRAP_FETCH_TIMEOUT_MS ?? 1500,
+);
 
 // Logging utilities for professional output
 const log = {
@@ -498,23 +508,80 @@ async function initializeStaticRoutes(
   return { routes, loaded, skipped };
 }
 
+async function fetchJsonWithTimeout(
+  url: string,
+  timeoutMs: number,
+): Promise<unknown | null> {
+  const controller = new AbortController();
+  const timer = setTimeout(() => {
+    controller.abort();
+  }, timeoutMs);
+  try {
+    const response = await fetch(url, { signal: controller.signal });
+    if (!response.ok) return null;
+    return await response.json();
+  } catch {
+    return null;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+async function buildBootstrap(
+  userId: number | null,
+): Promise<Record<string, unknown>> {
+  if (!API_BASE_INTERNAL) return {};
+
+  const mallPromise = fetchJsonWithTimeout(
+    `${API_BASE_INTERNAL}/get-prices`,
+    BOOTSTRAP_FETCH_TIMEOUT_MS,
+  );
+  const wishlistPromise =
+    userId !== null && userId > 0
+      ? fetchJsonWithTimeout(
+          `${API_BASE_INTERNAL}/get-wishlist?u=${String(userId)}`,
+          BOOTSTRAP_FETCH_TIMEOUT_MS,
+        )
+      : Promise.resolve(null);
+
+  const [mall, wishlist] = await Promise.all([mallPromise, wishlistPromise]);
+
+  const bootstrap: Record<string, unknown> = {};
+  if (mall !== null) bootstrap.mallPrices = mall;
+  if (wishlist !== null && userId !== null) {
+    bootstrap.wishlist = { userId, data: wishlist };
+  }
+  return bootstrap;
+}
+
+function injectBootstrap(html: string, bootstrap: Record<string, unknown>) {
+  // Escape `<` to prevent script-tag termination inside the JSON payload.
+  const json = JSON.stringify(bootstrap).replace(/</g, "\\u003c");
+  const tag = `<script id="__BOOTSTRAP__" type="application/json">${json}</script>`;
+  return html.replace("</head>", `${tag}</head>`);
+}
+
 /**
  * Initialize the server
  */
 async function initializeServer() {
   log.header("Starting Production Server");
 
-  // Load TanStack Start server handler
-  let handler: { fetch: (request: Request) => Response | Promise<Response> };
+  // Load prerendered SPA shell once; the request handler injects per-request
+  // bootstrap data into a copy of it.
+  let indexHtml: string;
   try {
-    const serverModule = (await import(SERVER_ENTRY_POINT)) as {
-      default: { fetch: (request: Request) => Response | Promise<Response> };
-    };
-    handler = serverModule.default;
-    log.success("TanStack Start application handler initialized");
+    indexHtml = await Bun.file(INDEX_HTML_PATH).text();
+    log.success(`Loaded SPA shell from ${INDEX_HTML_PATH}`);
   } catch (error) {
-    log.error(`Failed to load server handler: ${String(error)}`);
+    log.error(`Failed to load SPA shell: ${String(error)}`);
     process.exit(1);
+  }
+
+  if (!API_BASE_INTERNAL) {
+    log.warning(
+      "API_BASE_INTERNAL / VITE_API_BASE not set — bootstrap injection disabled",
+    );
   }
 
   // Build static routes with intelligent preloading
@@ -530,12 +597,27 @@ async function initializeServer() {
 
       "/health": () => new Response("ok", { status: 200 }),
 
-      // Fallback to TanStack Start handler for all other routes
-      "/*": (req: Request) => {
+      // Inject bootstrap data into the SPA shell for all other routes
+      "/*": async (req: Request) => {
         try {
-          return handler.fetch(req);
+          const url = new URL(req.url);
+          const userIdRaw = url.searchParams.get("u");
+          const userId = userIdRaw ? Number(userIdRaw) : null;
+          const validUserId =
+            userId !== null && Number.isFinite(userId) ? userId : null;
+
+          const bootstrap = await buildBootstrap(validUserId);
+          const html = injectBootstrap(indexHtml, bootstrap);
+
+          return new Response(html, {
+            status: 200,
+            headers: {
+              "Content-Type": "text/html; charset=utf-8",
+              "Cache-Control": "no-store",
+            },
+          });
         } catch (error) {
-          log.error(`Server handler error: ${String(error)}`);
+          log.error(`Request handler error: ${String(error)}`);
           return new Response("Internal Server Error", { status: 500 });
         }
       },

@@ -1,6 +1,6 @@
 // https://tanstack.com/start/latest/docs/framework/react/build-from-scratch
 /// <reference types="vite/client" />
-import { StrictMode, type ReactNode } from "react";
+import { StrictMode, useEffect, type ReactNode } from "react";
 import {
   Outlet,
   HeadContent,
@@ -23,6 +23,7 @@ import { ThemeProvider } from "@/contexts/ThemeContext";
 import { QueryClient } from "@tanstack/react-query";
 import { PersistQueryClientProvider } from "@tanstack/react-query-persist-client";
 import { createAsyncStoragePersister } from "@tanstack/query-async-storage-persister";
+import { hydrateBootstrap } from "@/lib/bootstrap";
 config.autoAddCss = false; // https://stackoverflow.com/a/59429852
 
 // add font-awesome icons
@@ -87,6 +88,19 @@ function RootComponent() {
   const persister = createAsyncStoragePersister({
     storage: typeof window !== "undefined" ? window.localStorage : undefined,
   });
+
+  // Seed React Query from <script id="__BOOTSTRAP__"> after hydration
+  // completes. Running this during render or synchronously in useEffect
+  // races React 19's concurrent hydration of Suspense boundaries; deferring
+  // to a macrotask lets hydration finish first.
+  useEffect(() => {
+    const id = setTimeout(() => {
+      hydrateBootstrap(queryClient);
+    }, 0);
+    return () => {
+      clearTimeout(id);
+    };
+  }, [queryClient]);
 
   return (
     <RootDocument>
