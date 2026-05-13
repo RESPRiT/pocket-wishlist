@@ -1,13 +1,9 @@
 import { ListEntryProps } from "./ListEntry";
 import { HeadingInfo, HeadingStatus, HeadingType } from "./ListHeading";
 import { IOTM, iotms } from "wishlist-shared";
-import { useCallback, useMemo, useRef } from "react";
+import { useMemo, useRef } from "react";
 import { useHydratedSettingsStore } from "@/stores/useSettingsStore.ts";
-import {
-  defaultRangeExtractor,
-  Range,
-  useWindowVirtualizer,
-} from "@tanstack/react-virtual";
+import { useWindowVirtualizer } from "@tanstack/react-virtual";
 import { useMallPrices } from "@/hooks/useMallPrices";
 import { getSortFunction } from "@/lib/sortWishlist";
 import { useWishlist } from "@/contexts/WishlistContext";
@@ -95,44 +91,6 @@ function List() {
   // Setup virtualizer
   const listRef = useRef<HTMLDivElement>(null);
 
-  // Indexes of sticky headings for rangeExtractor
-  const stickyIndexes = useMemo(
-    () =>
-      virtualItems
-        .map((item, index) => (item.itemType === "heading" ? index : null))
-        .filter((index): index is number => index !== null),
-    [virtualItems],
-  );
-
-  const activeStickyIndexRef = useRef(0);
-
-  const rangeExtractor = useCallback(
-    (range: Range) => {
-      activeStickyIndexRef.current =
-        [...stickyIndexes]
-          .reverse()
-          .find((index) => range.startIndex >= index) ?? 0;
-
-      const activeIdx = stickyIndexes.indexOf(activeStickyIndexRef.current);
-      const previousStickyIndex =
-        activeIdx > 0 ? stickyIndexes[activeIdx - 1] : null;
-
-      // Include previous sticky if within 1 item of transition (overstay)
-      const includePrevious =
-        previousStickyIndex !== null &&
-        range.startIndex <= activeStickyIndexRef.current + 1;
-
-      const next = new Set([
-        activeStickyIndexRef.current,
-        ...(includePrevious ? [previousStickyIndex] : []),
-        ...defaultRangeExtractor(range),
-      ]);
-
-      return [...next].sort((a, b) => a - b);
-    },
-    [stickyIndexes],
-  );
-
   const virtualizerOptions = useMemo(() => {
     return {
       count: virtualItems.length,
@@ -142,7 +100,6 @@ function List() {
       gap: 8,
       scrollMargin: listRef.current?.offsetTop ?? 0,
       overscan: 3,
-      rangeExtractor,
       // size of the window during SSR
       initialRect: {
         height: 15 * (75 + 8),
@@ -152,53 +109,36 @@ function List() {
         return virtualItems[index].key;
       },
     };
-  }, [virtualItems, itemHeights, rangeExtractor]);
+  }, [virtualItems, itemHeights]);
 
   const virtualizer = useWindowVirtualizer(virtualizerOptions);
 
-  // check virtual items state
   const viewportItems = virtualizer.getVirtualItems();
-  const viewportItemsKey = viewportItems.map((v) => v.key).join(",");
+  const viewportItemsKey = viewportItems
+    .map((v) => `${v.key}:${v.start}`)
+    .join(",");
+  const scrollMargin = virtualizer.options.scrollMargin;
 
-  // Find the first item in the contiguous natural range for offset/height calculations
-  // Persisted sticky headings appear before gaps in the index sequence
-  const firstNaturalIdx = viewportItems.findIndex((item, i) => {
-    if (i === viewportItems.length - 1) return true;
-    return viewportItems[i + 1].index === item.index + 1;
-  });
-
-  const safeFirstNaturalIdx = firstNaturalIdx === -1 ? 0 : firstNaturalIdx;
-  const firstNaturalItem = viewportItems[safeFirstNaturalIdx];
-
-  // Calculate height taken by persisted sticky headings (rendered before natural items in flex)
-  // We need to adjust offset/height to account for this space
-  const gap = virtualizer.options.gap;
-  let persistedHeight = 0;
-  for (let i = 0; i < safeFirstNaturalIdx; i++) {
-    persistedHeight += viewportItems[i].size + gap;
-  }
-
-  const height =
-    viewportItems[viewportItems.length - 1].end -
-    firstNaturalItem.start +
-    persistedHeight;
-  const offset = firstNaturalItem
-    ? firstNaturalItem.start -
-      virtualizer.options.scrollMargin -
-      persistedHeight
-    : 0;
-
+  // Each item is absolute-positioned at its computed Y. The list container's
+  // height holds the scroll surface; entries float at their translated Y.
+  // Sticky headings will be reintroduced in a follow-up via JS-driven
+  // translateY clamping (Step 2 of pocket-wishlist-on5).
   const renderedViewport = useMemo(
     () =>
       viewportItems.map((row) => (
-        <ListItem
-          item={virtualItems[row.index]}
-          key={virtualItems[row.index].key}
-        />
+        <div
+          key={row.key}
+          className="absolute top-0 right-0 left-0"
+          style={{
+            transform: `translateY(${row.start - scrollMargin}px)`,
+          }}
+        >
+          <ListItem item={virtualItems[row.index]} />
+        </div>
       )),
-    // update when item values change, not array reference
+    // update when item values or positions change, not array reference
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [viewportItemsKey, virtualItems],
+    [viewportItemsKey, virtualItems, scrollMargin],
   );
 
   return (
@@ -207,6 +147,7 @@ function List() {
       className="relative mb-12 w-full"
       style={{
         height: `${virtualizer.getTotalSize()}px`,
+        viewTransitionName: "foreground",
       }}
     >
       {/* Hidden measurement container - only rendered when measuring */}
@@ -225,20 +166,7 @@ function List() {
           pageHeight={pageHeight}
         />
       </ClientOnly>
-      <div
-        className="absolute top-0 left-0 flex w-full flex-wrap items-stretch
-          gap-2"
-        style={{
-          // transform: `translateY(${offset}px)`,
-          // TODO: do the annoying math to make sticky play nicely with transform
-          //   top works for now, but it forces layout calculation
-          top: offset,
-          height,
-          viewTransitionName: "foreground",
-        }}
-      >
-        {renderedViewport}
-      </div>
+      {renderedViewport}
     </div>
   );
 }
