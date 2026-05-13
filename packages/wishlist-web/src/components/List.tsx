@@ -1,9 +1,13 @@
 import { ListEntryProps } from "./ListEntry";
 import { HeadingInfo, HeadingStatus, HeadingType } from "./ListHeading";
 import { IOTM, iotms } from "wishlist-shared";
-import { useMemo, useRef } from "react";
+import { useCallback, useMemo, useRef } from "react";
 import { useHydratedSettingsStore } from "@/stores/useSettingsStore.ts";
-import { useWindowVirtualizer } from "@tanstack/react-virtual";
+import {
+  defaultRangeExtractor,
+  Range,
+  useWindowVirtualizer,
+} from "@tanstack/react-virtual";
 import { useMallPrices } from "@/hooks/useMallPrices";
 import { getSortFunction } from "@/lib/sortWishlist";
 import { useWishlist } from "@/contexts/WishlistContext";
@@ -91,6 +95,36 @@ function List() {
   // Setup virtualizer
   const listRef = useRef<HTMLDivElement>(null);
 
+  // Heading positions within virtualItems. Subheadings are deliberately not
+  // sticky — only top-level group headings pin to the viewport top.
+  const stickyIndexes = useMemo(
+    () =>
+      virtualItems
+        .map((item, i) => (item.itemType === "heading" ? i : -1))
+        .filter((i) => i !== -1),
+    [virtualItems],
+  );
+
+  // The currently-active sticky heading is the largest stickyIndex <=
+  // range.startIndex (i.e. the most-recently-passed heading). Updated
+  // synchronously by rangeExtractor so render sees the right value.
+  const activeStickyIdxRef = useRef<number | null>(null);
+
+  const rangeExtractor = useCallback(
+    (range: Range) => {
+      let active: number | null = null;
+      for (const i of stickyIndexes) {
+        if (i <= range.startIndex) active = i;
+        else break;
+      }
+      activeStickyIdxRef.current = active;
+      const defaultRange = defaultRangeExtractor(range);
+      if (active === null || defaultRange.includes(active)) return defaultRange;
+      return [active, ...defaultRange].sort((a, b) => a - b);
+    },
+    [stickyIndexes],
+  );
+
   const virtualizerOptions = useMemo(() => {
     return {
       count: virtualItems.length,
@@ -100,6 +134,7 @@ function List() {
       gap: 8,
       scrollMargin: listRef.current?.offsetTop ?? 0,
       overscan: 3,
+      rangeExtractor,
       // size of the window during SSR
       initialRect: {
         height: 15 * (75 + 8),
@@ -109,7 +144,7 @@ function List() {
         return virtualItems[index].key;
       },
     };
-  }, [virtualItems, itemHeights]);
+  }, [virtualItems, itemHeights, rangeExtractor]);
 
   const virtualizer = useWindowVirtualizer(virtualizerOptions);
 
@@ -118,27 +153,73 @@ function List() {
     .map((v) => `${v.key}:${v.start}`)
     .join(",");
   const scrollMargin = virtualizer.options.scrollMargin;
+  const scrollOffset = virtualizer.scrollOffset ?? 0;
+  // Scroll position in list-container coordinates (excluding scrollMargin).
+  const listScrollY = scrollOffset - scrollMargin;
 
-  // Each item is absolute-positioned at its computed Y. The list container's
-  // height holds the scroll surface; entries float at their translated Y.
-  // Sticky headings will be reintroduced in a follow-up via JS-driven
-  // translateY clamping (Step 2 of pocket-wishlist-on5).
+  // Cumulative Y of every item from the list-container top. Needed for the
+  // sticky lift-off clamp because the next heading may be outside the
+  // viewport (and thus absent from viewportItems).
+  const itemOffsets = useMemo(() => {
+    const offsets = new Float64Array(virtualItems.length);
+    let y = 0;
+    for (let i = 0; i < virtualItems.length; i++) {
+      offsets[i] = y;
+      y += itemHeights.get(virtualItems[i].key) ?? 75;
+      y += 8; // matches virtualizer's gap
+    }
+    return offsets;
+  }, [virtualItems, itemHeights]);
+
+  const activeStickyIdx = activeStickyIdxRef.current;
+
+  // Each item is absolute-positioned at its computed Y. For the active sticky
+  // heading we override that Y with clamp(scrollY, naturalY, nextHeadingY −
+  // activeSize): it pins at the viewport top while scrolling past, and lifts
+  // off when the next heading arrives.
   const renderedViewport = useMemo(
     () =>
-      viewportItems.map((row) => (
-        <div
-          key={row.key}
-          className="absolute top-0 right-0 left-0"
-          style={{
-            transform: `translateY(${row.start - scrollMargin}px)`,
-          }}
-        >
-          <ListItem item={virtualItems[row.index]} />
-        </div>
-      )),
-    // update when item values or positions change, not array reference
+      viewportItems.map((row) => {
+        const isActiveSticky = row.index === activeStickyIdx;
+        let translateY = row.start - scrollMargin;
+        if (isActiveSticky) {
+          const orderIdx = stickyIndexes.indexOf(row.index);
+          const nextStickyIdx = stickyIndexes[orderIdx + 1] ?? null;
+          const upperBound =
+            nextStickyIdx !== null
+              ? itemOffsets[nextStickyIdx] - row.size
+              : Infinity;
+          translateY = Math.min(
+            Math.max(translateY, listScrollY),
+            upperBound,
+          );
+        }
+        return (
+          <div
+            key={row.key}
+            className={`absolute top-0 right-0 left-0${
+              isActiveSticky ? " z-20" : ""
+            }`}
+            style={{
+              transform: `translateY(${translateY}px)`,
+            }}
+          >
+            <ListItem item={virtualItems[row.index]} />
+          </div>
+        );
+      }),
+    // update when items, positions, or active sticky change. listScrollY is in
+    // the deps so the active heading's clamped Y updates on every scroll.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [viewportItemsKey, virtualItems, scrollMargin],
+    [
+      viewportItemsKey,
+      virtualItems,
+      scrollMargin,
+      activeStickyIdx,
+      stickyIndexes,
+      itemOffsets,
+      listScrollY,
+    ],
   );
 
   return (
