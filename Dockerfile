@@ -10,9 +10,6 @@ COPY /packages/wishlist-shared ./packages/wishlist-shared
 
 RUN bun install
 
-ARG VITE_API_BASE
-ENV VITE_API_BASE=$VITE_API_BASE
-
 WORKDIR /home/bun/app/packages/wishlist-web
 RUN bun run build
 

@@ -8,7 +8,6 @@ import { resolve } from "path";
 // SPA build via vanilla Vite + @tanstack/react-router (file-based routing).
 // The production server (server.ts) injects API bootstrap data into the
 // static shell; React mounts via createRoot, no SSR or prerender.
-const isGhPages = process.env.GH_PAGES === "true";
 
 // On cold loads Chrome only requests the woff2 subsets after CSS+JS have
 // dominated the connection, so fonts land ~400ms after LCP and the user
@@ -54,7 +53,17 @@ function preloadLatinFonts(): Plugin {
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  base: isGhPages ? "/pocket-wishlist/" : "/",
+  // Same-origin wire path everywhere: SPA hits /api/*, vite dev proxies
+  // to the api process so it looks identical to prod (where Traefik or
+  // the bun server's /api/* handler does the same).
+  server: {
+    proxy: {
+      "/api": {
+        target: "http://localhost:3001",
+        changeOrigin: true,
+      },
+    },
+  },
   plugins: [
     tsConfigPaths({
       projects: ["./tsconfig.json"],
