@@ -85,8 +85,13 @@ function List() {
     [orderedData, currentSort],
   );
 
-  const { itemHeights, pageHeight, needsMeasurement, containerRef } =
-    useEntryHeights(virtualItems);
+  const {
+    itemHeights,
+    pageHeight,
+    pageHeightSettled,
+    needsMeasurement,
+    containerRef,
+  } = useEntryHeights(virtualItems);
 
   // Setup virtualizer
   const listRef = useRef<HTMLDivElement>(null);
@@ -267,6 +272,7 @@ function List() {
           entries={orderedData}
           height={virtualizer.getTotalSize()}
           pageHeight={pageHeight}
+          pageHeightSettled={pageHeightSettled}
         />
       </ClientOnly>
       {sectionWrappers}

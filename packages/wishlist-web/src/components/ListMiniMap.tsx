@@ -4,6 +4,7 @@ import {
   useRef,
   useMemo,
   useState,
+  useSyncExternalStore,
 } from "react";
 import { ListEntryProps } from "./ListEntry";
 import { Theme, useTheme } from "@/contexts/ThemeContext";
@@ -15,6 +16,21 @@ const ENTRY_HEIGHT_PX = 2; // h-0.5 class = 2px
 const HOVER_PADDING_MULTIPLIER = 1.5;
 const TOP_OFFSET = 24; // top-6 class = 24px
 const MINIMAP_MIN_VIEWPORT_WIDTH = 1080;
+
+// useSyncExternalStore wiring for window.scrollY. Defined at module scope so
+// the subscribe and getSnapshot references are stable across renders.
+function subscribeScroll(onChange: () => void) {
+  window.addEventListener("scroll", onChange, { passive: true });
+  return () => {
+    window.removeEventListener("scroll", onChange);
+  };
+}
+function getScrollY() {
+  return window.scrollY;
+}
+function getServerScrollY() {
+  return 0;
+}
 
 // TODO: Put this in canvas instead of rendering hundreds of tiny divs
 function MiniMapEntry({
@@ -63,17 +79,21 @@ function ListMiniMap({
   entries,
   height,
   pageHeight,
+  pageHeightSettled,
 }: {
   entries: ListEntryProps[];
   height: number;
   pageHeight: number;
+  pageHeightSettled: boolean;
 }) {
   const { theme } = useTheme();
   const scrollWindowRef = useRef<HTMLDivElement>(null);
-  const scrollThrottle = useRef(false);
-  // TODO: handle these initial values/initial updates so that scroll window
-  // does not always start at the top (i.e. we reload and are mid-scroll)
-  const [scrollPosition, setScrollPosition] = useState(0);
+  // Drag override: when the user is actively dragging the scroll-window, the
+  // minimap position is driven by cursor delta math rather than window.scrollY
+  // (window.scroll calls fire scroll events asynchronously, which would lag
+  // behind the cursor by ~1 frame). Cleared on pointerUp to fall back to the
+  // derived value.
+  const [dragPosition, setDragPosition] = useState<number | null>(null);
   const [initialScrollPosition, setInitialScrollPosition] = useState(0);
   const [initialScrollY, setInitialScrollY] = useState<number | null>(null);
   const [innerHeight, setInnerHeight] = useState(1080);
@@ -81,9 +101,23 @@ function ListMiniMap({
   const [isActive, setIsActive] = useState(false);
   const [showMiniMap, setShowMiniMap] = useState(true);
 
+  // Subscribe to window.scrollY via useSyncExternalStore so renders always
+  // reflect the current scroll position — including the one tanstack-router
+  // restores after reload, which arrives between mount and the first effect.
+  // Deriving scrollPosition during render (rather than tracking it in state)
+  // eliminates the intermediate-commit window where stale values could ship
+  // to the compositor.
+  const scrollY = useSyncExternalStore(
+    subscribeScroll,
+    getScrollY,
+    getServerScrollY,
+  );
+
   // Calculate derived values
   const scrollFactor = pageHeight / (entries.length * ENTRY_HEIGHT_PX);
   const miniMapWidth = innerWidth / scrollFactor;
+  const scrollPosition =
+    dragPosition !== null ? dragPosition : scrollY / scrollFactor;
 
   // Setup initial window size + resize event handler
   useEffect(() => {
@@ -101,29 +135,12 @@ function ListMiniMap({
     };
   }, []);
 
-  // Setup scroll event handler
-  useEffect(() => {
-    const handleScroll = () => {
-      if (initialScrollY !== null || scrollThrottle.current) return;
-      scrollThrottle.current = true;
-
-      requestAnimationFrame(() => {
-        setScrollPosition(window.scrollY / scrollFactor);
-        scrollThrottle.current = false;
-      });
-    };
-
-    window.addEventListener("scroll", handleScroll);
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-    };
-  }, [initialScrollY, scrollFactor]);
-
   // Event handlers
   const handlePointerDown: PointerEventHandler<HTMLDivElement> = (e) => {
     e.currentTarget.setPointerCapture(e.pointerId);
     setInitialScrollY(e.clientY);
     setInitialScrollPosition(scrollPosition);
+    setDragPosition(scrollPosition);
     setIsActive(true);
   };
 
@@ -136,7 +153,7 @@ function ListMiniMap({
       Math.max(initialScrollPosition + e.clientY - initialScrollY, 0),
       maxScrollAmount,
     );
-    setScrollPosition(_scrollPosition);
+    setDragPosition(_scrollPosition);
 
     if (scrollPosition !== _scrollPosition) {
       window.scroll(0, _scrollPosition * scrollFactor);
@@ -146,6 +163,7 @@ function ListMiniMap({
   const handlePointerUp: PointerEventHandler<HTMLDivElement> = (e) => {
     e.currentTarget.releasePointerCapture(e.pointerId);
     setInitialScrollY(null);
+    setDragPosition(null);
     setIsActive(false);
   };
 
@@ -158,7 +176,7 @@ function ListMiniMap({
         maxScrollAmount,
       );
       // jump to center of pointer + scroll to position
-      setScrollPosition(jumpY);
+      setDragPosition(jumpY);
       window.scroll(0, jumpY * scrollFactor);
 
       if (!scrollWindowRef.current) {
@@ -183,7 +201,16 @@ function ListMiniMap({
 
   return (
     showMiniMap && (
-      <div className="group absolute -right-6 select-none">
+      <div
+        className="group absolute -right-6 select-none"
+        style={{
+          // Hidden until pageHeight settles via ResizeObserver — see comment
+          // on pageHeightSettled in useEntryHeights.ts. Children still render
+          // and animate (transition-colors on entries), they just don't
+          // contribute to any paint until visibility flips.
+          visibility: pageHeightSettled ? "visible" : "hidden",
+        }}
+      >
         {/* Extra hover padding */}
         <div
           className="fixed top-0 h-full"
