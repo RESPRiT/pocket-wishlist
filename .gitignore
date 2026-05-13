@@ -14,7 +14,13 @@ local.db-*
 # Beads / Dolt files (added by bd init)
 .dolt/
 *.db
+*.db-shm
+*.db-wal
 .beads-credential-key
+
+# Claude Code local-only state
+.claude/worktrees/
+.claude/settings.local.json
 
 # Beads passive exports — source of truth is the Dolt DB.
 # Tracking these creates churn on every commit via hooks.
