@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { EntryItem, HeadingItem } from "./List";
 import ListEntry from "./ListEntry";
 import ListHeading from "./ListHeading";
@@ -22,4 +23,11 @@ function ListItem({ item }: { item: VirtualListItem }) {
   return <ListEntry {...item.entry} />;
 }
 
-export default ListItem;
+// memo so mid-viewport items skip re-render during scroll: List.tsx is
+// opted out of the React Compiler ("use no memo" — tanstack-virtual
+// incompatibility), so its <ListItem item={…} /> elements are created
+// fresh on every render. The `item` prop here points back into the
+// virtualItems array (a useMemo result), so its reference is stable
+// across scroll-only renders and memo's default shallow compare skips
+// the re-render. Step 3 of pocket-wishlist-on5.
+export default memo(ListItem);
