@@ -148,7 +148,14 @@ export function useEntryHeights(virtualItems: VirtualListItem[]) {
       i += 1;
     }
     if (headingHeight === null && probeHeading) {
-      nextHeadingH = (children[i] as HTMLElement).getBoundingClientRect().height;
+      // Include the heading's margin-top so the virtualizer reserves space for
+      // the visual gap between groups (clamp-[mt,7,10] on ListHeading's outer
+      // div). getBoundingClientRect returns border box only; margin is added
+      // here so itemHeights matches the heading's actual rendered footprint.
+      const el = children[i] as HTMLElement;
+      const cs = window.getComputedStyle(el);
+      const marginTop = parseFloat(cs.marginTop) || 0;
+      nextHeadingH = el.getBoundingClientRect().height + marginTop;
     }
     if (nextProbe !== probe) setProbe(nextProbe);
     if (nextHeadingH !== headingHeight) setHeadingHeight(nextHeadingH);
