@@ -119,6 +119,18 @@ function List() {
     .join(",");
   const scrollMargin = virtualizer.options.scrollMargin;
 
+  // Visible-range bounds in list-container coords. Used to size the
+  // viewTransition wrapper below — naming the full list root for view
+  // transitions snapshots its bounding box (height ≈ totalSize, tens of
+  // thousands of px), which is catastrophic for the theme toggle. Sizing the
+  // wrapper to just the visible items matches the previous layout.
+  const visibleStart =
+    viewportItems.length > 0 ? viewportItems[0].start - scrollMargin : 0;
+  const visibleEnd =
+    viewportItems.length > 0
+      ? viewportItems[viewportItems.length - 1].end - scrollMargin
+      : 0;
+
   // Group virtualItems into sections (heading + the entries it covers, up to
   // the next heading). Each section's wrapper acts as the scaffold for a
   // browser-native position: sticky heading: the sticky element pins inside
@@ -126,40 +138,63 @@ function List() {
   // user scrolls the group and is lifted off when the next section's wrapper
   // pushes past viewport top. No scroll listener or per-frame translate
   // bookkeeping required.
+  //
+  // Each section's wrapper bottom is EXTENDED into the next section by the
+  // height of the next heading. That keeps the current heading sticky-pinned
+  // throughout the next heading's arrival, so both are at viewport top during
+  // the transition (DOM order puts the next heading above). The current
+  // heading then lifts off as the wrapper's bottom slides past viewport top,
+  // producing a fully-overlapping handoff instead of an edge-to-edge meet.
   const sections = useMemo(() => {
-    const result: { heading: HeadingItem; startY: number; height: number }[] =
-      [];
+    const raw: {
+      heading: HeadingItem;
+      startY: number;
+      headingHeight: number;
+      contentEndY: number;
+    }[] = [];
     let y = 0;
     let pendingHeading: HeadingItem | null = null;
     let pendingStartY = 0;
+    let pendingHeadingHeight = 0;
     for (let i = 0; i < virtualItems.length; i++) {
       const item = virtualItems[i];
       if (item.itemType === "heading") {
         if (pendingHeading) {
-          result.push({
+          raw.push({
             heading: pendingHeading,
             startY: pendingStartY,
-            height: y - pendingStartY,
+            headingHeight: pendingHeadingHeight,
+            contentEndY: y,
           });
         }
         pendingHeading = item;
         pendingStartY = y;
+        pendingHeadingHeight = itemHeights.get(item.key) ?? 75;
       }
       y += itemHeights.get(item.key) ?? 75;
       y += 8;
     }
     if (pendingHeading) {
-      result.push({
+      raw.push({
         heading: pendingHeading,
         startY: pendingStartY,
-        height: y - pendingStartY,
+        headingHeight: pendingHeadingHeight,
+        contentEndY: y,
       });
     }
-    return result;
+    return raw.map((s, i) => {
+      const next = raw[i + 1];
+      const height = next
+        ? next.startY + next.headingHeight - s.startY
+        : s.contentEndY - s.startY;
+      return { heading: s.heading, startY: s.startY, height };
+    });
   }, [virtualItems, itemHeights]);
 
   // Headings live in sectionWrappers; the regular viewport renders only
-  // non-heading items (entries + subheadings).
+  // non-heading items (entries + subheadings). Entries are positioned
+  // relative to the viewTransition wrapper below (top: visibleStart), so
+  // their translateY subtracts visibleStart from the row's list-container Y.
   const renderedViewport = useMemo(
     () =>
       viewportItems
@@ -169,14 +204,14 @@ function List() {
             key={row.key}
             className="absolute top-0 right-0 left-0"
             style={{
-              transform: `translateY(${row.start - scrollMargin}px)`,
+              transform: `translateY(${row.start - scrollMargin - visibleStart}px)`,
             }}
           >
             <ListItem item={virtualItems[row.index]} />
           </div>
         )),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [viewportItemsKey, virtualItems, scrollMargin],
+    [viewportItemsKey, virtualItems, scrollMargin, visibleStart],
   );
 
   // One wrapper per group, always rendered (cheap: a div with one sticky
@@ -200,7 +235,9 @@ function List() {
             height: `${section.height}px`,
           }}
         >
-          <div className="pointer-events-auto sticky top-0 z-20">
+          {/* top-4 (16px) gives the pinned heading breathing room from the
+              viewport top, matching the previous layout's visual offset. */}
+          <div className="pointer-events-auto sticky top-4 z-20">
             <ListItem item={section.heading} />
           </div>
         </div>
@@ -214,7 +251,6 @@ function List() {
       className="relative mb-12 w-full"
       style={{
         height: `${virtualizer.getTotalSize()}px`,
-        viewTransitionName: "foreground",
       }}
     >
       {/* Hidden measurement container - only rendered when measuring */}
@@ -234,7 +270,21 @@ function List() {
         />
       </ClientOnly>
       {sectionWrappers}
-      {renderedViewport}
+      {/* Viewport-sized wrapper carrying viewTransitionName so the theme
+          toggle's foreground snapshot is bounded to the visible items'
+          rectangle — not the 30000+ px list root. Section sticky headings
+          stay outside this wrapper (they need full list height to function),
+          so they participate in the default root transition. */}
+      <div
+        className="absolute right-0 left-0"
+        style={{
+          top: `${visibleStart}px`,
+          height: `${visibleEnd - visibleStart}px`,
+          viewTransitionName: "foreground",
+        }}
+      >
+        {renderedViewport}
+      </div>
     </div>
   );
 }
