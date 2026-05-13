@@ -105,8 +105,13 @@ export function useEntryHeights(virtualItems: VirtualListItem[]) {
 
   // Items the MeasurementContainer should render. Empty once probes are
   // measured for the current viewport — eliminates the loading-time tax.
-  // Memoized so the array identity is stable when nothing actually needs to
-  // be measured; the layout effect below uses this as a dep.
+  //
+  // Manually memoized because the `probeVpRef.current = …` render-time write
+  // further down bails React Compiler out of memoizing this whole hook. The
+  // useLayoutEffect below uses this array as a dep, and the consumer (List)
+  // feeds the returned itemHeights into the virtualizer's options memo — a
+  // new array/Map identity each render cascades into a virtualizer setState
+  // loop and trips React's re-render limit.
   const needsMeasurement = useMemo(() => {
     const items: VirtualListItem[] = [];
     if (!fontsReady) return items;
@@ -150,9 +155,10 @@ export function useEntryHeights(virtualItems: VirtualListItem[]) {
   }, [needsMeasurement, probe, headingHeight, probeEntry, probeHeading]);
 
   // Compute item heights: heading/subheading from constants + probe, entries
-  // from probe + pretext-derived line counts. Memoized so the Map identity is
-  // stable across renders when inputs don't change — downstream consumers
-  // (the virtualizer options memo) use the Map ref as a dependency.
+  // from probe + pretext-derived line counts. Manually memoized for the same
+  // reason as `needsMeasurement` above — the render-time ref write below
+  // bails React Compiler out, so without this the Map identity would change
+  // every render and cascade into the virtualizer's options memo.
   const itemHeights = useMemo(() => {
     const map = new Map<string, number>();
     if (!fontsReady || !probe) return map;
@@ -198,6 +204,11 @@ export function useEntryHeights(virtualItems: VirtualListItem[]) {
   //
   // rAF-throttled: at most one re-probe per frame, aligned with the
   // browser's render cycle.
+  //
+  // Writing `probeVpRef.current` during render (rather than in a useEffect)
+  // bails React Compiler out of memoizing this hook — see the manual
+  // useMemo wraps for `needsMeasurement` and `itemHeights` above which
+  // exist to backfill that lost memoization.
   const probeVpRef = useRef<number | null>(null);
   probeVpRef.current = probe?.vp ?? null;
   useEffect(() => {
