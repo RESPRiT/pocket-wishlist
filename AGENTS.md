@@ -43,11 +43,25 @@ yourself; leave that for the user.
 and derived values, so **do not reach for `useMemo` / `useCallback`** in new
 code — leave the computation inline and let the compiler do the work.
 
-A few hand-written hooks/components opt out by placing a `"use no memo"`
-directive at the top of the function body, typically because a library
-they wrap (e.g. `@tanstack/react-virtual`) is incompatible with the
-compiler's memoization. `packages/wishlist-web/src/components/List.tsx` is
-the current example. Don't add the directive without a documented reason.
+This is a strict default. Only deviate when the compiler demonstrably
+isn't covering a case, *or* covering it breaks something. The two known
+escape hatches:
+
+- **`"use no memo"` directive** at the top of a function body opts that
+  function out of compilation. Used when the compiler's output is
+  incompatible with a wrapped library —
+  `packages/wishlist-web/src/components/List.tsx` is the current example
+  (incompatible with `@tanstack/react-virtual`).
+- **Manual `useMemo` / `useCallback`** when the compiler bails on a hook
+  for structural reasons (e.g. a ref write during render) and a downstream
+  consumer needs a stable reference. See `useEntryHeights` for an example:
+  the `probeVpRef.current = …` render-time write bails the compiler, so
+  `itemHeights` and `needsMeasurement` are wrapped manually because the
+  virtualizer's options memo in `List` depends on their identity.
+
+Whichever escape hatch you reach for, **leave a code comment explaining
+why the compiler isn't doing this for you** — both so a future reader
+doesn't strip it as redundant, and so the policy stays auditable.
 
 ## Non-Interactive Shell Commands
 

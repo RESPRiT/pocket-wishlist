@@ -1,0 +1,5 @@
+[install]
+# Reject packages published less than 3 days ago. Supply-chain hygiene:
+# a typo-squat or compromised release usually gets caught/yanked within
+# a few days, so this is a cheap safety net.
+minimumReleaseAge = 259200
