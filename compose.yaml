@@ -3,7 +3,10 @@
 #
 # Routing:
 #   kol.resprit.com/*     -> web:3000
-#   kol.resprit.com/api/* -> api:3001  (prefix /api is stripped before forwarding)
+#   kol.resprit.com/api/* -> web:3000  (web reverse-proxies to api:3001)
+#
+# The web container owns the /api/* proxy now (server.ts), so Traefik only
+# needs one route per service. Local dev mirrors this via vite's server.proxy.
 
 services:
   web:
@@ -16,6 +19,11 @@ services:
     pull_policy: always
     environment:
       PORT: "3000"
+      # Host of the api container; the web server reverse-proxies /api/*
+      # here and the bootstrap fetcher pulls initial data from it.
+      API_BASE_INTERNAL: http://api:3001
+    depends_on:
+      - api
     restart: unless-stopped
     labels:
       - traefik.enable=true
@@ -52,26 +60,8 @@ services:
     volumes:
       - api_data:/data
     restart: unless-stopped
-    labels:
-      - traefik.enable=true
-      - traefik.docker.network=coolify
-      - traefik.http.routers.pocket-wishlist-api-http.entryPoints=http
-      - traefik.http.routers.pocket-wishlist-api-http.rule=Host(`kol.resprit.com`) && PathPrefix(`/api`)
-      - traefik.http.routers.pocket-wishlist-api-http.middlewares=redirect-to-https
-      - traefik.http.routers.pocket-wishlist-api-http.priority=10
-      - traefik.http.routers.pocket-wishlist-api.entryPoints=https
-      - traefik.http.routers.pocket-wishlist-api.rule=Host(`kol.resprit.com`) && PathPrefix(`/api`)
-      - traefik.http.routers.pocket-wishlist-api.tls=true
-      - traefik.http.routers.pocket-wishlist-api.tls.certresolver=letsencrypt
-      - traefik.http.routers.pocket-wishlist-api.priority=10
-      - traefik.http.routers.pocket-wishlist-api.middlewares=pocket-wishlist-api-strip
-      - traefik.http.middlewares.pocket-wishlist-api-strip.stripprefix.prefixes=/api
-      - traefik.http.services.pocket-wishlist-api.loadbalancer.server.port=3001
-      # Probes backend directly — bypasses the /api stripprefix middleware,
-      # so the path is /health (not /api/health).
-      - traefik.http.services.pocket-wishlist-api.loadbalancer.healthcheck.path=/health
-      - traefik.http.services.pocket-wishlist-api.loadbalancer.healthcheck.interval=30s
-      - traefik.http.services.pocket-wishlist-api.loadbalancer.healthcheck.timeout=5s
+    # No Traefik router: the api is reachable only via web's /api/* reverse
+    # proxy on the docker network. Public ingress is web-only.
 
 volumes:
   api_data:

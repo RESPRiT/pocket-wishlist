@@ -1,0 +1,26 @@
+# Local development override of compose.yaml: builds the images from this
+# checkout instead of pulling from GHCR, exposes only the web port (api is
+# reached via web's /api/* reverse-proxy), and drops the Coolify/Traefik
+# labels that are meaningless off the VPS.
+#
+# Usage:
+#   docker compose -f compose.yaml -f compose.dev.yaml up --build
+# Then visit http://localhost:3000
+
+services:
+  web:
+    image: !reset null
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    labels: !reset []
+
+  api:
+    image: !reset null
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    environment:
+      SECRET: localdev

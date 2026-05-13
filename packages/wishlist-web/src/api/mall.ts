@@ -3,13 +3,11 @@ import {
   MallPriceResponseSchema,
   type MallPriceResponse,
 } from "wishlist-shared";
-import { API_BASE } from "./_base";
-
 /**
  * Fetches lowest mall prices
  */
 export async function fetchMallPrices(): Promise<MallPriceResponse> {
-  const url = `${API_BASE}/get-prices`;
+  const url = `/api/get-prices`;
 
   const response = await fetch(url);
   if (!response.ok) {
