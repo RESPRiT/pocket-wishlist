@@ -239,11 +239,23 @@ export function useEntryHeights(virtualItems: VirtualListItem[]) {
   }, []);
 
   // Page height tracker (separate concern, used by ListMiniMap).
+  // `pageHeightSettled` flips to true once the ResizeObserver has reported a
+  // scrollHeight that differs from the default-height estimate — at that
+  // point pageHeight reflects actual measured item heights. ListMiniMap
+  // hides itself until then so its scrollFactor (= pageHeight / minimapHeight)
+  // never paints with the stale estimate, which would put the scroll-window
+  // box at the wrong vertical position for ~one frame after reload.
+  const initialPageHeightRef = useRef(pageHeight);
+  const [pageHeightSettled, setPageHeightSettled] = useState(false);
   const { isTransitioning } = useTheme();
   useEffect(() => {
     const observer = new ResizeObserver(() => {
       if (isTransitioning) return;
-      setPageHeight(document.documentElement.scrollHeight);
+      const next = document.documentElement.scrollHeight;
+      setPageHeight(next);
+      if (next !== initialPageHeightRef.current) {
+        setPageHeightSettled(true);
+      }
     });
     observer.observe(document.body);
     return () => observer.disconnect();
@@ -252,6 +264,7 @@ export function useEntryHeights(virtualItems: VirtualListItem[]) {
   return {
     itemHeights,
     pageHeight,
+    pageHeightSettled,
     needsMeasurement,
     containerRef,
   };
