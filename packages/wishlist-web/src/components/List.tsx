@@ -1,13 +1,9 @@
 import { ListEntryProps } from "./ListEntry";
 import { HeadingInfo, HeadingStatus, HeadingType } from "./ListHeading";
 import { IOTM, iotms } from "wishlist-shared";
-import { useCallback, useMemo, useRef } from "react";
+import { useMemo, useRef } from "react";
 import { useHydratedSettingsStore } from "@/stores/useSettingsStore.ts";
-import {
-  defaultRangeExtractor,
-  Range,
-  useWindowVirtualizer,
-} from "@tanstack/react-virtual";
+import { useWindowVirtualizer } from "@tanstack/react-virtual";
 import { useMallPrices } from "@/hooks/useMallPrices";
 import { getSortFunction } from "@/lib/sortWishlist";
 import { useWishlist } from "@/contexts/WishlistContext";
@@ -95,36 +91,6 @@ function List() {
   // Setup virtualizer
   const listRef = useRef<HTMLDivElement>(null);
 
-  // Heading positions within virtualItems. Subheadings are deliberately not
-  // sticky — only top-level group headings pin to the viewport top.
-  const stickyIndexes = useMemo(
-    () =>
-      virtualItems
-        .map((item, i) => (item.itemType === "heading" ? i : -1))
-        .filter((i) => i !== -1),
-    [virtualItems],
-  );
-
-  // The currently-active sticky heading is the largest stickyIndex <=
-  // range.startIndex (i.e. the most-recently-passed heading). Updated
-  // synchronously by rangeExtractor so render sees the right value.
-  const activeStickyIdxRef = useRef<number | null>(null);
-
-  const rangeExtractor = useCallback(
-    (range: Range) => {
-      let active: number | null = null;
-      for (const i of stickyIndexes) {
-        if (i <= range.startIndex) active = i;
-        else break;
-      }
-      activeStickyIdxRef.current = active;
-      const defaultRange = defaultRangeExtractor(range);
-      if (active === null || defaultRange.includes(active)) return defaultRange;
-      return [active, ...defaultRange].sort((a, b) => a - b);
-    },
-    [stickyIndexes],
-  );
-
   const virtualizerOptions = useMemo(() => {
     return {
       count: virtualItems.length,
@@ -134,7 +100,6 @@ function List() {
       gap: 8,
       scrollMargin: listRef.current?.offsetTop ?? 0,
       overscan: 3,
-      rangeExtractor,
       // size of the window during SSR
       initialRect: {
         height: 15 * (75 + 8),
@@ -144,7 +109,7 @@ function List() {
         return virtualItems[index].key;
       },
     };
-  }, [virtualItems, itemHeights, rangeExtractor]);
+  }, [virtualItems, itemHeights]);
 
   const virtualizer = useWindowVirtualizer(virtualizerOptions);
 
@@ -153,73 +118,94 @@ function List() {
     .map((v) => `${v.key}:${v.start}`)
     .join(",");
   const scrollMargin = virtualizer.options.scrollMargin;
-  const scrollOffset = virtualizer.scrollOffset ?? 0;
-  // Scroll position in list-container coordinates (excluding scrollMargin).
-  const listScrollY = scrollOffset - scrollMargin;
 
-  // Cumulative Y of every item from the list-container top. Needed for the
-  // sticky lift-off clamp because the next heading may be outside the
-  // viewport (and thus absent from viewportItems).
-  const itemOffsets = useMemo(() => {
-    const offsets = new Float64Array(virtualItems.length);
+  // Group virtualItems into sections (heading + the entries it covers, up to
+  // the next heading). Each section's wrapper acts as the scaffold for a
+  // browser-native position: sticky heading: the sticky element pins inside
+  // its parent's vertical bounds, so it stays at the viewport top while the
+  // user scrolls the group and is lifted off when the next section's wrapper
+  // pushes past viewport top. No scroll listener or per-frame translate
+  // bookkeeping required.
+  const sections = useMemo(() => {
+    const result: { heading: HeadingItem; startY: number; height: number }[] =
+      [];
     let y = 0;
+    let pendingHeading: HeadingItem | null = null;
+    let pendingStartY = 0;
     for (let i = 0; i < virtualItems.length; i++) {
-      offsets[i] = y;
-      y += itemHeights.get(virtualItems[i].key) ?? 75;
-      y += 8; // matches virtualizer's gap
+      const item = virtualItems[i];
+      if (item.itemType === "heading") {
+        if (pendingHeading) {
+          result.push({
+            heading: pendingHeading,
+            startY: pendingStartY,
+            height: y - pendingStartY,
+          });
+        }
+        pendingHeading = item;
+        pendingStartY = y;
+      }
+      y += itemHeights.get(item.key) ?? 75;
+      y += 8;
     }
-    return offsets;
+    if (pendingHeading) {
+      result.push({
+        heading: pendingHeading,
+        startY: pendingStartY,
+        height: y - pendingStartY,
+      });
+    }
+    return result;
   }, [virtualItems, itemHeights]);
 
-  const activeStickyIdx = activeStickyIdxRef.current;
-
-  // Each item is absolute-positioned at its computed Y. For the active sticky
-  // heading we override that Y with clamp(scrollY, naturalY, nextHeadingY −
-  // activeSize): it pins at the viewport top while scrolling past, and lifts
-  // off when the next heading arrives.
+  // Headings live in sectionWrappers; the regular viewport renders only
+  // non-heading items (entries + subheadings).
   const renderedViewport = useMemo(
     () =>
-      viewportItems.map((row) => {
-        const isActiveSticky = row.index === activeStickyIdx;
-        let translateY = row.start - scrollMargin;
-        if (isActiveSticky) {
-          const orderIdx = stickyIndexes.indexOf(row.index);
-          const nextStickyIdx = stickyIndexes[orderIdx + 1] ?? null;
-          const upperBound =
-            nextStickyIdx !== null
-              ? itemOffsets[nextStickyIdx] - row.size
-              : Infinity;
-          translateY = Math.min(
-            Math.max(translateY, listScrollY),
-            upperBound,
-          );
-        }
-        return (
+      viewportItems
+        .filter((row) => virtualItems[row.index].itemType !== "heading")
+        .map((row) => (
           <div
             key={row.key}
-            className={`absolute top-0 right-0 left-0${
-              isActiveSticky ? " z-20" : ""
-            }`}
+            className="absolute top-0 right-0 left-0"
             style={{
-              transform: `translateY(${translateY}px)`,
+              transform: `translateY(${row.start - scrollMargin}px)`,
             }}
           >
             <ListItem item={virtualItems[row.index]} />
           </div>
-        );
-      }),
-    // update when items, positions, or active sticky change. listScrollY is in
-    // the deps so the active heading's clamped Y updates on every scroll.
+        )),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [
-      viewportItemsKey,
-      virtualItems,
-      scrollMargin,
-      activeStickyIdx,
-      stickyIndexes,
-      itemOffsets,
-      listScrollY,
-    ],
+    [viewportItemsKey, virtualItems, scrollMargin],
+  );
+
+  // One wrapper per group, always rendered (cheap: a div with one sticky
+  // child). The wrapper uses CSS top/height (not transform) so the
+  // sticky descendant resolves its offset against the viewport rather than
+  // the wrapper's transformed coordinate space. section.startY is already in
+  // list-container coordinates (accumulated from 0 via itemHeights), so it's
+  // applied directly as `top` — no scrollMargin subtraction. Entries by
+  // contrast use row.start from the virtualizer, which is in page-scroll
+  // coordinates and thus needs scrollMargin subtracted.
+  // pointer-events-none on the wrapper keeps it from intercepting clicks on
+  // entries that pass behind it.
+  const sectionWrappers = useMemo(
+    () =>
+      sections.map((section) => (
+        <div
+          key={section.heading.key}
+          className="pointer-events-none absolute right-0 left-0"
+          style={{
+            top: `${section.startY}px`,
+            height: `${section.height}px`,
+          }}
+        >
+          <div className="pointer-events-auto sticky top-0 z-20">
+            <ListItem item={section.heading} />
+          </div>
+        </div>
+      )),
+    [sections],
   );
 
   return (
@@ -247,6 +233,7 @@ function List() {
           pageHeight={pageHeight}
         />
       </ClientOnly>
+      {sectionWrappers}
       {renderedViewport}
     </div>
   );
