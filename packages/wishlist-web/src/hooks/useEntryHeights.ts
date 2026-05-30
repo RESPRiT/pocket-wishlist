@@ -50,8 +50,20 @@ const layoutVp = (): number =>
     ? 0
     : document.documentElement.clientWidth || window.innerWidth;
 
-const heightOf = (el: Element | null | undefined): number =>
-  el ? el.getBoundingClientRect().height : 0;
+// Effective layout height of a flex child: border-box plus its own vertical
+// margins. A parent's content area includes each child's margin, so reading
+// getBoundingClientRect alone over-counts when a child has a negative margin
+// pulling its effective height down — e.g. the name's EntryItem in
+// EntryInfoSection uses `-mt-0.5` to tighten its placement, which would
+// otherwise produce a 2px over-allocation per multi-line name.
+const layoutH = (el: Element | null | undefined): number => {
+  if (!el) return 0;
+  const h = el.getBoundingClientRect().height;
+  const cs = window.getComputedStyle(el);
+  const mt = parseFloat(cs.marginTop) || 0;
+  const mb = parseFloat(cs.marginBottom) || 0;
+  return h + mt + mb;
+};
 
 const readProbeMeasurements = (
   probeRoot: Element,
@@ -60,7 +72,9 @@ const readProbeMeasurements = (
     "div.relative.col-start-1.row-start-1",
   ) as HTMLElement | null;
   if (!row) return null;
-  const totalH = heightOf(row);
+  // The row is the outermost measurement — its border-box already folds in
+  // padding and any descendant margins, so no `layoutH` adjustment needed.
+  const totalH = row.getBoundingClientRect().height;
   const flexChildren = Array.from(row.children).filter(
     (c) => !(c as HTMLElement).className.includes("absolute"),
   ) as HTMLElement[];
@@ -72,12 +86,12 @@ const readProbeMeasurements = (
   const sectionChildren = Array.from(infoSection.children) as HTMLElement[];
   const [imageEl, nameItemEl, yearItemEl] = sectionChildren;
   if (!nameItemEl) return null;
-  const nameItemH = heightOf(nameItemEl);
-  const staticInSection = Math.max(heightOf(imageEl), heightOf(yearItemEl));
+  const nameItemH = layoutH(nameItemEl);
+  const staticInSection = Math.max(layoutH(imageEl), layoutH(yearItemEl));
   let staticOutsideSection = 0;
   for (const c of flexChildren) {
     if (c !== infoSection)
-      staticOutsideSection = Math.max(staticOutsideSection, heightOf(c));
+      staticOutsideSection = Math.max(staticOutsideSection, layoutH(c));
   }
   const rowIsNowrap = window.getComputedStyle(row).flexWrap === "nowrap";
   return {
