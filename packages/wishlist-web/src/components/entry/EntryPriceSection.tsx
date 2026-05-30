@@ -9,11 +9,11 @@ type EntryPriceSectionProps = {
   packagedName: string;
 };
 
-// True when the price section will render its infinite-style font
+// /// CLAUDE 3d254f35 ///
+// True when the price section renders its infinite-style font
 // (font-bold lg:text-2xl). Mirrors the `isInfinite` derivation below.
-// Exported so useEntryHeights can pick the matching probe per entry —
-// lg:text-2xl bumps the price section's line-height from 28→32px, which
-// the virtualizer otherwise misses.
+// useEntryHeights consumes this to pick a probe variant per entry.
+// /// --------------- ///
 export function isExtinctPriceStyle(price: Price | null): boolean {
   if (price === null) return true;
   return (

@@ -6,11 +6,11 @@ import { useTheme } from "@/contexts/ThemeContext";
 import { nameLineHeightPx } from "@/lib/entryGeometry";
 import { nameTextLineCount } from "@/lib/entryNameHeight";
 
-// Synthetic prices used to force the two height-relevant variants of the
-// EntryPriceSection font: the standard text-lg (normal) and the larger
-// font-bold lg:text-2xl (extinct). Cloning the probe entry with each keeps
-// the name line count constant while flipping only the price-section font,
-// so we can pick the matching probe per-entry in itemHeights.
+// /// CLAUDE 3d254f35 ///
+// Probe-input prices that render the price section in each of its two
+// height-relevant font states: text-lg (normal) and font-bold lg:text-2xl
+// (extinct).
+// /// --------------- ///
 const NORMAL_PROBE_PRICE: Price = {
   lowestMall: 100,
   value: 200,
@@ -50,12 +50,13 @@ const layoutVp = (): number =>
     ? 0
     : document.documentElement.clientWidth || window.innerWidth;
 
+// /// CLAUDE 3d254f35 ///
 // Effective layout height of a flex child: border-box plus its own vertical
-// margins. A parent's content area includes each child's margin, so reading
-// getBoundingClientRect alone over-counts when a child has a negative margin
-// pulling its effective height down — e.g. the name's EntryItem in
-// EntryInfoSection uses `-mt-0.5` to tighten its placement, which would
-// otherwise produce a 2px over-allocation per multi-line name.
+// margins. A parent's content area expands to include each child's margin,
+// so a flex child's contribution to its parent's height is bbox + margins
+// (negative margins reduce it). Required for the name's EntryItem in
+// EntryInfoSection, which uses `-mt-0.5` to tighten placement.
+// /// --------------- ///
 const layoutH = (el: Element | null | undefined): number => {
   if (!el) return 0;
   const h = el.getBoundingClientRect().height;
@@ -72,8 +73,10 @@ const readProbeMeasurements = (
     "div.relative.col-start-1.row-start-1",
   ) as HTMLElement | null;
   if (!row) return null;
+  // /// CLAUDE 3d254f35 ///
   // The row is the outermost measurement — its border-box already folds in
   // padding and any descendant margins, so no `layoutH` adjustment needed.
+  // /// --------------- ///
   const totalH = row.getBoundingClientRect().height;
   const flexChildren = Array.from(row.children).filter(
     (c) => !(c as HTMLElement).className.includes("absolute"),
@@ -124,17 +127,18 @@ export function useEntryHeights(virtualItems: VirtualListItem[]) {
   const [fontsReady, setFontsReady] = useState<boolean>(
     typeof document === "undefined" ? false : document.fonts?.status === "loaded",
   );
-  // Two probes: one for the standard price-section font, one for the extinct
-  // (font-bold lg:text-2xl) variant which adds ~4px of line-height at lg+.
-  // Per-entry the larger one is selected when isExtinctPriceStyle(price) is
-  // true; otherwise the normal one.
+  // /// CLAUDE 3d254f35 ///
+  // Two probes, one per price-section font variant. Per-entry selection is
+  // by isExtinctPriceStyle(price).
+  // /// --------------- ///
   const [probeNormal, setProbeNormal] = useState<ProbeData | null>(null);
   const [probeExtinct, setProbeExtinct] = useState<ProbeData | null>(null);
   const [headingHeight, setHeadingHeight] = useState<number | null>(null);
 
+  // /// CLAUDE 3d254f35 ///
   // Identify a probe entry and a probe heading from current items. Both
-  // synthetic probes are derived from the same source entry so they share a
-  // name (and therefore line count) — only the price prop differs.
+  // synthetic probes derive from the same source entry; only the price differs.
+  // /// --------------- ///
   const probeEntry = virtualItems.find((v) => v.itemType === "entry");
   const probeHeading = virtualItems.find((v) => v.itemType === "heading");
   const probeEntryNormal: VirtualListItem | null = probeEntry
@@ -242,18 +246,20 @@ export function useEntryHeights(virtualItems: VirtualListItem[]) {
     probeHeading,
   ]);
 
+  // /// CLAUDE 3d254f35 ///
   // Compute item heights: heading/subheading from constants + probe, entries
   // from probe + pretext-derived line counts. Per-entry the probe is chosen
-  // by isExtinctPriceStyle — the extinct probe captures the +4px line-height
-  // bump from font-bold lg:text-2xl on the price section at lg+. Manually
-  // memoized for the same reason as `needsMeasurement` above — the
-  // render-time ref write below bails React Compiler out, so without this
-  // the Map identity would change every render and cascade into the
-  // virtualizer's options memo.
+  // by isExtinctPriceStyle. Manually memoized for the same reason as
+  // `needsMeasurement` above — the render-time ref write below bails React
+  // Compiler out, so without this the Map identity would change every render
+  // and cascade into the virtualizer's options memo.
+  // /// --------------- ///
   const itemHeights = useMemo(() => {
     const map = new Map<string, number>();
     if (!fontsReady || !probeNormal || !probeExtinct) return map;
+    // /// CLAUDE 3d254f35 ///
     // Both probes are measured at the same viewport, so they share lh.
+    // /// --------------- ///
     const lh = nameLineHeightPx(probeNormal.vp);
     const probeSectionLineHNormal = lineWithSectionH(
       probeNormal.nameItemH,
