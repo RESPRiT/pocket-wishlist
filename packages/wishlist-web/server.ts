@@ -70,11 +70,10 @@ const SERVER_PORT = Number(process.env.PORT ?? 3000);
 const CLIENT_DIRECTORY = "./dist";
 const INDEX_HTML_PATH = "./dist/index.html";
 
-// Internal API base for server-to-server fetches during request transform.
-// Falls back to the browser-facing base (VITE_API_BASE) — useful when the
-// containers share a network and the URL is identical from both sides.
-const API_BASE_INTERNAL =
-  process.env.API_BASE_INTERNAL ?? process.env.VITE_API_BASE ?? "";
+// Host of the api container, used both for the /api/* reverse-proxy below
+// and for server-to-server bootstrap fetches. Paths include /api on both
+// sides — the api mounts itself there — so no rewriting happens anywhere.
+const API_BASE_INTERNAL = process.env.API_BASE_INTERNAL ?? "";
 
 const BOOTSTRAP_FETCH_TIMEOUT_MS = Number(
   process.env.BOOTSTRAP_FETCH_TIMEOUT_MS ?? 1500,
@@ -533,13 +532,13 @@ async function buildBootstrap(
   if (!API_BASE_INTERNAL) return {};
 
   const mallPromise = fetchJsonWithTimeout(
-    `${API_BASE_INTERNAL}/get-prices`,
+    `${API_BASE_INTERNAL}/api/get-prices`,
     BOOTSTRAP_FETCH_TIMEOUT_MS,
   );
   const wishlistPromise =
     userId !== null && userId > 0
       ? fetchJsonWithTimeout(
-          `${API_BASE_INTERNAL}/get-wishlist?u=${String(userId)}`,
+          `${API_BASE_INTERNAL}/api/get-wishlist?u=${String(userId)}`,
           BOOTSTRAP_FETCH_TIMEOUT_MS,
         )
       : Promise.resolve(null);
@@ -580,7 +579,7 @@ async function initializeServer() {
 
   if (!API_BASE_INTERNAL) {
     log.warning(
-      "API_BASE_INTERNAL / VITE_API_BASE not set — bootstrap injection disabled",
+      "API_BASE_INTERNAL not set — bootstrap injection and /api/* proxy disabled",
     );
   }
 
@@ -596,6 +595,31 @@ async function initializeServer() {
       ...routes,
 
       "/health": () => new Response("ok", { status: 200 }),
+
+      // Reverse-proxy /api/* to the api service, preserving the path. The
+      // api mounts itself at /api, so we forward verbatim — no rewriting.
+      "/api/*": async (req: Request) => {
+        if (!API_BASE_INTERNAL) {
+          return new Response("api proxy not configured", { status: 502 });
+        }
+        const url = new URL(req.url);
+        try {
+          return await fetch(
+            `${API_BASE_INTERNAL}${url.pathname}${url.search}`,
+            {
+              method: req.method,
+              headers: req.headers,
+              body:
+                req.method === "GET" || req.method === "HEAD"
+                  ? undefined
+                  : req.body,
+            },
+          );
+        } catch (error) {
+          log.error(`api proxy error: ${String(error)}`);
+          return new Response("Bad gateway", { status: 502 });
+        }
+      },
 
       // Inject bootstrap data into the SPA shell for all other routes
       "/*": async (req: Request) => {
