@@ -12,7 +12,7 @@ function MeasurementContainer({
   return (
     <div
       ref={containerRef}
-      className="invisible absolute top-0 left-0 -z-10 flex w-full flex-wrap
+      className="invisible absolute top-0 left-0 -z-10 flex w-full flex-col
         items-stretch gap-2"
     >
       {virtualItems.map((v) => (

@@ -9,6 +9,19 @@ type EntryPriceSectionProps = {
   packagedName: string;
 };
 
+// True when the price section will render its infinite-style font
+// (font-bold lg:text-2xl). Mirrors the `isInfinite` derivation below.
+// Exported so useEntryHeights can pick the matching probe per entry —
+// lg:text-2xl bumps the price section's line-height from 28→32px, which
+// the virtualizer otherwise misses.
+export function isExtinctPriceStyle(price: Price | null): boolean {
+  if (price === null) return true;
+  return (
+    price.lowestMall === -1 &&
+    (price.value === undefined || price.volume === 0)
+  );
+}
+
 // TODO: Refactor evil pricing hacks
 export function EntryPriceSection({
   mrAs,
@@ -73,7 +86,7 @@ export function EntryPriceSection({
 
   const isExpensive =
     lowestPrice && Math.round(lowestPrice / 1_000_000) >= 1000;
-  const isInfinite = lowestPrice === -1;
+  const isInfinite = isExtinctPriceStyle(price);
 
   const fontClass = isInfinite
     ? "font-bold lg:text-2xl"

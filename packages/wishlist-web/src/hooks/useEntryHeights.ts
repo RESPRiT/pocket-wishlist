@@ -1,8 +1,22 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { Price } from "wishlist-shared";
 import { VirtualListItem } from "@/components/ListItem";
+import { isExtinctPriceStyle } from "@/components/entry/EntryPriceSection";
 import { useTheme } from "@/contexts/ThemeContext";
 import { nameLineHeightPx } from "@/lib/entryGeometry";
 import { nameTextLineCount } from "@/lib/entryNameHeight";
+
+// Synthetic prices used to force the two height-relevant variants of the
+// EntryPriceSection font: the standard text-lg (normal) and the larger
+// font-bold lg:text-2xl (extinct). Cloning the probe entry with each keeps
+// the name line count constant while flipping only the price-section font,
+// so we can pick the matching probe per-entry in itemHeights.
+const NORMAL_PROBE_PRICE: Price = {
+  lowestMall: 100,
+  value: 200,
+  volume: 1,
+};
+const EXTINCT_PROBE_PRICE: Price = { lowestMall: -1 };
 
 const DEFAULT_HEIGHTS = {
   entry: 75,
@@ -96,12 +110,33 @@ export function useEntryHeights(virtualItems: VirtualListItem[]) {
   const [fontsReady, setFontsReady] = useState<boolean>(
     typeof document === "undefined" ? false : document.fonts?.status === "loaded",
   );
-  const [probe, setProbe] = useState<ProbeData | null>(null);
+  // Two probes: one for the standard price-section font, one for the extinct
+  // (font-bold lg:text-2xl) variant which adds ~4px of line-height at lg+.
+  // Per-entry the larger one is selected when isExtinctPriceStyle(price) is
+  // true; otherwise the normal one.
+  const [probeNormal, setProbeNormal] = useState<ProbeData | null>(null);
+  const [probeExtinct, setProbeExtinct] = useState<ProbeData | null>(null);
   const [headingHeight, setHeadingHeight] = useState<number | null>(null);
 
-  // Identify a probe entry and a probe heading from current items.
+  // Identify a probe entry and a probe heading from current items. Both
+  // synthetic probes are derived from the same source entry so they share a
+  // name (and therefore line count) — only the price prop differs.
   const probeEntry = virtualItems.find((v) => v.itemType === "entry");
   const probeHeading = virtualItems.find((v) => v.itemType === "heading");
+  const probeEntryNormal: VirtualListItem | null = probeEntry
+    ? {
+        ...probeEntry,
+        key: `${probeEntry.key}::probe-normal`,
+        entry: { ...probeEntry.entry, price: NORMAL_PROBE_PRICE },
+      }
+    : null;
+  const probeEntryExtinct: VirtualListItem | null = probeEntry
+    ? {
+        ...probeEntry,
+        key: `${probeEntry.key}::probe-extinct`,
+        entry: { ...probeEntry.entry, price: EXTINCT_PROBE_PRICE },
+      }
+    : null;
 
   // Items the MeasurementContainer should render. Empty once probes are
   // measured for the current viewport — eliminates the loading-time tax.
@@ -115,10 +150,20 @@ export function useEntryHeights(virtualItems: VirtualListItem[]) {
   const needsMeasurement = useMemo(() => {
     const items: VirtualListItem[] = [];
     if (!fontsReady) return items;
-    if (probe === null && probeEntry) items.push(probeEntry);
+    if (probeNormal === null && probeEntryNormal) items.push(probeEntryNormal);
+    if (probeExtinct === null && probeEntryExtinct)
+      items.push(probeEntryExtinct);
     if (headingHeight === null && probeHeading) items.push(probeHeading);
     return items;
-  }, [fontsReady, probe, probeEntry, headingHeight, probeHeading]);
+  }, [
+    fontsReady,
+    probeNormal,
+    probeExtinct,
+    probeEntryNormal,
+    probeEntryExtinct,
+    headingHeight,
+    probeHeading,
+  ]);
 
   // Wait for fonts before allowing pretext to compute against the wrong metrics.
   useEffect(() => {
@@ -133,15 +178,28 @@ export function useEntryHeights(virtualItems: VirtualListItem[]) {
     if (needsMeasurement.length === 0) return;
     const children = Array.from(containerRef.current.children);
     let i = 0;
-    let nextProbe: ProbeData | null = probe;
+    let nextNormal: ProbeData | null = probeNormal;
+    let nextExtinct: ProbeData | null = probeExtinct;
     let nextHeadingH: number | null = headingHeight;
-    if (probe === null && probeEntry) {
+    if (probeNormal === null && probeEntryNormal) {
       const measurements = readProbeMeasurements(children[i]);
       if (measurements) {
         const vp = layoutVp();
-        nextProbe = {
+        nextNormal = {
           ...measurements,
-          lineCount: nameTextLineCount(probeEntry.entry.name, vp),
+          lineCount: nameTextLineCount(probeEntryNormal.entry.name, vp),
+          vp,
+        };
+      }
+      i += 1;
+    }
+    if (probeExtinct === null && probeEntryExtinct) {
+      const measurements = readProbeMeasurements(children[i]);
+      if (measurements) {
+        const vp = layoutVp();
+        nextExtinct = {
+          ...measurements,
+          lineCount: nameTextLineCount(probeEntryExtinct.entry.name, vp),
           vp,
         };
       }
@@ -157,24 +215,43 @@ export function useEntryHeights(virtualItems: VirtualListItem[]) {
       const marginTop = parseFloat(cs.marginTop) || 0;
       nextHeadingH = el.getBoundingClientRect().height + marginTop;
     }
-    if (nextProbe !== probe) setProbe(nextProbe);
+    if (nextNormal !== probeNormal) setProbeNormal(nextNormal);
+    if (nextExtinct !== probeExtinct) setProbeExtinct(nextExtinct);
     if (nextHeadingH !== headingHeight) setHeadingHeight(nextHeadingH);
-  }, [needsMeasurement, probe, headingHeight, probeEntry, probeHeading]);
+  }, [
+    needsMeasurement,
+    probeNormal,
+    probeExtinct,
+    headingHeight,
+    probeEntryNormal,
+    probeEntryExtinct,
+    probeHeading,
+  ]);
 
   // Compute item heights: heading/subheading from constants + probe, entries
-  // from probe + pretext-derived line counts. Manually memoized for the same
-  // reason as `needsMeasurement` above — the render-time ref write below
-  // bails React Compiler out, so without this the Map identity would change
-  // every render and cascade into the virtualizer's options memo.
+  // from probe + pretext-derived line counts. Per-entry the probe is chosen
+  // by isExtinctPriceStyle — the extinct probe captures the +4px line-height
+  // bump from font-bold lg:text-2xl on the price section at lg+. Manually
+  // memoized for the same reason as `needsMeasurement` above — the
+  // render-time ref write below bails React Compiler out, so without this
+  // the Map identity would change every render and cascade into the
+  // virtualizer's options memo.
   const itemHeights = useMemo(() => {
     const map = new Map<string, number>();
-    if (!fontsReady || !probe) return map;
-    const lh = nameLineHeightPx(probe.vp);
-    const probeSectionLineH = lineWithSectionH(
-      probe.nameItemH,
-      probe.staticInSection,
-      probe.staticOutsideSection,
-      probe.rowIsNowrap,
+    if (!fontsReady || !probeNormal || !probeExtinct) return map;
+    // Both probes are measured at the same viewport, so they share lh.
+    const lh = nameLineHeightPx(probeNormal.vp);
+    const probeSectionLineHNormal = lineWithSectionH(
+      probeNormal.nameItemH,
+      probeNormal.staticInSection,
+      probeNormal.staticOutsideSection,
+      probeNormal.rowIsNowrap,
+    );
+    const probeSectionLineHExtinct = lineWithSectionH(
+      probeExtinct.nameItemH,
+      probeExtinct.staticInSection,
+      probeExtinct.staticOutsideSection,
+      probeExtinct.rowIsNowrap,
     );
     for (const item of virtualItems) {
       if (item.itemType === "heading") {
@@ -182,6 +259,11 @@ export function useEntryHeights(virtualItems: VirtualListItem[]) {
       } else if (item.itemType === "subheading") {
         map.set(item.key, DEFAULT_HEIGHTS.subheading);
       } else {
+        const extinct = isExtinctPriceStyle(item.entry.price);
+        const probe = extinct ? probeExtinct : probeNormal;
+        const probeSectionLineH = extinct
+          ? probeSectionLineHExtinct
+          : probeSectionLineHNormal;
         const lineCount = nameTextLineCount(item.entry.name, probe.vp);
         const targetNameItemH =
           probe.nameItemH + (lineCount - probe.lineCount) * lh;
@@ -198,7 +280,7 @@ export function useEntryHeights(virtualItems: VirtualListItem[]) {
       }
     }
     return map;
-  }, [fontsReady, probe, headingHeight, virtualItems]);
+  }, [fontsReady, probeNormal, probeExtinct, headingHeight, virtualItems]);
 
   // Re-probe when the layout viewport changes — clamps in the entry path
   // interpolate with `vw`, so a probe taken at one vp is wrong at another.
@@ -217,7 +299,7 @@ export function useEntryHeights(virtualItems: VirtualListItem[]) {
   // useMemo wraps for `needsMeasurement` and `itemHeights` above which
   // exist to backfill that lost memoization.
   const probeVpRef = useRef<number | null>(null);
-  probeVpRef.current = probe?.vp ?? null;
+  probeVpRef.current = probeNormal?.vp ?? probeExtinct?.vp ?? null;
   useEffect(() => {
     if (typeof window === "undefined") return;
     let rafId: number | null = null;
@@ -234,7 +316,8 @@ export function useEntryHeights(virtualItems: VirtualListItem[]) {
           vp >= LG_BREAKPOINT_PX
         )
           return;
-        setProbe(null);
+        setProbeNormal(null);
+        setProbeExtinct(null);
         setHeadingHeight(null);
       });
     };
