@@ -7,11 +7,6 @@ import { useTheme } from "@/contexts/ThemeContext";
 import { nameLineHeightPx } from "@/lib/entryGeometry";
 import { nameTextLineCount } from "@/lib/entryNameHeight";
 
-// /// CLAUDE 3d254f35 ///
-// Forges the probe entry's price so its measured price section gives us
-// `priceNormalH`. The infinite variant's height comes from a standalone
-// EntryPriceSection rendered alongside (see MeasurementContainer).
-// /// --------------- ///
 const NORMAL_PROBE_PRICE: Price = {
   lowestMall: 100,
   value: 200,
@@ -92,14 +87,12 @@ const readProbeMeasurements = (
       c.className.includes("basis-full") || c.className.includes("basis-auto"),
   );
   if (!infoSection) return null;
-  // /// CLAUDE 3d254f35 ///
-  // The price section is the row's only flex child carrying a
-  // `font-roboto-mono` descendant (the mall-price text). Identified by that
-  // descendant so it can be measured separately and excluded from
-  // staticOutsideExcludingPrice.
-  // /// --------------- ///
-  const priceSection = flexChildren.find((c) =>
-    c.querySelector(".font-roboto-mono"),
+  // Identified by data-section="price" set on the EntryPriceSection root so
+  // it can be measured separately and excluded from
+  // staticOutsideExcludingPrice. Anchored on intent rather than incidental
+  // styling — the price section's font/classes are free to change.
+  const priceSection = flexChildren.find(
+    (c) => c.dataset.section === "price",
   );
   if (!priceSection) return null;
   const sectionChildren = Array.from(infoSection.children) as HTMLElement[];
@@ -146,7 +139,9 @@ export function useEntryHeights(virtualItems: VirtualListItem[]) {
     virtualItems.reduce((acc, v) => acc + DEFAULT_HEIGHTS[v.itemType], 0),
   );
   const [fontsReady, setFontsReady] = useState<boolean>(
-    typeof document === "undefined" ? false : document.fonts?.status === "loaded",
+    typeof document === "undefined"
+      ? false
+      : document.fonts?.status === "loaded",
   );
   // /// CLAUDE 3d254f35 ///
   // One probe entry (carries the normal price-section height) plus a
