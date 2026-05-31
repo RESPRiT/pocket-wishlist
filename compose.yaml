@@ -1,58 +1,36 @@
-# Deployed via Coolify (Docker Compose resource). Coolify's Traefik proxy
-# handles TLS termination and routing via the labels below.
+# Local full-stack run: `docker compose -f compose.yaml -f compose.dev.yaml
+# up --build` brings web + api up from this checkout (see compose.dev.yaml).
+# The browser hits web on :3000 and web reverse-proxies /api/* to api:3001;
+# only web is exposed.
 #
-# Routing:
-#   kol.resprit.com/*     -> web:3000
-#   kol.resprit.com/api/* -> web:3000  (web reverse-proxies to api:3001)
-#
-# The web container owns the /api/* proxy now (server.ts), so Traefik only
-# needs one route per service. Local dev mirrors this via vite's server.proxy.
+# This file does NOT define the production deploy. On the VPS, web and api are
+# two standalone Coolify "Docker Image" apps that pull the ghcr images below.
+# Coolify owns TLS, Traefik routing, and the web-only public ingress, and
+# injects env per app — notably API_BASE_INTERNAL, which in prod points at the
+# api app's Coolify network alias `pocket-wishlist:3001`, not the compose
+# service name `api` used here.
 
 services:
   web:
     image: ghcr.io/${GITHUB_OWNER}/pocket-wishlist:${IMAGE_TAG:-latest}
-    # Coolify's GET /api/v1/deploy?force=true recreates containers without
-    # running `docker compose pull` first (coollabsio/coolify#5318), so a
-    # tag-push that bumps :latest leaves the VPS running the cached image.
-    # `pull_policy: always` makes docker compose re-pull on every recreate,
-    # which is what we want for our :latest-rolling deploy.
-    pull_policy: always
     environment:
       PORT: "3000"
-      # Host of the api container; the web server reverse-proxies /api/*
-      # here and the bootstrap fetcher pulls initial data from it.
+      # web reverse-proxies /api/* here and the bootstrap fetcher pulls the
+      # initial data from it. In this local stack that's the `api` service
+      # below; prod overrides it to the api app's `pocket-wishlist` alias.
       API_BASE_INTERNAL: http://api:3001
     depends_on:
       - api
     restart: unless-stopped
-    labels:
-      - traefik.enable=true
-      - traefik.docker.network=coolify
-      - traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https
-      - traefik.http.routers.pocket-wishlist-web-http.entryPoints=http
-      - traefik.http.routers.pocket-wishlist-web-http.rule=Host(`kol.resprit.com`)
-      - traefik.http.routers.pocket-wishlist-web-http.middlewares=redirect-to-https
-      - traefik.http.routers.pocket-wishlist-web-http.priority=1
-      - traefik.http.routers.pocket-wishlist-web.entryPoints=https
-      - traefik.http.routers.pocket-wishlist-web.rule=Host(`kol.resprit.com`)
-      - traefik.http.routers.pocket-wishlist-web.tls=true
-      - traefik.http.routers.pocket-wishlist-web.tls.certresolver=letsencrypt
-      - traefik.http.routers.pocket-wishlist-web.priority=1
-      - traefik.http.services.pocket-wishlist-web.loadbalancer.server.port=3000
-      - traefik.http.services.pocket-wishlist-web.loadbalancer.healthcheck.path=/health
-      - traefik.http.services.pocket-wishlist-web.loadbalancer.healthcheck.interval=30s
-      - traefik.http.services.pocket-wishlist-web.loadbalancer.healthcheck.timeout=5s
 
   api:
     image: ghcr.io/${GITHUB_OWNER}/pocket-wishlist-api:${IMAGE_TAG:-latest}
-    # See pull_policy note on the `web` service.
-    pull_policy: always
     environment:
       SECRET: ${SECRET}
       DB_PATH: /data/wishlist.db
       PORT: "3001"
       # KoL credentials for the lowest-mall scrape job (daily cron +
-      # POST /refresh-prices). Cron disables itself when these are unset.
+      # POST /api/refresh-prices). Cron disables itself when these are unset.
       KOL_USERNAME: ${KOL_USERNAME:-}
       KOL_PASSWORD: ${KOL_PASSWORD:-}
       # Hour-of-day (UTC) for the daily refresh. Default 8.
@@ -60,8 +38,8 @@ services:
     volumes:
       - api_data:/data
     restart: unless-stopped
-    # No Traefik router: the api is reachable only via web's /api/* reverse
-    # proxy on the docker network. Public ingress is web-only.
+    # Not exposed; reachable only via web's /api/* proxy over the compose
+    # network.
 
 volumes:
   api_data:
