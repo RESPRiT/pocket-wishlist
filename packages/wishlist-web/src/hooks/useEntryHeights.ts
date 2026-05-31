@@ -5,7 +5,7 @@ import type { MeasurementProbe } from "@/components/MeasurementContainer";
 import { isInfinitePrice } from "@/components/entry/EntryPriceSection";
 import { useTheme } from "@/contexts/ThemeContext";
 import { nameLineHeightPx } from "@/lib/entryGeometry";
-import { nameTextLineCount } from "@/lib/entryNameHeight";
+import { NAME_FONT_FACE_QUERY, nameTextLineCount } from "@/lib/entryNameHeight";
 
 const NORMAL_PROBE_PRICE: Price = {
   lowestMall: 100,
@@ -47,6 +47,17 @@ const layoutVp = (): number =>
   typeof document === "undefined"
     ? 0
     : document.documentElement.clientWidth || window.innerWidth;
+
+// Whether the name face pretext measures against is loaded and measurable.
+// check() can throw before the face is registered, so guard it.
+const nameFaceReady = (): boolean => {
+  if (typeof document === "undefined" || !document.fonts) return false;
+  try {
+    return document.fonts.check(NAME_FONT_FACE_QUERY);
+  } catch {
+    return false;
+  }
+};
 
 // Border-box plus vertical margins — what a flex child actually contributes
 // to its parent's height. Needed because the name's EntryItem uses `-mt-0.5`,
@@ -130,11 +141,7 @@ export function useEntryHeights(virtualItems: VirtualListItem[]) {
   const [pageHeight, setPageHeight] = useState<number>(
     virtualItems.reduce((acc, v) => acc + DEFAULT_HEIGHTS[v.itemType], 0),
   );
-  const [fontsReady, setFontsReady] = useState<boolean>(
-    typeof document === "undefined"
-      ? false
-      : document.fonts?.status === "loaded",
-  );
+  const [fontsReady, setFontsReady] = useState<boolean>(nameFaceReady);
   // Probe entry gives priceNormalH; a standalone EntryPriceSection in the
   // infinite font gives priceExtinctH. Per entry, the matching one folds
   // into staticOutsideSection.
@@ -185,11 +192,24 @@ export function useEntryHeights(virtualItems: VirtualListItem[]) {
     probeHeading,
   ]);
 
-  // Wait for fonts before allowing pretext to compute against the wrong metrics.
+  // Gate pretext on the name face specifically. document.fonts.status /
+  // document.fonts.ready report "ready" whenever nothing is *currently*
+  // loading — including before the face is even requested — so they green-light
+  // measurement against fallback metrics. Those advances disagree with Inter's,
+  // mis-counting lines for names sized within a few px of the column width and
+  // caching the wrong count. load() requests the face and resolves once it can
+  // be measured.
+  // — claude 464e7cab, 2026-05-31
   useEffect(() => {
-    if (typeof document === "undefined") return;
+    if (typeof document === "undefined" || !document.fonts) return;
     if (fontsReady) return;
-    document.fonts.ready.then(() => setFontsReady(true));
+    let cancelled = false;
+    document.fonts.load(NAME_FONT_FACE_QUERY).then(() => {
+      if (!cancelled) setFontsReady(true);
+    });
+    return () => {
+      cancelled = true;
+    };
   }, [fontsReady]);
 
   // Measure probes after they render in the hidden container.
