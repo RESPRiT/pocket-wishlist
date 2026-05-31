@@ -1,7 +1,7 @@
 {
   "scripts": {
     "dev": "bun run --filter '*' dev",
-    "dev:web": "API_PROXY_TARGET=https://kol.resprit.com bun run --filter './packages/wishlist-web' dev",
+    "dev:web": "API_PROXY_TARGET=${API_PROXY_TARGET:-https://kol.resprit.com} bun run --filter './packages/wishlist-web' dev",
     "dev:docker": "docker compose -f compose.yaml -f compose.dev.yaml up --build"
   },
   "private": true,
