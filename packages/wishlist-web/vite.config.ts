@@ -54,12 +54,16 @@ function preloadLatinFonts(): Plugin {
 // https://vitejs.dev/config/
 export default defineConfig({
   // Same-origin wire path everywhere: SPA hits /api/*, vite dev proxies
-  // to the api process so it looks identical to prod (where Traefik or
-  // the bun server's /api/* handler does the same).
+  // to the api so it looks identical to prod (where Traefik or the bun
+  // server's /api/* handler does the same). The target is env-driven so a
+  // single config serves both fastloops: `dev` uses the default below
+  // (local api), while `dev:web` sets API_PROXY_TARGET to prod for
+  // frontend-only work against live data.
+  // — claude 464e7cab, 2026-05-31
   server: {
     proxy: {
       "/api": {
-        target: "http://localhost:3001",
+        target: process.env.API_PROXY_TARGET ?? "http://localhost:3001",
         changeOrigin: true,
       },
     },
