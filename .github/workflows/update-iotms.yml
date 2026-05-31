@@ -1,0 +1,63 @@
+name: Update IOTMs
+
+# Runs the IOTM scraper daily and opens (or updates) a single rolling PR with
+# any new IOTMs and tier backfills. IOTMs ship monthly but on a variable day,
+# so a daily cadence catches each release within ~24h of the wiki updating
+# rather than guessing a date. The PR is the human-review gate — nothing
+# reaches main without a merge.
+# — claude 8043a506, 2026-05-30
+
+on:
+  schedule:
+    # 14:17 UTC daily. Off-the-hour to dodge the scheduler's top-of-hour spike.
+    - cron: "17 14 * * *"
+  workflow_dispatch: {}
+
+# Let one run supersede an in-flight one rather than stacking.
+concurrency:
+  group: update-iotms
+  cancel-in-progress: true
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Use Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: "1.2.23"
+
+      - name: Install dependencies
+        run: bun install
+
+      # Guard: if the scraper's own tests are red, don't open a PR with output
+      # we can't trust.
+      - name: Test scraper
+        run: bun test packages/wishlist-shared/scripts/update-iotms
+
+      - name: Scrape and update iotms.ts
+        run: bun packages/wishlist-shared/scripts/update-iotms/update.ts --report=iotm-report.md
+
+      - name: Format
+        run: bunx prettier --write packages/wishlist-shared/data/iotms.ts
+
+      - name: Open / update pull request
+        uses: peter-evans/create-pull-request@v6
+        with:
+          # Stable branch → one rolling PR that accrues changes until merged,
+          # instead of a new PR every day. create-pull-request no-ops when
+          # there's no diff and starts fresh after a merge.
+          branch: bot/iotm-update
+          delete-branch: true
+          add-paths: packages/wishlist-shared/data/iotms.ts
+          commit-message: "data: update IOTMs (new entries + tier backfill)"
+          title: "Update IOTMs"
+          body-path: iotm-report.md
+          labels: |
+            iotm
+            needs-review

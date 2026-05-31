@@ -4,8 +4,14 @@ import { IOTMSchema } from "../../schemas/data";
 import { FIXTURE_PICKS, SUPPORT_PICKS } from "./fixtures/MANIFEST";
 import { parseIndex } from "./parse/mr-store";
 import { parseItemPage } from "./parse/item-page";
-import { matchSpeedTier, matchAftercoreTier, parseSpeedSheet, parseAftercoreSheet } from "./parse/tier-match";
-import { scrape } from "./scrape";
+import {
+  matchSpeedTier,
+  matchAftercoreTier,
+  parseSpeedSheet,
+  parseAftercoreSheet,
+  rowMatchesAnyIotm,
+} from "./parse/tier-match";
+import { scrape, type WikiClient } from "./scrape";
 import {
   findKnown,
   FixtureMafiaDataClient,
@@ -55,7 +61,8 @@ describe("parseIndex (Mr. Store wikitext)", () => {
       // name is recovered later via per-page parsing; for index purposes we
       // match case-insensitively.
       const row = index.find(
-        (r) => r.packaged_name.toLowerCase() === pick.packaged_name.toLowerCase()
+        (r) =>
+          r.packaged_name.toLowerCase() === pick.packaged_name.toLowerCase(),
       );
       expect(row, `index missing "${pick.packaged_name}"`).toBeDefined();
       expect(row!.year).toBe(known.year);
@@ -97,7 +104,9 @@ describe("parseItemPage", () => {
       const parsed = IOTMSchema.parse(scraped);
 
       expect(parsed.packaged_id).toBe(known.packaged_id);
-      expect(parsed.packaged_name.toLowerCase()).toBe(known.packaged_name.toLowerCase());
+      expect(parsed.packaged_name.toLowerCase()).toBe(
+        known.packaged_name.toLowerCase(),
+      );
       // A handful of iotms.ts entries use the opened-form image instead of
       // the package image (manually edited inconsistencies). The scraper
       // emits the package image for everything; check the prefix as a
@@ -109,26 +118,38 @@ describe("parseItemPage", () => {
       // Type — strictly checked for the three common types; best-effort for
       // the rarer ones, where we just assert SOMETHING was emitted.
       if (STRICTLY_TYPED.has(known.type)) {
-        expect(parsed.type, `wrong type for "${pick.packaged_name}"`).toBe(known.type);
+        expect(parsed.type, `wrong type for "${pick.packaged_name}"`).toBe(
+          known.type,
+        );
       } else {
         expect(parsed.type).toBeDefined();
       }
 
       // equipment_slot — strictly checked when iotms.ts has one.
-      if (known.equipment_slot !== undefined) expect(parsed.equipment_slot).toBe(known.equipment_slot);
+      if (known.equipment_slot !== undefined)
+        expect(parsed.equipment_slot).toBe(known.equipment_slot);
 
       // Linked entities (opened item / familiar / skill).
-      if (known.opened_ids !== undefined) expect(parsed.opened_ids).toEqual(known.opened_ids);
+      if (known.opened_ids !== undefined)
+        expect(parsed.opened_ids).toEqual(known.opened_ids);
       if (known.opened_names !== undefined) {
-        expect(toLowerArray(parsed.opened_names)).toEqual(toLowerArray(known.opened_names));
+        expect(toLowerArray(parsed.opened_names)).toEqual(
+          toLowerArray(known.opened_names),
+        );
       }
-      if (known.familiar_ids !== undefined) expect(parsed.familiar_ids).toEqual(known.familiar_ids);
+      if (known.familiar_ids !== undefined)
+        expect(parsed.familiar_ids).toEqual(known.familiar_ids);
       if (known.familiar_names !== undefined) {
-        expect(toLowerArray(parsed.familiar_names)).toEqual(toLowerArray(known.familiar_names));
+        expect(toLowerArray(parsed.familiar_names)).toEqual(
+          toLowerArray(known.familiar_names),
+        );
       }
-      if (known.skill_ids !== undefined) expect(parsed.skill_ids).toEqual(known.skill_ids);
+      if (known.skill_ids !== undefined)
+        expect(parsed.skill_ids).toEqual(known.skill_ids);
       if (known.skill_names !== undefined) {
-        expect(toLowerArray(parsed.skill_names)).toEqual(toLowerArray(known.skill_names));
+        expect(toLowerArray(parsed.skill_names)).toEqual(
+          toLowerArray(known.skill_names),
+        );
       }
       if (known.is_ioty) expect(parsed.is_ioty).toBe(true);
       // is_con is a manual flag — never auto-detected.
@@ -137,7 +158,9 @@ describe("parseItemPage", () => {
 });
 
 /** Normalize a string-or-array to a lowercased string array, for case-insensitive equality. */
-function toLowerArray(v: string | readonly string[] | undefined): string[] | undefined {
+function toLowerArray(
+  v: string | readonly string[] | undefined,
+): string[] | undefined {
   if (v === undefined) return undefined;
   if (typeof v === "string") return [v.toLowerCase()];
   return v.map((s) => s.toLowerCase());
@@ -192,15 +215,21 @@ describe("tier matching", () => {
       if (known.speed_tier === undefined) continue;
       const match = matchSpeedTier(known, speedEntries);
       if (EXPECTED_NULL_SPEED.has(pick.packaged_name)) {
-        expect(match, `expected no speed match for "${pick.packaged_name}"`).toBeNull();
+        expect(
+          match,
+          `expected no speed match for "${pick.packaged_name}"`,
+        ).toBeNull();
         continue;
       }
-      expect(match, `expected a speed match for "${pick.packaged_name}"`).not.toBeNull();
+      expect(
+        match,
+        `expected a speed match for "${pick.packaged_name}"`,
+      ).not.toBeNull();
       // The matched row's tier should agree with iotms.ts within 1, allowing
       // for routine sheet drift between iotms.ts updates.
       expect(
         Math.abs(match!.tier - known.speed_tier),
-        `speed_tier drift > 1 for "${pick.packaged_name}": sheet=${match!.tier}, iotms.ts=${known.speed_tier}`
+        `speed_tier drift > 1 for "${pick.packaged_name}": sheet=${match!.tier}, iotms.ts=${known.speed_tier}`,
       ).toBeLessThanOrEqual(1);
     }
   });
@@ -212,15 +241,86 @@ describe("tier matching", () => {
       if (known.aftercore_tier === undefined) continue;
       const match = matchAftercoreTier(known, aftercoreEntries);
       if (EXPECTED_NULL_AFTERCORE.has(pick.packaged_name)) {
-        expect(match, `expected no aftercore match for "${pick.packaged_name}"`).toBeNull();
+        expect(
+          match,
+          `expected no aftercore match for "${pick.packaged_name}"`,
+        ).toBeNull();
         continue;
       }
-      expect(match, `expected an aftercore match for "${pick.packaged_name}"`).not.toBeNull();
+      expect(
+        match,
+        `expected an aftercore match for "${pick.packaged_name}"`,
+      ).not.toBeNull();
       expect(
         Math.abs(match!.tier - known.aftercore_tier),
-        `aftercore_tier drift > 1 for "${pick.packaged_name}": sheet=${match!.tier}, iotms.ts=${known.aftercore_tier}`
+        `aftercore_tier drift > 1 for "${pick.packaged_name}": sheet=${match!.tier}, iotms.ts=${known.aftercore_tier}`,
       ).toBeLessThanOrEqual(1);
     }
+  });
+
+  // rowMatchesAnyIotm backs the "unmatched tier rows" report. It must use the
+  // same normalization as assignment so a placed row is never also flagged as
+  // orphaned — these lock the divergence classes that previously leaked noise.
+  describe("rowMatchesAnyIotm", () => {
+    const sample: IOTM[] = [
+      {
+        packaged_id: 1,
+        packaged_name: "Black and White Apron Enrollment Form",
+        year: 2024,
+        tradeable: false,
+        type: "item",
+        img: "a.gif",
+      },
+      {
+        packaged_id: 2,
+        packaged_name: "X-32-F snowman crate",
+        year: 2016,
+        tradeable: false,
+        type: "item",
+        img: "b.gif",
+      },
+      {
+        packaged_id: 3,
+        packaged_name: "SongBoom™ BoomBox Box",
+        year: 2018,
+        tradeable: false,
+        type: "item",
+        img: "c.gif",
+      },
+    ];
+
+    test("matches across an ampersand vs. 'and' difference", () => {
+      expect(
+        rowMatchesAnyIotm(
+          { name: "Black & White Apron Enrollment Form", year: 2024, tier: 1 },
+          sample,
+        ),
+      ).toBe(true);
+    });
+
+    test("matches a slash-alias row against its canonical segment", () => {
+      expect(
+        rowMatchesAnyIotm(
+          { name: "X-32-F snowman crate/Snojo", year: 2016, tier: 1 },
+          sample,
+        ),
+      ).toBe(true);
+    });
+
+    test("matches a row carrying an HTML entity", () => {
+      expect(
+        rowMatchesAnyIotm(
+          { name: "SongBoom&trade; BoomBox Box", year: 2018, tier: 1 },
+          sample,
+        ),
+      ).toBe(true);
+    });
+
+    test("flags a genuinely unknown row as unmatched", () => {
+      expect(
+        rowMatchesAnyIotm({ name: "emo roe", year: 2005, tier: 1 }, sample),
+      ).toBe(false);
+    });
   });
 });
 
@@ -237,7 +337,9 @@ describe("scrape (end-to-end)", () => {
       knownIotms: knownBefore(2025, 12),
     });
 
-    const namesLower = result.newIotms.map((i) => i.packaged_name.toLowerCase());
+    const namesLower = result.newIotms.map((i) =>
+      i.packaged_name.toLowerCase(),
+    );
     // Everything in the live Mr. Store table from Dec 2025 onward, including
     // both monthly IOTMs and the 2026 IOTY. iotms.ts itself is several months
     // out of date — that's exactly the scenario the scraper exists to fix.
@@ -293,7 +395,120 @@ describe("scrape (end-to-end)", () => {
     });
     const names = new Set(result.newIotms.map((i) => i.packaged_name));
     for (const noteName of Object.keys(result.reviewNotes)) {
-      expect(names.has(noteName), `reviewNotes references unknown IOTM "${noteName}"`).toBe(true);
+      expect(
+        names.has(noteName),
+        `reviewNotes references unknown IOTM "${noteName}"`,
+      ).toBe(true);
     }
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Tier backfill: re-sync tiers on existing in-window entries
+// ---------------------------------------------------------------------------
+
+describe("scrape (tier backfill)", () => {
+  // A "complete" known set (nothing new in the index) so the backfill pass is
+  // observed in isolation from the append path.
+  async function completeKnown() {
+    const first = await scrape({
+      wiki,
+      tiers,
+      mafia,
+      knownIotms: knownBefore(2025, 12),
+    });
+    return [...knownBefore(2025, 12), ...first.newIotms];
+  }
+
+  test("omitting backfillSince produces no tier updates", async () => {
+    const result = await scrape({
+      wiki,
+      tiers,
+      mafia,
+      knownIotms: await completeKnown(),
+    });
+    expect(result.tierUpdates).toEqual([]);
+  });
+
+  test("flips a stale tier on an in-window entry to the sheet value", async () => {
+    const complete = await completeKnown();
+    const target = complete.find(
+      (i) => i.packaged_name.toLowerCase() === "seal-clubbing club loot box",
+    )!;
+    // Corrupt its speed_tier so the sheet (tier 0) disagrees.
+    const corrupted = complete.map((i) =>
+      i === target ? { ...i, speed_tier: 99 } : i,
+    );
+    const result = await scrape({
+      wiki,
+      tiers,
+      mafia,
+      knownIotms: corrupted,
+      backfillSince: 202401,
+    });
+
+    expect(result.newIotms).toEqual([]);
+    const u = result.tierUpdates.find(
+      (u) =>
+        u.packaged_name === target.packaged_name && u.field === "speed_tier",
+    );
+    expect(u).toBeDefined();
+    expect(u!.from).toBe(99);
+    expect(u!.to).toBe(0);
+  });
+
+  test("does not backfill entries released before the window", async () => {
+    const complete = await completeKnown();
+    // Window starts in the future → nothing qualifies, even with corrupted tiers.
+    const corrupted = complete.map((i) => ({ ...i, speed_tier: 99 }));
+    const result = await scrape({
+      wiki,
+      tiers,
+      mafia,
+      knownIotms: corrupted,
+      backfillSince: 209901,
+    });
+    expect(result.tierUpdates).toEqual([]);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Parse-failure isolation: a stub wiki page skips one entry, not the run
+// ---------------------------------------------------------------------------
+
+describe("scrape (parse failure isolation)", () => {
+  /** Delegates to the fixture wiki client but throws for one item slug. */
+  class FlakyWikiClient implements WikiClient {
+    constructor(
+      private readonly inner: WikiClient,
+      private readonly breakSlug: string,
+    ) {}
+    fetchWikitext(slug: string): Promise<string> {
+      if (slug === this.breakSlug) throw new Error("wiki page is a stub");
+      return this.inner.fetchWikitext(slug);
+    }
+    fetchHtml(slug: string): Promise<string> {
+      if (slug === this.breakSlug) throw new Error("wiki page is a stub");
+      return this.inner.fetchHtml(slug);
+    }
+  }
+
+  test("a failing entry is skipped and reported; the rest still parse", async () => {
+    const flaky = new FlakyWikiClient(wiki, "Stocking_full_of_bones");
+    const result = await scrape({
+      wiki: flaky,
+      tiers,
+      mafia,
+      knownIotms: knownBefore(2025, 12),
+    });
+
+    const newNames = result.newIotms.map((i) => i.packaged_name.toLowerCase());
+    expect(newNames).not.toContain("stocking full of bones");
+    // A sibling release from the same run still comes through.
+    expect(newNames).toContain("pasta wand loot box");
+    // The skip is surfaced, not swallowed.
+    expect(
+      result.skippedEntries.map((s) => s.packaged_name.toLowerCase()),
+    ).toContain("stocking full of bones");
   });
 });

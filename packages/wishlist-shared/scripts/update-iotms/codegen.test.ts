@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import type { IOTM } from "../../schemas/data";
-import { formatEntry, mergeEntries } from "./codegen";
+import { applyTierUpdates, formatEntry, mergeEntries } from "./codegen";
 import { findKnown } from "./test-helpers";
 
 /**
@@ -12,14 +12,19 @@ function canonicalBlockFor(packaged_name: string, source: string): string {
   // forward to its `},` (with the trailing comma — every entry in iotms.ts
   // ends that way). The packaged_name is the most reliable anchor.
   const escapedName = packaged_name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  const re = new RegExp(`\\{[^{}]*packaged_name:\\s*"${escapedName}"[^{}]*\\},`, "s");
+  const re = new RegExp(
+    `\\{[^{}]*packaged_name:\\s*"${escapedName}"[^{}]*\\},`,
+    "s",
+  );
   const m = re.exec(source);
   if (!m) throw new Error(`No canonical block for "${packaged_name}"`);
   // Include leading 2-space indent that precedes the `{`.
   return "  " + m[0];
 }
 
-const IOTMS_TS = await Bun.file(new URL("../../data/iotms.ts", import.meta.url).pathname).text();
+const IOTMS_TS = await Bun.file(
+  new URL("../../data/iotms.ts", import.meta.url).pathname,
+).text();
 
 // ---------------------------------------------------------------------------
 // formatEntry: byte-equivalent output for a representative cross-section
@@ -59,7 +64,9 @@ describe("formatEntry", () => {
     const known = findKnown("seal-clubbing club loot box");
     const out = formatEntry(known, new Set(["type", "tradeable"]));
     expect(out).toMatch(/type: "item",\s*\/\/\s*TODO\(scraper\): type/);
-    expect(out).toMatch(/tradeable: false,\s*\/\/\s*TODO\(scraper\): tradeable/);
+    expect(out).toMatch(
+      /tradeable: false,\s*\/\/\s*TODO\(scraper\): tradeable/,
+    );
     // Fields not flagged should NOT have a TODO.
     expect(out).not.toMatch(/img:[^\n]*TODO/);
   });
@@ -109,7 +116,9 @@ describe("mergeEntries", () => {
     expect(contents).toContain('packaged_name: "second"');
     // The new entry is present, and appears before the closing `];`.
     expect(contents).toContain('packaged_name: "brand new IOTM"');
-    expect(contents.indexOf('packaged_name: "brand new IOTM"')).toBeLessThan(contents.lastIndexOf("];"));
+    expect(contents.indexOf('packaged_name: "brand new IOTM"')).toBeLessThan(
+      contents.lastIndexOf("];"),
+    );
   });
 
   test("is idempotent: re-running with already-present packaged_ids skips them", () => {
@@ -176,5 +185,115 @@ describe("mergeEntries", () => {
       reviewNotes: { "brand new IOTM": ["type"] },
     });
     expect(contents).toMatch(/type: "item",\s*\/\/\s*TODO\(scraper\): type/);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// applyTierUpdates: in-place tier backfill on existing entries
+// ---------------------------------------------------------------------------
+
+// Entry 1 has no tiers (the backfill-from-absent case); entry 2 already has a
+// speed_tier (the overwrite case).
+const TIER_SAMPLE = `export const iotms = [
+  {
+    packaged_id: 1,
+    packaged_name: "first",
+    year: 2025,
+    tradeable: false,
+    type: "item",
+    img: "first.gif",
+  },
+  {
+    packaged_id: 2,
+    packaged_name: "second",
+    year: 2025,
+    speed_tier: 3,
+    tradeable: false,
+    type: "item",
+    img: "second.gif",
+  },
+];
+`;
+
+describe("applyTierUpdates", () => {
+  test("inserts an absent tier field at its FIELD_ORDER position", () => {
+    const { contents, applied } = applyTierUpdates(TIER_SAMPLE, [
+      { packaged_id: 1, packaged_name: "first", field: "speed_tier", to: 5 },
+    ]);
+    expect(applied.map((u) => u.packaged_id)).toEqual([1]);
+    // speed_tier sorts after `year` and before `tradeable`.
+    expect(contents).toMatch(
+      /year: 2025,\s*\n\s*speed_tier: 5,\s*\n\s*tradeable: false,/,
+    );
+    // The other entry is untouched.
+    expect(contents).toContain("speed_tier: 3,");
+  });
+
+  test("overwrites an existing tier value", () => {
+    const { contents, applied } = applyTierUpdates(TIER_SAMPLE, [
+      {
+        packaged_id: 2,
+        packaged_name: "second",
+        field: "speed_tier",
+        from: 3,
+        to: 7,
+      },
+    ]);
+    expect(applied.map((u) => u.packaged_id)).toEqual([2]);
+    expect(contents).toContain("speed_tier: 7,");
+    expect(contents).not.toContain("speed_tier: 3,");
+  });
+
+  test("is a no-op when the value already matches", () => {
+    const { contents, applied } = applyTierUpdates(TIER_SAMPLE, [
+      { packaged_id: 2, packaged_name: "second", field: "speed_tier", to: 3 },
+    ]);
+    expect(applied).toEqual([]);
+    expect(contents).toBe(TIER_SAMPLE);
+  });
+
+  test("is a no-op when the packaged_id isn't found", () => {
+    const { contents, applied } = applyTierUpdates(TIER_SAMPLE, [
+      { packaged_id: 9999, packaged_name: "ghost", field: "speed_tier", to: 1 },
+    ]);
+    expect(applied).toEqual([]);
+    expect(contents).toBe(TIER_SAMPLE);
+  });
+
+  test("only touches the named tier field, leaving other fields intact", () => {
+    const { contents } = applyTierUpdates(TIER_SAMPLE, [
+      {
+        packaged_id: 1,
+        packaged_name: "first",
+        field: "aftercore_tier",
+        to: 2,
+      },
+    ]);
+    expect(contents).toContain("aftercore_tier: 2,");
+    // tradeable / type / img on that entry are unchanged.
+    expect(contents).toMatch(
+      /aftercore_tier: 2,\s*\n\s*tradeable: false,\s*\n\s*type: "item",\s*\n\s*img: "first.gif",/,
+    );
+  });
+
+  test("output round-trips as valid TS", async () => {
+    const { contents } = applyTierUpdates(TIER_SAMPLE, [
+      { packaged_id: 1, packaged_name: "first", field: "speed_tier", to: 5 },
+      {
+        packaged_id: 2,
+        packaged_name: "second",
+        field: "aftercore_tier",
+        to: 4,
+      },
+    ]);
+    const tmp = `/tmp/iotms-tier-test-${Date.now()}.ts`;
+    await Bun.write(tmp, contents);
+    const mod = await import(tmp);
+    const byId = Object.fromEntries(
+      mod.iotms.map((i: IOTM) => [i.packaged_id, i]),
+    );
+    expect(byId[1].speed_tier).toBe(5);
+    expect(byId[2].aftercore_tier).toBe(4);
+    expect(byId[2].speed_tier).toBe(3); // untouched
   });
 });
