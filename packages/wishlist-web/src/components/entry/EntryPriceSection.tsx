@@ -10,11 +10,10 @@ type EntryPriceSectionProps = {
 };
 
 // /// CLAUDE 3d254f35 ///
-// True when the price section renders its infinite-style font
-// (font-bold lg:text-2xl). Mirrors the `isInfinite` derivation below.
-// useEntryHeights consumes this to pick a probe variant per entry.
+// Pre-render form of `isInfinite` below: equivalent given a Price input,
+// no derivations needed.
 // /// --------------- ///
-export function isExtinctPriceStyle(price: Price | null): boolean {
+export function isInfinitePrice(price: Price | null): boolean {
   if (price === null) return true;
   return (
     price.lowestMall === -1 &&
@@ -86,7 +85,7 @@ export function EntryPriceSection({
 
   const isExpensive =
     lowestPrice && Math.round(lowestPrice / 1_000_000) >= 1000;
-  const isInfinite = isExtinctPriceStyle(price);
+  const isInfinite = isInfinitePrice(price);
 
   const fontClass = isInfinite
     ? "font-bold lg:text-2xl"

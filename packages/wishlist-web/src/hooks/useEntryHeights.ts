@@ -1,22 +1,22 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { Price } from "wishlist-shared";
 import { VirtualListItem } from "@/components/ListItem";
-import { isExtinctPriceStyle } from "@/components/entry/EntryPriceSection";
+import type { MeasurementProbe } from "@/components/MeasurementContainer";
+import { isInfinitePrice } from "@/components/entry/EntryPriceSection";
 import { useTheme } from "@/contexts/ThemeContext";
 import { nameLineHeightPx } from "@/lib/entryGeometry";
 import { nameTextLineCount } from "@/lib/entryNameHeight";
 
 // /// CLAUDE 3d254f35 ///
-// Probe-input prices that render the price section in each of its two
-// height-relevant font states: text-lg (normal) and font-bold lg:text-2xl
-// (extinct).
+// Forges the probe entry's price so its measured price section gives us
+// `priceNormalH`. The infinite variant's height comes from a standalone
+// EntryPriceSection rendered alongside (see MeasurementContainer).
 // /// --------------- ///
 const NORMAL_PROBE_PRICE: Price = {
   lowestMall: 100,
   value: 200,
   volume: 1,
 };
-const EXTINCT_PROBE_PRICE: Price = { lowestMall: -1 };
 
 const DEFAULT_HEIGHTS = {
   entry: 75,
@@ -36,10 +36,16 @@ type ProbeData = {
   // independent (image + year column). Always contributes to the section's
   // height at any breakpoint.
   staticInSection: number;
-  // Max height of row's flex children outside the section. Only contributes
-  // to line 1 when the row is `flex-nowrap` (lg+); otherwise these children
-  // wrap to a separate line and don't compete with the section's height.
-  staticOutsideSection: number;
+  // Max height of row's flex children outside the section, EXCLUDING the
+  // price section. Only contributes to line 1 when the row is `flex-nowrap`
+  // (lg+); otherwise these children wrap to a separate line and don't
+  // compete with the section's height. Price is folded back in per-entry
+  // using priceNormalH or priceExtinctH so the infinite font's taller box
+  // is allocated only when the entry actually renders it.
+  staticOutsideExcludingPrice: number;
+  // Price-section layoutH measured from the probe (forged with a normal
+  // price), pre-`max` with siblings.
+  priceNormalH: number;
   rowIsNowrap: boolean;
   lineCount: number;
   vp: number;
@@ -86,22 +92,37 @@ const readProbeMeasurements = (
       c.className.includes("basis-full") || c.className.includes("basis-auto"),
   );
   if (!infoSection) return null;
+  // /// CLAUDE 3d254f35 ///
+  // The price section is the row's only flex child carrying a
+  // `font-roboto-mono` descendant (the mall-price text). Identified by that
+  // descendant so it can be measured separately and excluded from
+  // staticOutsideExcludingPrice.
+  // /// --------------- ///
+  const priceSection = flexChildren.find((c) =>
+    c.querySelector(".font-roboto-mono"),
+  );
+  if (!priceSection) return null;
   const sectionChildren = Array.from(infoSection.children) as HTMLElement[];
   const [imageEl, nameItemEl, yearItemEl] = sectionChildren;
   if (!nameItemEl) return null;
   const nameItemH = layoutH(nameItemEl);
   const staticInSection = Math.max(layoutH(imageEl), layoutH(yearItemEl));
-  let staticOutsideSection = 0;
+  const priceNormalH = layoutH(priceSection);
+  let staticOutsideExcludingPrice = 0;
   for (const c of flexChildren) {
-    if (c !== infoSection)
-      staticOutsideSection = Math.max(staticOutsideSection, layoutH(c));
+    if (c !== infoSection && c !== priceSection)
+      staticOutsideExcludingPrice = Math.max(
+        staticOutsideExcludingPrice,
+        layoutH(c),
+      );
   }
   const rowIsNowrap = window.getComputedStyle(row).flexWrap === "nowrap";
   return {
     totalH,
     nameItemH,
     staticInSection,
-    staticOutsideSection,
+    staticOutsideExcludingPrice,
+    priceNormalH,
     rowIsNowrap,
   };
 };
@@ -128,31 +149,27 @@ export function useEntryHeights(virtualItems: VirtualListItem[]) {
     typeof document === "undefined" ? false : document.fonts?.status === "loaded",
   );
   // /// CLAUDE 3d254f35 ///
-  // Two probes, one per price-section font variant. Per-entry selection is
-  // by isExtinctPriceStyle(price).
+  // One probe entry (carries the normal price-section height) plus a
+  // standalone EntryPriceSection rendered in the infinite font for
+  // priceExtinctH. Per-entry selection swaps which one folds into
+  // staticOutsideSection.
   // /// --------------- ///
-  const [probeNormal, setProbeNormal] = useState<ProbeData | null>(null);
-  const [probeExtinct, setProbeExtinct] = useState<ProbeData | null>(null);
+  const [probe, setProbe] = useState<ProbeData | null>(null);
+  const [priceExtinctH, setPriceExtinctH] = useState<number | null>(null);
   const [headingHeight, setHeadingHeight] = useState<number | null>(null);
 
   // /// CLAUDE 3d254f35 ///
-  // Identify a probe entry and a probe heading from current items. Both
-  // synthetic probes derive from the same source entry; only the price differs.
+  // Forge the probe's price to NORMAL so its measured price section is
+  // unambiguously the normal-font variant. The probe entry's actual price
+  // would otherwise be whatever first-entry data happens to be.
   // /// --------------- ///
   const probeEntry = virtualItems.find((v) => v.itemType === "entry");
   const probeHeading = virtualItems.find((v) => v.itemType === "heading");
-  const probeEntryNormal: VirtualListItem | null = probeEntry
+  const probeEntryForged: VirtualListItem | null = probeEntry
     ? {
         ...probeEntry,
-        key: `${probeEntry.key}::probe-normal`,
+        key: `${probeEntry.key}::probe`,
         entry: { ...probeEntry.entry, price: NORMAL_PROBE_PRICE },
-      }
-    : null;
-  const probeEntryExtinct: VirtualListItem | null = probeEntry
-    ? {
-        ...probeEntry,
-        key: `${probeEntry.key}::probe-extinct`,
-        entry: { ...probeEntry.entry, price: EXTINCT_PROBE_PRICE },
       }
     : null;
 
@@ -165,20 +182,21 @@ export function useEntryHeights(virtualItems: VirtualListItem[]) {
   // feeds the returned itemHeights into the virtualizer's options memo — a
   // new array/Map identity each render cascades into a virtualizer setState
   // loop and trips React's re-render limit.
-  const needsMeasurement = useMemo(() => {
-    const items: VirtualListItem[] = [];
-    if (!fontsReady) return items;
-    if (probeNormal === null && probeEntryNormal) items.push(probeEntryNormal);
-    if (probeExtinct === null && probeEntryExtinct)
-      items.push(probeEntryExtinct);
-    if (headingHeight === null && probeHeading) items.push(probeHeading);
-    return items;
+  const needsMeasurement = useMemo<MeasurementProbe[]>(() => {
+    const arr: MeasurementProbe[] = [];
+    if (!fontsReady) return arr;
+    if (probe === null && probeEntryForged)
+      arr.push({ type: "item", item: probeEntryForged, key: "probe-entry" });
+    if (priceExtinctH === null)
+      arr.push({ type: "extinctPrice", key: "probe-extinct-price" });
+    if (headingHeight === null && probeHeading)
+      arr.push({ type: "item", item: probeHeading, key: "probe-heading" });
+    return arr;
   }, [
     fontsReady,
-    probeNormal,
-    probeExtinct,
-    probeEntryNormal,
-    probeEntryExtinct,
+    probe,
+    probeEntryForged,
+    priceExtinctH,
     headingHeight,
     probeHeading,
   ]);
@@ -196,31 +214,23 @@ export function useEntryHeights(virtualItems: VirtualListItem[]) {
     if (needsMeasurement.length === 0) return;
     const children = Array.from(containerRef.current.children);
     let i = 0;
-    let nextNormal: ProbeData | null = probeNormal;
-    let nextExtinct: ProbeData | null = probeExtinct;
+    let nextProbe: ProbeData | null = probe;
+    let nextPriceExtinctH: number | null = priceExtinctH;
     let nextHeadingH: number | null = headingHeight;
-    if (probeNormal === null && probeEntryNormal) {
+    if (probe === null && probeEntryForged) {
       const measurements = readProbeMeasurements(children[i]);
       if (measurements) {
         const vp = layoutVp();
-        nextNormal = {
+        nextProbe = {
           ...measurements,
-          lineCount: nameTextLineCount(probeEntryNormal.entry.name, vp),
+          lineCount: nameTextLineCount(probeEntryForged.entry.name, vp),
           vp,
         };
       }
       i += 1;
     }
-    if (probeExtinct === null && probeEntryExtinct) {
-      const measurements = readProbeMeasurements(children[i]);
-      if (measurements) {
-        const vp = layoutVp();
-        nextExtinct = {
-          ...measurements,
-          lineCount: nameTextLineCount(probeEntryExtinct.entry.name, vp),
-          vp,
-        };
-      }
+    if (priceExtinctH === null) {
+      nextPriceExtinctH = layoutH(children[i]);
       i += 1;
     }
     if (headingHeight === null && probeHeading) {
@@ -233,45 +243,45 @@ export function useEntryHeights(virtualItems: VirtualListItem[]) {
       const marginTop = parseFloat(cs.marginTop) || 0;
       nextHeadingH = el.getBoundingClientRect().height + marginTop;
     }
-    if (nextNormal !== probeNormal) setProbeNormal(nextNormal);
-    if (nextExtinct !== probeExtinct) setProbeExtinct(nextExtinct);
+    if (nextProbe !== probe) setProbe(nextProbe);
+    if (nextPriceExtinctH !== priceExtinctH)
+      setPriceExtinctH(nextPriceExtinctH);
     if (nextHeadingH !== headingHeight) setHeadingHeight(nextHeadingH);
   }, [
     needsMeasurement,
-    probeNormal,
-    probeExtinct,
+    probe,
+    priceExtinctH,
     headingHeight,
-    probeEntryNormal,
-    probeEntryExtinct,
+    probeEntryForged,
     probeHeading,
   ]);
 
   // /// CLAUDE 3d254f35 ///
   // Compute item heights: heading/subheading from constants + probe, entries
-  // from probe + pretext-derived line counts. Per-entry the probe is chosen
-  // by isExtinctPriceStyle. Manually memoized for the same reason as
-  // `needsMeasurement` above — the render-time ref write below bails React
-  // Compiler out, so without this the Map identity would change every render
-  // and cascade into the virtualizer's options memo.
+  // from probe + pretext-derived line counts. Per-entry the price section's
+  // contribution to staticOutsideSection is the normal or extinct height
+  // depending on isInfinitePrice(price). Manually memoized for the same
+  // reason as `needsMeasurement` above — the render-time ref write below
+  // bails React Compiler out, so without this the Map identity would change
+  // every render and cascade into the virtualizer's options memo.
   // /// --------------- ///
   const itemHeights = useMemo(() => {
     const map = new Map<string, number>();
-    if (!fontsReady || !probeNormal || !probeExtinct) return map;
+    if (!fontsReady || !probe || priceExtinctH === null) return map;
+    const lh = nameLineHeightPx(probe.vp);
     // /// CLAUDE 3d254f35 ///
-    // Both probes are measured at the same viewport, so they share lh.
+    // probe.totalH was measured with the probe's (forged-normal) price
+    // section, so the probe's effective staticOutsideSection folds priceNormalH.
     // /// --------------- ///
-    const lh = nameLineHeightPx(probeNormal.vp);
-    const probeSectionLineHNormal = lineWithSectionH(
-      probeNormal.nameItemH,
-      probeNormal.staticInSection,
-      probeNormal.staticOutsideSection,
-      probeNormal.rowIsNowrap,
+    const probeStaticOutside = Math.max(
+      probe.staticOutsideExcludingPrice,
+      probe.priceNormalH,
     );
-    const probeSectionLineHExtinct = lineWithSectionH(
-      probeExtinct.nameItemH,
-      probeExtinct.staticInSection,
-      probeExtinct.staticOutsideSection,
-      probeExtinct.rowIsNowrap,
+    const probeSectionLineH = lineWithSectionH(
+      probe.nameItemH,
+      probe.staticInSection,
+      probeStaticOutside,
+      probe.rowIsNowrap,
     );
     for (const item of virtualItems) {
       if (item.itemType === "heading") {
@@ -279,18 +289,20 @@ export function useEntryHeights(virtualItems: VirtualListItem[]) {
       } else if (item.itemType === "subheading") {
         map.set(item.key, DEFAULT_HEIGHTS.subheading);
       } else {
-        const extinct = isExtinctPriceStyle(item.entry.price);
-        const probe = extinct ? probeExtinct : probeNormal;
-        const probeSectionLineH = extinct
-          ? probeSectionLineHExtinct
-          : probeSectionLineHNormal;
+        const effectivePriceH = isInfinitePrice(item.entry.price)
+          ? priceExtinctH
+          : probe.priceNormalH;
+        const targetStaticOutside = Math.max(
+          probe.staticOutsideExcludingPrice,
+          effectivePriceH,
+        );
         const lineCount = nameTextLineCount(item.entry.name, probe.vp);
         const targetNameItemH =
           probe.nameItemH + (lineCount - probe.lineCount) * lh;
         const targetSectionLineH = lineWithSectionH(
           targetNameItemH,
           probe.staticInSection,
-          probe.staticOutsideSection,
+          targetStaticOutside,
           probe.rowIsNowrap,
         );
         map.set(
@@ -300,7 +312,7 @@ export function useEntryHeights(virtualItems: VirtualListItem[]) {
       }
     }
     return map;
-  }, [fontsReady, probeNormal, probeExtinct, headingHeight, virtualItems]);
+  }, [fontsReady, probe, priceExtinctH, headingHeight, virtualItems]);
 
   // Re-probe when the layout viewport changes — clamps in the entry path
   // interpolate with `vw`, so a probe taken at one vp is wrong at another.
@@ -319,7 +331,7 @@ export function useEntryHeights(virtualItems: VirtualListItem[]) {
   // useMemo wraps for `needsMeasurement` and `itemHeights` above which
   // exist to backfill that lost memoization.
   const probeVpRef = useRef<number | null>(null);
-  probeVpRef.current = probeNormal?.vp ?? probeExtinct?.vp ?? null;
+  probeVpRef.current = probe?.vp ?? null;
   useEffect(() => {
     if (typeof window === "undefined") return;
     let rafId: number | null = null;
@@ -336,8 +348,8 @@ export function useEntryHeights(virtualItems: VirtualListItem[]) {
           vp >= LG_BREAKPOINT_PX
         )
           return;
-        setProbeNormal(null);
-        setProbeExtinct(null);
+        setProbe(null);
+        setPriceExtinctH(null);
         setHeadingHeight(null);
       });
     };

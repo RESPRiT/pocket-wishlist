@@ -261,7 +261,7 @@ function List() {
       {/* Hidden measurement container - only rendered when measuring */}
       {needsMeasurement.length > 0 && (
         <MeasurementContainer
-          virtualItems={needsMeasurement}
+          probes={needsMeasurement}
           containerRef={containerRef}
         />
       )}
