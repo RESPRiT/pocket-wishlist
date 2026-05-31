@@ -46,18 +46,32 @@ jobs:
       - name: Format
         run: bunx prettier --write packages/wishlist-shared/data/iotms.ts
 
+      # Commit to a stable branch and open one rolling PR (or update the open
+      # one), using only git + the runner's pre-installed gh CLI — no
+      # third-party action. The branch is force-updated from the current main
+      # each run, so it accrues changes until merged and starts fresh after.
+      # — claude 8043a506, 2026-05-30
       - name: Open / update pull request
-        uses: peter-evans/create-pull-request@v6
-        with:
-          # Stable branch → one rolling PR that accrues changes until merged,
-          # instead of a new PR every day. create-pull-request no-ops when
-          # there's no diff and starts fresh after a merge.
-          branch: bot/iotm-update
-          delete-branch: true
-          add-paths: packages/wishlist-shared/data/iotms.ts
-          commit-message: "data: update IOTMs (new entries + tier backfill)"
-          title: "Update IOTMs"
-          body-path: iotm-report.md
-          labels: |
-            iotm
-            needs-review
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          BRANCH=bot/iotm-update
+          DATA=packages/wishlist-shared/data/iotms.ts
+          # The scraper only ever edits the data file; if it's unchanged there's
+          # nothing to open a PR for.
+          if git diff --quiet -- "$DATA"; then
+            echo "iotms.ts unchanged — nothing to do."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -B "$BRANCH"
+          git add "$DATA"
+          git commit -m "data: update IOTMs (new entries + tier backfill)"
+          git push --force origin "$BRANCH"
+          # Reuse the open PR if one exists; otherwise open it.
+          if [ -z "$(gh pr list --head "$BRANCH" --state open --json number --jq '.[].number')" ]; then
+            gh pr create --base main --head "$BRANCH" \
+              --title "Update IOTMs" --body-file iotm-report.md
+          fi
