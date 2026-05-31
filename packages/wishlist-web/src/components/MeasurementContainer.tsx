@@ -1,23 +1,43 @@
 import { RefObject } from "react";
 import { VirtualListItem } from "./ListItem";
 import ListItem from "./ListItem";
+import { EntryPriceSection } from "./entry/EntryPriceSection";
+
+// `item` measures via the full ListItem render path; `extinctPrice` renders
+// just the price section in its infinite font so its height can be read
+// without a second full entry render.
+// — claude 3d254f35, 2026-05-30
+export type MeasurementProbe =
+  | { type: "item"; key: string; item: VirtualListItem }
+  | { type: "extinctPrice"; key: string };
+
+const EXTINCT_PRICE = { lowestMall: -1 };
 
 function MeasurementContainer({
-  virtualItems,
+  probes,
   containerRef,
 }: {
-  virtualItems: VirtualListItem[];
+  probes: MeasurementProbe[];
   containerRef: RefObject<HTMLDivElement | null>;
 }) {
   return (
     <div
       ref={containerRef}
-      className="invisible absolute top-0 left-0 -z-10 flex w-full flex-wrap
+      className="invisible absolute top-0 left-0 -z-10 flex w-full flex-col
         items-stretch gap-2"
     >
-      {virtualItems.map((v) => (
-        <ListItem item={v} key={v.key} />
-      ))}
+      {probes.map((p) =>
+        p.type === "item" ? (
+          <ListItem item={p.item} key={p.key} />
+        ) : (
+          <EntryPriceSection
+            key={p.key}
+            price={EXTINCT_PRICE}
+            mrAs={1}
+            packagedName=""
+          />
+        ),
+      )}
     </div>
   );
 }

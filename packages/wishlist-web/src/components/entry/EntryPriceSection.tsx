@@ -9,6 +9,13 @@ type EntryPriceSectionProps = {
   packagedName: string;
 };
 
+export function isInfinitePrice(price: Price | null): boolean {
+  if (price === null) return true;
+  return (
+    price.lowestMall === -1 && (price.value === undefined || price.volume === 0)
+  );
+}
+
 // TODO: Refactor evil pricing hacks
 export function EntryPriceSection({
   mrAs,
@@ -73,16 +80,15 @@ export function EntryPriceSection({
 
   const isExpensive =
     lowestPrice && Math.round(lowestPrice / 1_000_000) >= 1000;
-  const isInfinite = lowestPrice === -1;
 
-  const fontClass = isInfinite
+  const fontClass = isInfinitePrice(price)
     ? "font-bold lg:text-2xl"
     : isExpensive
       ? "lg:text-xl"
       : "";
 
   return (
-    <EntryItem label="est. mall price">
+    <EntryItem label="est. mall price" data-section="price">
       <div
         className="flex clamp-[w,31,38,xs,sm] items-center justify-center
           clamp-[gap,0.5,1.25,xs,sm] font-roboto-mono clamp-[text,sm,base,xs,sm]
