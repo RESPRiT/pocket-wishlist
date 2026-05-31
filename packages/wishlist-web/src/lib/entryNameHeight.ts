@@ -5,6 +5,10 @@ import {
   nameLineHeightPx,
 } from "./entryGeometry";
 
+// TODO(pocket-wishlist-j4f): these mirror the name span's font-family/weight
+// from the stylesheet by hand — drift silently breaks measurement (pretext
+// would measure a different face than the browser paints). Same JS↔CSS coupling
+// as the entryGeometry clamps; consolidate both onto a single source of truth.
 const NAME_FONT_FAMILY = '"Inter Variable", sans-serif';
 const NAME_FONT_WEIGHT = "400";
 
