@@ -1,9 +1,25 @@
 name: Deploy KoLmafia script
 
+# Publishes the mafia script (built into the `release` branch) only when its
+# package.json version is bumped — the script is a distributed artifact whose
+# users care about versions, so a version bump is the deliberate "cut a
+# release" signal. Plain source/code changes do NOT publish on their own; bump
+# the version to ship them. A manual workflow_dispatch always publishes.
+# — claude 8043a506, 2026-05-31
+
 on:
   push:
     branches: [main]
-  workflow_dispatch:
+    # Don't even start a run unless the script's package.json changed; the
+    # guard step below then confirms the version field specifically moved.
+    paths:
+      - "packages/wishlist-mafia/package.json"
+  workflow_dispatch: {}
+
+# One publish to the release branch at a time; queue rather than cancel.
+concurrency:
+  group: deploy-mafia-script
+  cancel-in-progress: false
 
 jobs:
   deploy-script:
@@ -14,22 +30,56 @@ jobs:
     name: Build and Push
     steps:
       - uses: actions/checkout@v4
+        with:
+          # Need the pre-push commit to diff the version field in the guard.
+          fetch-depth: 0
+
+      # Publish only when packages/wishlist-mafia/package.json's `version`
+      # actually changed across this push (github.event.before -> HEAD). This
+      # also skips non-version edits to package.json (e.g. dependency bumps),
+      # which the paths filter alone would still trigger on. Manual runs always
+      # publish.
+      # — claude 8043a506, 2026-05-31
+      - name: Decide whether to publish
+        id: guard
+        working-directory: ${{ github.workspace }}
+        run: |
+          set -euo pipefail
+          if [ "${{ github.event_name }}" != "push" ]; then
+            echo "Manual run — publishing."
+            echo "publish=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          path=packages/wishlist-mafia/package.json
+          new=$(jq -r .version "$path")
+          old=$(git show "${{ github.event.before }}:$path" 2>/dev/null | jq -r .version || echo "none")
+          if [ "$new" != "$old" ]; then
+            echo "version $old -> $new — publishing."
+            echo "publish=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "version unchanged ($new) — skipping publish."
+            echo "publish=false" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Use Bun
+        if: steps.guard.outputs.publish == 'true'
         uses: oven-sh/setup-bun@v2
         with:
           bun-version: "1.2.23"
 
       - name: Install dependencies
+        if: steps.guard.outputs.publish == 'true'
         run: bun install
 
       - name: Build script
+        if: steps.guard.outputs.publish == 'true'
         env:
           WISHLIST_API_BASE: ${{ vars.WISHLIST_API_BASE }}
         run: bun run build
 
       # Ensure that GitHub Actions has read/write permissions for this to work:
       - name: Push
+        if: steps.guard.outputs.publish == 'true'
         uses: s0/git-publish-subdir-action@develop
         env:
           REPO: self
