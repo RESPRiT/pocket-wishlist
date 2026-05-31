@@ -31,15 +31,12 @@ type ProbeData = {
   // independent (image + year column). Always contributes to the section's
   // height at any breakpoint.
   staticInSection: number;
-  // Max height of row's flex children outside the section, EXCLUDING the
-  // price section. Only contributes to line 1 when the row is `flex-nowrap`
-  // (lg+); otherwise these children wrap to a separate line and don't
-  // compete with the section's height. Price is folded back in per-entry
-  // using priceNormalH or priceExtinctH so the infinite font's taller box
-  // is allocated only when the entry actually renders it.
+  // Max height of row's flex children outside the section, excluding the
+  // price section. Only contributes when the row is `flex-nowrap` (lg+).
+  // Price is folded back in per-entry from priceNormalH / priceExtinctH so
+  // the infinite font's taller box is allocated only when it renders.
   staticOutsideExcludingPrice: number;
-  // Price-section layoutH measured from the probe (forged with a normal
-  // price), pre-`max` with siblings.
+  // Probe's price-section height (forged-normal), pre-max with siblings.
   priceNormalH: number;
   rowIsNowrap: boolean;
   lineCount: number;
@@ -51,13 +48,10 @@ const layoutVp = (): number =>
     ? 0
     : document.documentElement.clientWidth || window.innerWidth;
 
-// /// CLAUDE 3d254f35 ///
-// Effective layout height of a flex child: border-box plus its own vertical
-// margins. A parent's content area expands to include each child's margin,
-// so a flex child's contribution to its parent's height is bbox + margins
-// (negative margins reduce it). Required for the name's EntryItem in
-// EntryInfoSection, which uses `-mt-0.5` to tighten placement.
-// /// --------------- ///
+// Border-box plus vertical margins — what a flex child actually contributes
+// to its parent's height. Needed because the name's EntryItem uses `-mt-0.5`,
+// so its bbox over-counts.
+// — claude 3d254f35, 2026-05-30
 const layoutH = (el: Element | null | undefined): number => {
   if (!el) return 0;
   const h = el.getBoundingClientRect().height;
@@ -74,10 +68,9 @@ const readProbeMeasurements = (
     "div.relative.col-start-1.row-start-1",
   ) as HTMLElement | null;
   if (!row) return null;
-  // /// CLAUDE 3d254f35 ///
-  // The row is the outermost measurement — its border-box already folds in
-  // padding and any descendant margins, so no `layoutH` adjustment needed.
-  // /// --------------- ///
+  // Row's bbox already includes padding and descendant margins — no layoutH
+  // adjustment needed at the outermost level.
+  // — claude 3d254f35, 2026-05-30
   const totalH = row.getBoundingClientRect().height;
   const flexChildren = Array.from(row.children).filter(
     (c) => !(c as HTMLElement).className.includes("absolute"),
@@ -87,10 +80,9 @@ const readProbeMeasurements = (
       c.className.includes("basis-full") || c.className.includes("basis-auto"),
   );
   if (!infoSection) return null;
-  // Identified by data-section="price" set on the EntryPriceSection root so
-  // it can be measured separately and excluded from
-  // staticOutsideExcludingPrice. Anchored on intent rather than incidental
-  // styling — the price section's font/classes are free to change.
+  // Matched on data-section rather than a style class so a font restyle
+  // can't silently break the probe.
+  // — claude 3d254f35, 2026-05-30
   const priceSection = flexChildren.find(
     (c) => c.dataset.section === "price",
   );
@@ -143,21 +135,18 @@ export function useEntryHeights(virtualItems: VirtualListItem[]) {
       ? false
       : document.fonts?.status === "loaded",
   );
-  // /// CLAUDE 3d254f35 ///
-  // One probe entry (carries the normal price-section height) plus a
-  // standalone EntryPriceSection rendered in the infinite font for
-  // priceExtinctH. Per-entry selection swaps which one folds into
-  // staticOutsideSection.
-  // /// --------------- ///
+  // Probe entry gives priceNormalH; a standalone EntryPriceSection in the
+  // infinite font gives priceExtinctH. Per entry, the matching one folds
+  // into staticOutsideSection.
+  // — claude 3d254f35, 2026-05-30
   const [probe, setProbe] = useState<ProbeData | null>(null);
   const [priceExtinctH, setPriceExtinctH] = useState<number | null>(null);
   const [headingHeight, setHeadingHeight] = useState<number | null>(null);
 
-  // /// CLAUDE 3d254f35 ///
-  // Forge the probe's price to NORMAL so its measured price section is
-  // unambiguously the normal-font variant. The probe entry's actual price
-  // would otherwise be whatever first-entry data happens to be.
-  // /// --------------- ///
+  // Force the probe's price to NORMAL so we know its price section is the
+  // normal-font variant — otherwise we'd inherit whatever the first entry
+  // happens to carry.
+  // — claude 3d254f35, 2026-05-30
   const probeEntry = virtualItems.find((v) => v.itemType === "entry");
   const probeHeading = virtualItems.find((v) => v.itemType === "heading");
   const probeEntryForged: VirtualListItem | null = probeEntry
@@ -251,23 +240,21 @@ export function useEntryHeights(virtualItems: VirtualListItem[]) {
     probeHeading,
   ]);
 
-  // /// CLAUDE 3d254f35 ///
   // Compute item heights: heading/subheading from constants + probe, entries
-  // from probe + pretext-derived line counts. Per-entry the price section's
-  // contribution to staticOutsideSection is the normal or extinct height
-  // depending on isInfinitePrice(price). Manually memoized for the same
-  // reason as `needsMeasurement` above — the render-time ref write below
-  // bails React Compiler out, so without this the Map identity would change
-  // every render and cascade into the virtualizer's options memo.
-  // /// --------------- ///
+  // from probe + pretext-derived line counts. Per entry the price section's
+  // height swaps to priceExtinctH when isInfinitePrice(price). Manually
+  // memoized for the same reason as `needsMeasurement` above — the
+  // render-time ref write below bails React Compiler out, so without this
+  // the Map identity would change every render and cascade into the
+  // virtualizer's options memo.
+  // — claude 3d254f35, 2026-05-30
   const itemHeights = useMemo(() => {
     const map = new Map<string, number>();
     if (!fontsReady || !probe || priceExtinctH === null) return map;
     const lh = nameLineHeightPx(probe.vp);
-    // /// CLAUDE 3d254f35 ///
-    // probe.totalH was measured with the probe's (forged-normal) price
-    // section, so the probe's effective staticOutsideSection folds priceNormalH.
-    // /// --------------- ///
+    // probe.totalH was measured with the forged-normal price, so probe's
+    // staticOutsideSection folds priceNormalH.
+    // — claude 3d254f35, 2026-05-30
     const probeStaticOutside = Math.max(
       probe.staticOutsideExcludingPrice,
       probe.priceNormalH,

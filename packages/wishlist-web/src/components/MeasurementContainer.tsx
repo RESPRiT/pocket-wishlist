@@ -3,13 +3,10 @@ import { VirtualListItem } from "./ListItem";
 import ListItem from "./ListItem";
 import { EntryPriceSection } from "./entry/EntryPriceSection";
 
-// /// CLAUDE 3d254f35 ///
-// Discriminated render target for the offscreen measurement container.
-// `item` reuses the full ListItem render path (entry rows, headings);
-// `extinctPrice` renders just the price section in its infinite-style
-// font so useEntryHeights can read that one element's height delta
-// without paying for a second full entry render.
-// /// --------------- ///
+// `item` measures via the full ListItem render path; `extinctPrice` renders
+// just the price section in its infinite font so its height can be read
+// without a second full entry render.
+// — claude 3d254f35, 2026-05-30
 export type MeasurementProbe =
   | { type: "item"; key: string; item: VirtualListItem }
   | { type: "extinctPrice"; key: string };
