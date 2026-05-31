@@ -5,8 +5,19 @@ import {
   nameLineHeightPx,
 } from "./entryGeometry";
 
+// TODO(pocket-wishlist-j4f): these mirror the name span's font-family/weight
+// from the stylesheet by hand — drift silently breaks measurement (pretext
+// would measure a different face than the browser paints). Same JS↔CSS coupling
+// as the entryGeometry clamps; consolidate both onto a single source of truth.
 const NAME_FONT_FAMILY = '"Inter Variable", sans-serif';
 const NAME_FONT_WEIGHT = "400";
+
+// FontFaceSet.check/.load query for just the variable face that pretext
+// measures against — no sans-serif fallback, since a query that includes the
+// fallback reports "available" before Inter loads. Callers gate measurement on
+// this so prepare() never caches against fallback advances.
+// — claude 464e7cab, 2026-05-31
+export const NAME_FONT_FACE_QUERY = `${NAME_FONT_WEIGHT} 1em "Inter Variable"`;
 
 // Snap font-size to a 0.25px grid for cache stability across continuous
 // viewport changes. With Inter Variable the visual diff at this granularity is
