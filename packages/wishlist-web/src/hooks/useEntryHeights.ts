@@ -10,6 +10,11 @@ import {
   nameTextLineCount,
   resetNameMeasurementCache,
 } from "@/lib/entryNameHeight";
+import {
+  type MeasureSet,
+  type ProbeData,
+  useEntryHeightsStore,
+} from "@/stores/useEntryHeightsStore";
 
 const NORMAL_PROBE_PRICE: Price = {
   lowestMall: 100,
@@ -28,25 +33,6 @@ const DEFAULT_HEIGHTS = {
 // same un-hardcoding TODO as the entryGeometry clamps (pocket-wishlist-j4f).
 const LG_BREAKPOINT_PX = 1024;
 
-type ProbeData = {
-  totalH: number;
-  nameItemH: number;
-  // Max height of line-1 children inside EntryInfoSection that are name-
-  // independent (image + year column). Always contributes to the section's
-  // height at any breakpoint.
-  staticInSection: number;
-  // Max height of row's flex children outside the section, excluding the
-  // price section. Only contributes when the row is `flex-nowrap` (lg+).
-  // Price is folded back in per-entry from priceNormalH / priceExtinctH so
-  // the infinite font's taller box is allocated only when it renders.
-  staticOutsideExcludingPrice: number;
-  // Probe's price-section height (forged-normal), pre-max with siblings.
-  priceNormalH: number;
-  rowIsNowrap: boolean;
-  lineCount: number;
-  vp: number;
-};
-
 const layoutVp = (): number =>
   typeof document === "undefined"
     ? 0
@@ -63,46 +49,12 @@ const nameFaceReady = (): boolean => {
   }
 };
 
-// The probe primitives a single measure pass yields. Per-entry heights derive
-// from these plus a pretext line count, so caching just this set is enough to
-// reconstruct the whole list.
-type MeasureSet = {
-  probe: ProbeData;
-  priceExtinctH: number;
-  headingHeight: number;
-};
-
-// Persisted across loads, keyed by viewport band. At/above lg the entry
-// geometry is fully static (every clamp saturated, container capped by
+// Viewport bucket the persisted measurements are keyed by. At/above lg the
+// entry geometry is fully static (every clamp saturated, container capped by
 // lg:max-w-5xl), so one "lg" bucket serves the whole desktop band; below lg the
-// clamps interpolate with vw, so each exact width is its own bucket. Seeding
-// state from this on mount makes first paint match last visit's real-font
-// heights instead of the flat fallback estimate, so the list doesn't reflow
-// when the face finishes loading. Bump the version to invalidate stale shapes
-// after a geometry/styling change.
-// — claude fbc05fa5, 2026-05-31
-const MEASURE_CACHE_VERSION = 1;
-const measureCacheKey = (vp: number): string =>
-  `entryHeights:v${MEASURE_CACHE_VERSION}:${vp >= LG_BREAKPOINT_PX ? "lg" : vp}`;
-
-const readPersistedMeasureSet = (vp: number): MeasureSet | null => {
-  if (typeof localStorage === "undefined") return null;
-  try {
-    const raw = localStorage.getItem(measureCacheKey(vp));
-    return raw ? (JSON.parse(raw) as MeasureSet) : null;
-  } catch {
-    return null;
-  }
-};
-
-const writePersistedMeasureSet = (set: MeasureSet): void => {
-  if (typeof localStorage === "undefined") return;
-  try {
-    localStorage.setItem(measureCacheKey(set.probe.vp), JSON.stringify(set));
-  } catch {
-    // storage disabled or over quota — measurement still works in-memory.
-  }
-};
+// clamps interpolate with vw, so each exact width is its own bucket.
+const measureBand = (vp: number): string =>
+  vp >= LG_BREAKPOINT_PX ? "lg" : String(vp);
 
 // Border-box plus vertical margins — what a flex child actually contributes
 // to its parent's height. Needed because the name's EntryItem uses `-mt-0.5`,
@@ -187,10 +139,15 @@ export function useEntryHeights(virtualItems: VirtualListItem[]) {
     virtualItems.reduce((acc, v) => acc + DEFAULT_HEIGHTS[v.itemType], 0),
   );
   const [fontsReady, setFontsReady] = useState<boolean>(nameFaceReady);
+  // Persisted real-font measurements (see useEntryHeightsStore). Read once for
+  // the seed below and written after each real-font measure pass; not subscribed
+  // reactively — our own `measured` state drives re-renders, so a store
+  // subscription would only add a redundant one.
+  const persistMeasureSet = useEntryHeightsStore((s) => s.setBand);
   // The current measure result and the request id (`nonce`) it answers. `set`
   // holds the probe primitives: probe (its priceNormalH is the forged-normal
   // price section), priceExtinctH (a standalone EntryPriceSection in the
-  // infinite font), and headingHeight. Seeding `set` from localStorage gives a
+  // infinite font), and headingHeight. Seeding `set` from the store gives a
   // correct first paint before any DOM probe runs; `nonce` lets a re-measure
   // (font load, viewport change) re-render the probes while the prior `set`
   // keeps feeding itemHeights, so the list never blinks back to the flat
@@ -199,7 +156,10 @@ export function useEntryHeights(virtualItems: VirtualListItem[]) {
   const [measured, setMeasured] = useState<{
     nonce: number;
     set: MeasureSet | null;
-  }>(() => ({ nonce: 0, set: readPersistedMeasureSet(layoutVp()) }));
+  }>(() => ({
+    nonce: 0,
+    set: useEntryHeightsStore.getState().byBand[measureBand(layoutVp())] ?? null,
+  }));
   const [measureNonce, setMeasureNonce] = useState(0);
   const wantMeasure = measured.nonce !== measureNonce || measured.set === null;
 
@@ -268,8 +228,8 @@ export function useEntryHeights(virtualItems: VirtualListItem[]) {
   // — claude fbc05fa5, 2026-05-31
   useEffect(() => {
     if (!fontsReady || !measured.set) return;
-    writePersistedMeasureSet(measured.set);
-  }, [fontsReady, measured]);
+    persistMeasureSet(measureBand(measured.set.probe.vp), measured.set);
+  }, [fontsReady, measured, persistMeasureSet]);
 
   // Measure probes after they render in the hidden container. All three render
   // together (probe entry, extinct price, heading), so read them by fixed
