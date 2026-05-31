@@ -6,6 +6,7 @@ import {
   matchSpeedTier,
   parseAftercoreSheet,
   parseSpeedSheet,
+  rowMatchesAnyIotm,
 } from "./parse/tier-match";
 
 /**
@@ -46,6 +47,33 @@ export type ScrapeOptions = {
    * (year, month) tuple already present here.
    */
   knownIotms: readonly IOTM[];
+  /**
+   * Lower bound (a `year * 100 + month` key) for the tier-backfill pass. Any
+   * existing `knownIotms` entry released on or after this key is re-matched
+   * against the current tier sheets, and a `tierUpdate` is emitted whenever
+   * the sheet's tier differs from what's recorded. This is how IOTMs that
+   * shipped before the tier lists ranked them get their tiers filled in on a
+   * later run. Omit to skip backfill entirely (the default for tests that
+   * only exercise the append path).
+   */
+  backfillSince?: number;
+};
+
+/**
+ * A change to a `speed_tier` / `aftercore_tier` on an IOTM that already
+ * exists in iotms.ts. The tier sheets are treated as authoritative for these
+ * two fields, so `from` may be a previously-recorded value the sheet now
+ * disagrees with (the PR diff is the human-review gate). Only tier fields are
+ * ever updated this way — tradeable / type / img stay untouched.
+ */
+export type TierUpdate = {
+  packaged_id: number;
+  packaged_name: string;
+  field: "speed_tier" | "aftercore_tier";
+  /** Current value in iotms.ts, or undefined if the field was absent. */
+  from?: number;
+  /** Value from the tier sheet. */
+  to: number;
 };
 
 export type ScrapeResult = {
@@ -59,38 +87,75 @@ export type ScrapeResult = {
    */
   reviewNotes: Record<string, readonly (keyof IOTM)[]>;
   /** Tier-list rows we couldn't match to any wiki name (for human review). */
-  unmatchedTierRows: { source: "speed" | "aftercore"; name: string; year?: number }[];
+  unmatchedTierRows: {
+    source: "speed" | "aftercore";
+    name: string;
+    year?: number;
+  }[];
+  /**
+   * Tier changes to existing iotms.ts entries within the backfill window.
+   * Empty when `backfillSince` was not supplied.
+   */
+  tierUpdates: TierUpdate[];
+  /**
+   * New index entries whose wiki page couldn't be parsed this run (e.g. a
+   * just-released IOTM whose page is still a stub). These are skipped rather
+   * than failing the whole run — the next run retries them once the page
+   * fills in. Reported so a stuck entry doesn't go silently missing.
+   */
+  skippedEntries: { packaged_name: string; error: string }[];
 };
 
 export async function scrape(opts: ScrapeOptions): Promise<ScrapeResult> {
-  const { wiki, tiers, mafia, knownIotms } = opts;
+  const { wiki, tiers, mafia, knownIotms, backfillSince } = opts;
 
   const indexWikitext = await wiki.fetchWikitext("Mr._Store");
   const index = parseIndex(indexWikitext);
 
   const cutoff = anchorKey(knownIotms);
-  const knownNames = new Set(knownIotms.map((i) => i.packaged_name.toLowerCase()));
+  const knownNames = new Set(
+    knownIotms.map((i) => i.packaged_name.toLowerCase()),
+  );
 
-  const newEntries = index.filter((e) => entryKey(e) > cutoff && !knownNames.has(e.packaged_name.toLowerCase()));
+  const newEntries = index.filter(
+    (e) =>
+      entryKey(e) > cutoff && !knownNames.has(e.packaged_name.toLowerCase()),
+  );
 
   // Fetch + parse each new entry. Page slugs in the wiki are MediaWiki-style:
   // first letter capitalized, spaces → underscores, then URL-encode the rest.
   const newIotms: IOTM[] = [];
   const reviewNotes: Record<string, readonly (keyof IOTM)[]> = {};
+  const skippedEntries: ScrapeResult["skippedEntries"] = [];
   for (const entry of newEntries) {
     const slug = wikiSlug(entry.packaged_name);
-    const { iotm, needsReview } = await parseItemPageWithReview(wiki, mafia, {
-      packaged_name: entry.packaged_name,
-      packaged_slug: slug,
-      year: entry.year,
-      ...(entry.month !== undefined ? { month: entry.month } : {}),
-    });
-    newIotms.push(iotm);
-    if (needsReview.length > 0) reviewNotes[iotm.packaged_name] = needsReview;
+    // Isolate per-entry parse failures: a newly-listed IOTM whose wiki page
+    // is still a stub shouldn't sink the whole run (or, worse, get committed
+    // as a malformed entry). Skip it and let the next run retry once the page
+    // fills in.
+    // — claude 8043a506, 2026-05-30
+    try {
+      const { iotm, needsReview } = await parseItemPageWithReview(wiki, mafia, {
+        packaged_name: entry.packaged_name,
+        packaged_slug: slug,
+        year: entry.year,
+        ...(entry.month !== undefined ? { month: entry.month } : {}),
+      });
+      newIotms.push(iotm);
+      if (needsReview.length > 0) reviewNotes[iotm.packaged_name] = needsReview;
+    } catch (e) {
+      skippedEntries.push({
+        packaged_name: entry.packaged_name,
+        error: e instanceof Error ? e.message : String(e),
+      });
+    }
   }
 
   // Tier pass.
-  const [speedCsv, aftercoreCsv] = await Promise.all([tiers.fetchSpeed(), tiers.fetchAftercore()]);
+  const [speedCsv, aftercoreCsv] = await Promise.all([
+    tiers.fetchSpeed(),
+    tiers.fetchAftercore(),
+  ]);
   const speedRows = parseSpeedSheet(speedCsv);
   const aftercoreRows = parseAftercoreSheet(aftercoreCsv);
   for (const iotm of newIotms) {
@@ -100,35 +165,80 @@ export async function scrape(opts: ScrapeOptions): Promise<ScrapeResult> {
     if (a) iotm.aftercore_tier = a.tier;
   }
 
-  // Surface tier rows that don't correspond to any known IOTM, for human
-  // review (likely typos in the sheet, or new IOTMs we haven't picked up).
-  const allKnown = [...knownIotms, ...newIotms];
-  const unmatchedTierRows: ScrapeResult["unmatchedTierRows"] = [];
-  for (const row of speedRows) {
-    if (!findIotmByName(allKnown, row.name)) {
-      unmatchedTierRows.push({
-        source: "speed",
-        name: row.name,
-        ...(row.year !== undefined ? { year: row.year } : {}),
-      });
-    }
-  }
-  for (const row of aftercoreRows) {
-    if (!findIotmByName(allKnown, row.name)) {
-      unmatchedTierRows.push({
-        source: "aftercore",
-        name: row.name,
-        ...(row.year !== undefined ? { year: row.year } : {}),
-      });
+  // Backfill pass: re-match the tier sheets against existing entries inside
+  // the window and emit an update wherever the sheet's tier differs from
+  // what's recorded (including the common case where it was never set). The
+  // sheets are authoritative for tier fields, so we overwrite — the PR is the
+  // human-review gate.
+  // — claude 8043a506, 2026-05-30
+  const tierUpdates: TierUpdate[] = [];
+  if (backfillSince !== undefined) {
+    for (const iotm of knownIotms) {
+      if (iotmKey(iotm) < backfillSince) continue;
+      const s = matchSpeedTier(iotm, speedRows);
+      if (s && s.tier !== iotm.speed_tier) {
+        tierUpdates.push({
+          packaged_id: iotm.packaged_id,
+          packaged_name: iotm.packaged_name,
+          field: "speed_tier",
+          ...(iotm.speed_tier !== undefined ? { from: iotm.speed_tier } : {}),
+          to: s.tier,
+        });
+      }
+      const a = matchAftercoreTier(iotm, aftercoreRows);
+      if (a && a.tier !== iotm.aftercore_tier) {
+        tierUpdates.push({
+          packaged_id: iotm.packaged_id,
+          packaged_name: iotm.packaged_name,
+          field: "aftercore_tier",
+          ...(iotm.aftercore_tier !== undefined
+            ? { from: iotm.aftercore_tier }
+            : {}),
+          to: a.tier,
+        });
+      }
     }
   }
 
-  return { newIotms, reviewNotes, unmatchedTierRows };
+  // Surface tier rows that don't correspond to any known IOTM, for human
+  // review (likely typos in the sheet, or new IOTMs we haven't picked up).
+  // Uses the same normalize + fuzzy matcher as tier assignment, so a row that
+  // was successfully placed never also shows up here as "unmatched".
+  // — claude 8043a506, 2026-05-30
+  const allKnown = [...knownIotms, ...newIotms];
+  const unmatchedTierRows: ScrapeResult["unmatchedTierRows"] = [];
+  for (const [source, rows] of [
+    ["speed", speedRows],
+    ["aftercore", aftercoreRows],
+  ] as const) {
+    for (const row of rows) {
+      if (!rowMatchesAnyIotm(row, allKnown)) {
+        unmatchedTierRows.push({
+          source,
+          name: row.name,
+          ...(row.year !== undefined ? { year: row.year } : {}),
+        });
+      }
+    }
+  }
+
+  return {
+    newIotms,
+    reviewNotes,
+    unmatchedTierRows,
+    tierUpdates,
+    skippedEntries,
+  };
 }
 
 /** Sort key for an IndexEntry. IOTYs (no month) sort to month 13. */
 function entryKey(e: IndexEntry): number {
   return e.year * 100 + (e.month ?? 0);
+}
+
+/** Same `year * 100 + month` key for an IOTM (matches {@link entryKey}). */
+function iotmKey(i: IOTM): number {
+  return i.year * 100 + (i.month ?? 0);
 }
 
 /** Highest (year, month) already present in iotms.ts; everything past this is "new". */
@@ -146,21 +256,4 @@ function wikiSlug(name: string): string {
   const trimmed = name.trim();
   const head = trimmed[0]?.toUpperCase() ?? "";
   return (head + trimmed.slice(1)).replace(/ /g, "_");
-}
-
-function findIotmByName(iotms: readonly IOTM[], name: string): IOTM | undefined {
-  const norm = name.toLowerCase();
-  for (const i of iotms) {
-    if (i.packaged_name.toLowerCase() === norm) return i;
-    if (matchesAny(i.opened_names, norm)) return i;
-    if (matchesAny(i.familiar_names, norm)) return i;
-    if (matchesAny(i.skill_names, norm)) return i;
-  }
-  return undefined;
-}
-
-function matchesAny(v: string | readonly string[] | undefined, normalizedName: string): boolean {
-  if (v === undefined) return false;
-  if (typeof v === "string") return v.toLowerCase() === normalizedName;
-  return v.some((s) => s.toLowerCase() === normalizedName);
 }
