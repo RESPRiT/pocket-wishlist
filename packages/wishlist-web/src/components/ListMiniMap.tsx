@@ -7,7 +7,7 @@ import {
 } from "react";
 import { ListEntryProps } from "./ListEntry";
 import { useTheme } from "@/contexts/ThemeContext";
-import { ENTRY_HEIGHT_PX, useMiniMapCanvas } from "@/hooks/useMiniMapCanvas";
+import { ENTRY_HEIGHT_PX, MiniMapCanvas } from "./MiniMapCanvas";
 import { cn } from "@/lib/utils";
 
 // Constants
@@ -149,10 +149,6 @@ function ListMiniMap({
     }
   };
 
-  // Renders the entry strip onto a single canvas (one fillRect per entry)
-  // rather than one div per entry. — claude, 2026-05-31
-  const canvasRef = useMiniMapCanvas(entries, theme, miniMapWidth);
-
   return (
     showMiniMap && (
       <div
@@ -185,7 +181,7 @@ function ListMiniMap({
           style={{ width: miniMapWidth, top: TOP_OFFSET }}
           onPointerDown={handleJumpPointerDown}
         >
-          <canvas ref={canvasRef} className="block w-full" />
+          <MiniMapCanvas entries={entries} theme={theme} width={miniMapWidth} />
         </div>
         {/* Scroll window */}
         <div

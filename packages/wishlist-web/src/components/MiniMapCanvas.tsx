@@ -1,24 +1,21 @@
-import { RefObject, useEffect, useRef } from "react";
-import type { ListEntryProps } from "@/components/ListEntry";
+import { useEffect, useRef } from "react";
+import type { ListEntryProps } from "./ListEntry";
 import type { Theme } from "@/contexts/ThemeContext";
 import {
   deriveEntryColorInputs,
   getEntryBgColorString,
 } from "@/hooks/useEntryBackgroundColor";
 
-// Height of one entry row in CSS px — mirrors the old h-0.5 (2px) div the
-// minimap used to render per entry. — claude, 2026-05-31
+// Height of one entry row in CSS px.
+// TODO: ENTRY_HEIGHT_PX (≙ h-0.5) and ANIM_MS (≙ duration-400) duplicate Tailwind
+// values with no shared source of truth — reconcile the CSS↔JS constants.
 export const ENTRY_HEIGHT_PX = 2;
-
-// Matches the transition-colors duration-400 the per-entry divs carried, so a
-// status/price change fades over the same window it always did.
-// — claude, 2026-05-31
 const ANIM_MS = 400;
 
 type RGBA = [number, number, number, number];
 
 // Approximates the CSS `ease` timing function (the transition default) closely
-// enough for a 2px bar. — claude, 2026-05-31
+// enough for a 2px bar. — claude, 2026-06-01
 function ease(t: number): number {
   return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
 }
@@ -29,7 +26,7 @@ function ease(t: number): number {
 // pixel back to normalize whatever the browser serializes (rgb/oklab/…) into
 // plain bytes we can interpolate. The probe lives under document.body, which
 // inherits data-theme from <html>, so vars resolve in the active theme.
-// — claude, 2026-05-31
+// — claude, 2026-06-01
 function makeColorResolver() {
   const probe = document.createElement("span");
   probe.style.cssText =
@@ -43,7 +40,7 @@ function makeColorResolver() {
 
   // Resolve a whole list in one pass, deduping identical strings (many rows
   // share a color — e.g. every OPENED entry). The cache is per-call because
-  // var() resolution depends on the current theme. — claude, 2026-05-31
+  // var() resolution depends on the current theme. — claude, 2026-06-01
   function resolveAll(cssList: string[]): RGBA[] {
     const cache = new Map<string, RGBA>();
     return cssList.map((css) => {
@@ -69,16 +66,19 @@ function makeColorResolver() {
 }
 
 /**
- * Drives the minimap's entry strip on a single <canvas> instead of one div per
- * entry. Returns a ref to attach to the canvas. Colors are resolved only when
- * the entries or theme change; a requestAnimationFrame loop then tweens the
- * painted colors to their targets, replacing the old per-div CSS transition.
+ * The minimap's entry strip: one <canvas> painting a row (fillRect) per entry.
+ * Colors are resolved only when the entries or theme change; a
+ * requestAnimationFrame loop then tweens the painted colors to their targets.
  */
-export function useMiniMapCanvas(
-  entries: ListEntryProps[],
-  theme: Theme,
-  width: number,
-): RefObject<HTMLCanvasElement | null> {
+export function MiniMapCanvas({
+  entries,
+  theme,
+  width,
+}: {
+  entries: ListEntryProps[];
+  theme: Theme;
+  width: number;
+}) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const resolverRef = useRef<ReturnType<typeof makeColorResolver> | null>(null);
 
@@ -99,7 +99,7 @@ export function useMiniMapCanvas(
 
   // Paint/step are created once via a lazy ref: they close over only the
   // (stable) refs above, so they never go stale and never need to be recreated
-  // or listed in effect deps. — claude, 2026-05-31
+  // or listed in effect deps. — claude, 2026-06-01
   const fnsRef = useRef<{ paint: () => void; step: () => void } | null>(null);
   if (!fnsRef.current) {
     const paint = () => {
@@ -207,5 +207,5 @@ export function useMiniMapCanvas(
     fnsRef.current?.paint();
   }, [width]);
 
-  return canvasRef;
+  return <canvas ref={canvasRef} className="block w-full" />;
 }
