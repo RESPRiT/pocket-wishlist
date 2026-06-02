@@ -1,6 +1,6 @@
 import { useMemo } from "react";
-import { adjustLightness, logBracketScale } from "@/lib/colors";
-import { ListEntryStatus } from "@/components/ListEntry";
+import { adjustLightnessColor, logBracketScale } from "@/lib/colors";
+import type { ListEntryProps, ListEntryStatus } from "@/components/ListEntry";
 
 export type EntryBackgroundColorProps = {
   status?: ListEntryStatus;
@@ -9,6 +9,66 @@ export type EntryBackgroundColorProps = {
   priceRatio: number | null;
   theme: "light" | "dark";
 };
+
+// The status/standard/price inputs the color logic needs, derived from a raw
+// entry. Centralized here so ListEntry, EntryBackground, and the canvas minimap
+// share one implementation rather than each re-deriving it. — claude, 2026-05-31
+export type EntryColorInputs = Pick<
+  EntryBackgroundColorProps,
+  "status" | "isStandard" | "standardYear" | "priceRatio"
+>;
+
+export function deriveEntryColorInputs(
+  entry: Pick<
+    ListEntryProps,
+    "status" | "year" | "packagedName" | "price" | "mrAs"
+  >,
+): EntryColorInputs {
+  const currentYear = new Date().getFullYear();
+  const standardYear =
+    entry.packagedName === "Clan VIP Lounge invitation"
+      ? 0
+      : currentYear - entry.year;
+
+  const mall =
+    entry.price?.value || entry.price?.lowestMall
+      ? Math.max(
+          entry.price?.value ?? Infinity,
+          entry.price?.lowestMall ?? Infinity,
+        )
+      : null;
+
+  return {
+    status: entry.status,
+    isStandard: standardYear < 3,
+    standardYear,
+    priceRatio: mall && entry.mrAs ? mall / entry.mrAs : null,
+  };
+}
+
+// Resolves an entry's background to a single CSS color string. Shared by the
+// hook below (DOM consumers) and the canvas minimap, which resolves the string
+// to concrete pixels rather than handing it to React. — claude, 2026-05-31
+export function getEntryBgColorString({
+  status,
+  isStandard,
+  standardYear,
+  priceRatio,
+  theme,
+}: EntryBackgroundColorProps): string {
+  if (status === "OPENED") return "var(--confirm)";
+
+  if (status === "PACKAGED") {
+    return `oklch(from color-mix(in hsl, var(--accent) ${theme === "light" ? "70%, white 30%" : "80%, black 20%"}) l ${theme === "light" ? "0.1" : "0.06"} h)`;
+  }
+
+  return adjustLightnessColor(
+    getBaseColor(isStandard, standardYear, theme),
+    getEndColor(isStandard, theme),
+    getPriceDarkness(priceRatio, theme),
+    getContrastColor(theme),
+  );
+}
 
 const BASE_COLOR_CONFIG = {
   maxYears: 3,
@@ -67,24 +127,18 @@ export function useEntryBackgroundColor({
   priceRatio,
   theme,
 }: EntryBackgroundColorProps) {
-  const bgStyle = useMemo(() => {
-    if (status === "OPENED") {
-      return { backgroundColor: "var(--confirm)" };
-    }
-
-    if (status === "PACKAGED") {
-      return {
-        backgroundColor: `oklch(from color-mix(in hsl, var(--accent) ${theme === "light" ? "70%, white 30%" : "80%, black 20%"}) l ${theme === "light" ? "0.1" : "0.06"} h)`,
-      };
-    }
-
-    return adjustLightness(
-      getBaseColor(isStandard, standardYear, theme),
-      getEndColor(isStandard, theme),
-      getPriceDarkness(priceRatio, theme),
-      getContrastColor(theme),
-    );
-  }, [status, isStandard, standardYear, priceRatio, theme]);
+  const bgStyle = useMemo(
+    () => ({
+      backgroundColor: getEntryBgColorString({
+        status,
+        isStandard,
+        standardYear,
+        priceRatio,
+        theme,
+      }),
+    }),
+    [status, isStandard, standardYear, priceRatio, theme],
+  );
 
   const textureClass = useMemo(() => {
     const classes: string[] = [];

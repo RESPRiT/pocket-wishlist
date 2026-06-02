@@ -17,18 +17,33 @@ export function interpolateColorScale(percent: number): CSSProperties {
   };
 }
 
+// Returns the raw color string. Split out from adjustLightness so non-DOM
+// consumers (e.g. the canvas minimap) can feed the value to a color resolver
+// instead of a CSSProperties object. — claude, 2026-05-31
+export function adjustLightnessColor(
+  startColor: string,
+  endColor = "black",
+  percent: number,
+  contrastColor = "white",
+): string {
+  return `color-mix(in oklch, ${startColor} ${
+    100 - Math.abs(percent)
+  }%, ${percent < 0 ? endColor : contrastColor})`;
+}
+
 export function adjustLightness(
   startColor: string,
   endColor = "black",
   percent: number,
   contrastColor = "white",
 ): CSSProperties {
-  const adjustedColor = `color-mix(in oklch, ${startColor} ${
-    100 - Math.abs(percent)
-  }%, ${percent < 0 ? endColor : contrastColor})`;
-
   return {
-    backgroundColor: adjustedColor,
+    backgroundColor: adjustLightnessColor(
+      startColor,
+      endColor,
+      percent,
+      contrastColor,
+    ),
   };
 }
 

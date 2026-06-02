@@ -2,17 +2,15 @@ import {
   PointerEventHandler,
   useEffect,
   useRef,
-  useMemo,
   useState,
   useSyncExternalStore,
 } from "react";
 import { ListEntryProps } from "./ListEntry";
-import { Theme, useTheme } from "@/contexts/ThemeContext";
-import { useEntryBackgroundColor } from "@/hooks/useEntryBackgroundColor";
+import { useTheme } from "@/contexts/ThemeContext";
+import { ENTRY_HEIGHT_PX, useMiniMapCanvas } from "@/hooks/useMiniMapCanvas";
 import { cn } from "@/lib/utils";
 
 // Constants
-const ENTRY_HEIGHT_PX = 2; // h-0.5 class = 2px
 const HOVER_PADDING_MULTIPLIER = 1.5;
 const TOP_OFFSET = 24; // top-6 class = 24px
 const MINIMAP_MIN_VIEWPORT_WIDTH = 1080;
@@ -32,49 +30,6 @@ function getServerScrollY() {
   return 0;
 }
 
-// TODO: Put this in canvas instead of rendering hundreds of tiny divs
-function MiniMapEntry({
-  entry,
-  theme,
-}: {
-  entry: ListEntryProps;
-  theme: Theme;
-}) {
-  // TODO: Remove evil copied code... somehow
-  const standardYear = useMemo(() => {
-    const currentYear = new Date().getFullYear();
-    if (entry.packagedName === "Clan VIP Lounge invitation") return 0;
-    return currentYear - entry.year;
-  }, [entry.year, entry.packagedName]);
-
-  const mall =
-    entry.price?.value || entry.price?.lowestMall
-      ? Math.max(
-          entry.price?.value ?? Infinity,
-          entry.price?.lowestMall ?? Infinity,
-        )
-      : null;
-
-  const priceRatio = mall && entry.mrAs ? mall / entry.mrAs : null;
-  const isStandard = standardYear < 3;
-
-  const { bgStyle } = useEntryBackgroundColor({
-    status: entry.status,
-    isStandard,
-    standardYear,
-    priceRatio,
-    theme,
-  });
-
-  return (
-    <div
-      className="h-0.5 w-full transition-colors duration-400"
-      style={bgStyle}
-    />
-  );
-}
-
-// TODO: Consider how code can be made more performant/readable
 function ListMiniMap({
   entries,
   height,
@@ -194,10 +149,9 @@ function ListMiniMap({
     }
   };
 
-  // pulling this out allows React Compiler to auto-memoize it
-  const entryList = entries.map((entry, index) => (
-    <MiniMapEntry key={index} entry={entry} theme={theme} />
-  ));
+  // Renders the entry strip onto a single canvas (one fillRect per entry)
+  // rather than one div per entry. — claude, 2026-05-31
+  const canvasRef = useMiniMapCanvas(entries, theme, miniMapWidth);
 
   return (
     showMiniMap && (
@@ -231,7 +185,7 @@ function ListMiniMap({
           style={{ width: miniMapWidth, top: TOP_OFFSET }}
           onPointerDown={handleJumpPointerDown}
         >
-          {entryList}
+          <canvas ref={canvasRef} className="block w-full" />
         </div>
         {/* Scroll window */}
         <div

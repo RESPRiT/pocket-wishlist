@@ -8,6 +8,7 @@ import { EntryPriceSection } from "./entry/EntryPriceSection";
 import { cn } from "@/lib/utils";
 import { Price } from "wishlist-shared";
 import { useWishlist } from "@/contexts/WishlistContext";
+import { deriveEntryColorInputs } from "@/hooks/useEntryBackgroundColor";
 
 // TODO: Move to wishlist data schema once API is updated
 export type ListEntryStatus = "NONE" | "PACKAGED" | "OPENED" | "WISHED";
@@ -64,19 +65,13 @@ function ListEntry({
     [packagedName],
   );
 
-  const standardYear = useMemo(() => {
-    const currentYear = new Date().getFullYear();
-    if (packagedName === "Clan VIP Lounge invitation") return 0;
-    return currentYear - year;
-  }, [year, packagedName]);
-
-  const mall =
-    price?.value || price?.lowestMall
-      ? Math.max(price?.value ?? Infinity, price?.lowestMall ?? Infinity)
-      : null;
-
-  const priceRatio = mall && mrAs ? mall / mrAs : null;
-  const isStandard = standardYear < 3;
+  const { standardYear, priceRatio, isStandard } = deriveEntryColorInputs({
+    status,
+    year,
+    packagedName,
+    price,
+    mrAs,
+  });
 
   return (
     <div
