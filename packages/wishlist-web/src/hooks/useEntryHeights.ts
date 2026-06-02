@@ -139,19 +139,14 @@ export function useEntryHeights(virtualItems: VirtualListItem[]) {
     virtualItems.reduce((acc, v) => acc + DEFAULT_HEIGHTS[v.itemType], 0),
   );
   const [fontsReady, setFontsReady] = useState<boolean>(nameFaceReady);
-  // Persisted real-font measurements (see useEntryHeightsStore). Read once for
-  // the seed below and written after each real-font measure pass; not subscribed
-  // reactively — our own `measured` state drives re-renders, so a store
-  // subscription would only add a redundant one.
+  // Stable setter; not subscribed reactively — `measured` already drives the
+  // hook's re-renders, so a store subscription would only add a redundant one.
   const persistMeasureSet = useEntryHeightsStore((s) => s.setBand);
-  // The current measure result and the request id (`nonce`) it answers. `set`
-  // holds the probe primitives: probe (its priceNormalH is the forged-normal
-  // price section), priceExtinctH (a standalone EntryPriceSection in the
-  // infinite font), and headingHeight. Seeding `set` from the store gives a
-  // correct first paint before any DOM probe runs; `nonce` lets a re-measure
-  // (font load, viewport change) re-render the probes while the prior `set`
-  // keeps feeding itemHeights, so the list never blinks back to the flat
-  // fallback estimate mid-correction.
+  // The current measure result (`set`) and the request id (`nonce`) it answers.
+  // Seeding `set` from the store gives a correct first paint before any DOM
+  // probe runs. A re-measure (font load, viewport change) bumps the nonce but
+  // keeps the prior `set` feeding itemHeights, so the list never blinks back to
+  // the flat fallback estimate mid-correction.
   // — claude fbc05fa5, 2026-05-31
   const [measured, setMeasured] = useState<{
     nonce: number;
@@ -178,10 +173,9 @@ export function useEntryHeights(virtualItems: VirtualListItem[]) {
     : null;
 
   // Items the MeasurementContainer should render. Empty once the outstanding
-  // measure request is satisfied. All three probes render together per pass so
-  // the layout effect can read them by fixed offset. Measurement runs even
-  // before the font loads (optimistic, against fallback metrics) — the font-
-  // load effect below requests a fresh pass to correct it.
+  // measure request is satisfied. Measurement runs even before the font loads
+  // (optimistic, against fallback metrics) — the font-load effect below requests
+  // a fresh pass to correct it.
   //
   // Manually memoized because the `probeVpRef.current = …` render-time write
   // further down bails React Compiler out of memoizing this whole hook. The
@@ -231,9 +225,8 @@ export function useEntryHeights(virtualItems: VirtualListItem[]) {
     persistMeasureSet(measureBand(measured.set.probe.vp), measured.set);
   }, [fontsReady, measured, persistMeasureSet]);
 
-  // Measure probes after they render in the hidden container. All three render
-  // together (probe entry, extinct price, heading), so read them by fixed
-  // offset and commit one MeasureSet against the request's nonce.
+  // Read the three probes (probe entry, extinct price, heading) by fixed offset
+  // and commit one MeasureSet for this nonce.
   useLayoutEffect(() => {
     if (!containerRef.current) return;
     if (!wantMeasure || !probeEntryForged) return;
@@ -327,10 +320,8 @@ export function useEntryHeights(virtualItems: VirtualListItem[]) {
       }
     }
     return map;
-    // On font load the effect above clears the pretext cache and bumps the
-    // nonce; the resulting re-measure changes `measured` in a layout effect
-    // (before paint), so depending on `measured` alone recomputes per-entry
-    // line counts against Inter without a phantom fontsReady dep.
+    // No fontsReady dep: font load bumps the nonce → re-measure → new `measured`
+    // (committed in a layout effect, pre-paint), which already retriggers this.
   }, [measured, virtualItems]);
 
   // Re-probe when the layout viewport changes — clamps in the entry path
@@ -367,9 +358,7 @@ export function useEntryHeights(virtualItems: VirtualListItem[]) {
           vp >= LG_BREAKPOINT_PX
         )
           return;
-        // Request a re-measure but keep the prior set feeding itemHeights until
-        // the new one lands, so the list doesn't blink to the fallback estimate.
-        // — claude fbc05fa5, 2026-05-31
+        // Re-measure; the prior `set` keeps feeding itemHeights until it lands.
         setMeasureNonce((n) => n + 1);
       });
     };

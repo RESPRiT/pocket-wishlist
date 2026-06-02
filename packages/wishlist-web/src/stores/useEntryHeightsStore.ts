@@ -30,20 +30,15 @@ export type MeasureSet = {
 };
 
 type EntryHeightsStore = {
-  // Real-font measurements keyed by viewport band (see useEntryHeights'
-  // measureBand). At/above lg the entry geometry is static so one bucket serves
-  // the whole desktop band; below lg each exact width is its own bucket.
+  // Real-font measurements keyed by viewport band (see measureBand).
   byBand: Record<string, MeasureSet>;
   setBand: (band: string, set: MeasureSet) => void;
 };
 
-// Unlike useSettingsStore, this persists with the default *synchronous*
-// hydration (no skipHydration): useEntryHeights seeds its first render from
-// getState(), so the persisted heights have to be present before any effect
-// runs — that synchronous read is the whole point, it's what makes the first
-// paint match the loaded-font layout instead of reflowing once the face lands.
-// Safe because the app is a client-only SPA (createRoot, no SSR) so there's no
-// server/client hydration mismatch to guard against.
+// Default *synchronous* hydration (no skipHydration, unlike useSettingsStore):
+// useEntryHeights seeds its first render from getState(), so the persisted
+// heights must be present before any effect runs. Safe because the app is a
+// client-only SPA (createRoot, no SSR), so there's no hydration mismatch.
 // — claude fbc05fa5, 2026-05-31
 export const useEntryHeightsStore = create<EntryHeightsStore>()(
   persist(
