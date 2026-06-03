@@ -55,3 +55,10 @@ export const nameTextHeight = (name: string, vp: number): number => {
 export const nameTextLineCount = (name: string, vp: number): number =>
   layout(getPrepared(name, vp), nameColumnWidth(vp), nameLineHeightPx(vp))
     .lineCount;
+
+// prepare() measures via canvas measureText, which resolves against a fallback
+// face until "Inter Variable" loads and caches those fallback advances keyed
+// only by (font-size, name). Call this once the face is ready to drop the
+// fallback-era entries so the next layout() recomputes against Inter.
+// — claude fbc05fa5, 2026-05-31
+export const resetNameMeasurementCache = (): void => cache.clear();
