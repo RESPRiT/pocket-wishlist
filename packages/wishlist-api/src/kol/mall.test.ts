@@ -3,6 +3,7 @@ import {
   classifyMallResponse,
   extractLowestPrice,
   htmlEncodeForMall,
+  makeDiag,
 } from "./mall.ts";
 
 describe("extractLowestPrice", () => {
@@ -114,5 +115,27 @@ describe("classifyMallResponse", () => {
     // Defensive: prefer retry over false-empty.
     const html = mallShell(`<div>something weird</div>`);
     expect(classifyMallResponse(html).kind).toBe("error");
+  });
+});
+
+describe("makeDiag", () => {
+  it("extracts the title and strips scripts/markup to visible text", () => {
+    const html = `<html><head><title> Server Busy </title>
+      <script>var x = "<h1>not visible</h1>";</script>
+      <style>.a{color:red}</style></head>
+      <body><h1>Whoa there.</h1><p>Slow down,   pardner.</p></body></html>`;
+    const d = makeDiag(200, html);
+    expect(d.status).toBe(200);
+    expect(d.bodyLen).toBe(html.length);
+    expect(d.title).toBe("Server Busy");
+    expect(d.snippet).toBe("Whoa there. Slow down, pardner.");
+    expect(d.snippet).not.toContain("not visible");
+  });
+
+  it("caps the snippet length and tolerates a missing title", () => {
+    const html = `<body>${"x ".repeat(500)}</body>`;
+    const d = makeDiag(503, html);
+    expect(d.title).toBeNull();
+    expect(d.snippet.length).toBeLessThanOrEqual(240);
   });
 });
