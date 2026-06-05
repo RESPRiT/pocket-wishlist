@@ -1,5 +1,5 @@
 import { Hono } from "hono";
-import { startRefreshCron } from "./cron.ts";
+import { startPriceBackfill, startRefreshCron } from "./cron.ts";
 import mall from "./mall.ts";
 import wishlist from "./wishlist.ts";
 
@@ -17,6 +17,7 @@ api.route("/", wishlist);
 app.route("/api", api);
 
 startRefreshCron();
+startPriceBackfill();
 
 export default {
   port: Number(process.env.PORT ?? 3001),

@@ -35,6 +35,33 @@ export type RefreshSummary = {
 };
 
 export async function refreshPrices(): Promise<RefreshSummary> {
+  const targets: Target[] = [
+    { id: MR_A_ID, name: MR_A_NAME },
+    ...iotms.map((i) => ({ id: i.packaged_id, name: i.packaged_name })),
+  ];
+  return runRefresh(targets);
+}
+
+// Price just the IOTMs that have no row in the prices table yet — the state a
+// fresh deploy lands in after the daily update PR adds new entries. Returns
+// null (and never logs into KoL) when nothing is missing, so it's cheap to
+// call unconditionally on every boot. The targeted probe means a new-entry
+// deploy gets its prices in seconds instead of waiting up to a day for the
+// next cron.
+// — claude 06de4a57, 2026-06-02
+export async function backfillMissingPrices(): Promise<RefreshSummary | null> {
+  const priced = store.getPricedItemIds();
+  const missing: Target[] = iotms
+    .filter((i) => !priced.has(i.packaged_id))
+    .map((i) => ({ id: i.packaged_id, name: i.packaged_name }));
+  // Mr. A is the baseline currency; price it too if it's somehow unpriced
+  // (e.g. a brand-new empty DB), but don't drag it in once it has a row.
+  if (!priced.has(MR_A_ID)) missing.unshift({ id: MR_A_ID, name: MR_A_NAME });
+  if (missing.length === 0) return null;
+  return runRefresh(missing);
+}
+
+async function runRefresh(targets: Target[]): Promise<RefreshSummary> {
   const username = process.env.KOL_USERNAME;
   const password = process.env.KOL_PASSWORD;
   if (!username || !password) {
@@ -42,10 +69,6 @@ export async function refreshPrices(): Promise<RefreshSummary> {
   }
 
   const started = Date.now();
-  const targets: Target[] = [
-    { id: MR_A_ID, name: MR_A_NAME },
-    ...iotms.map((i) => ({ id: i.packaged_id, name: i.packaged_name })),
-  ];
 
   // --- KoL mall pass ---
   const session = new KoLSession();

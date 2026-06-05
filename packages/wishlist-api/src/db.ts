@@ -43,6 +43,9 @@ const selectLowestMallStmt = db.query<{ item_id: number; lowest_mall: number }, 
 const selectMaxUpdatedStmt = db.query<{ max_updated: number | null }, []>(
   "SELECT MAX(updated_at) AS max_updated FROM prices"
 );
+const selectItemIdsStmt = db.query<{ item_id: number }, []>(
+  "SELECT item_id FROM prices"
+);
 const upsertLowestMallStmt = db.query<unknown, [number, number, number]>(
   "INSERT INTO prices (item_id, lowest_mall, updated_at) VALUES (?, ?, ?) " +
     "ON CONFLICT(item_id) DO UPDATE SET " +
@@ -73,6 +76,14 @@ function getLowestMall(): MallPrice {
     out[row.item_id] = row.lowest_mall;
   }
   return out;
+}
+
+// Item ids that have any row in the prices table — i.e. have been probed at
+// least once. The boot-time backfill diffs IOTM ids against this to find newly
+// added entries that have never been priced.
+// — claude 06de4a57, 2026-06-02
+function getPricedItemIds(): Set<number> {
+  return new Set(selectItemIdsStmt.all().map((r) => r.item_id));
 }
 
 function getPricesLastUpdate(): number {
@@ -130,6 +141,7 @@ function setWishlist(userId: number, response: WishlistResponse): void {
 
 export const store = {
   getPrices,
+  getPricedItemIds,
   getPricesLastUpdate,
   getLowestMall,
   setLowestMall,

@@ -41,10 +41,20 @@ jobs:
         run: bun test packages/wishlist-shared/scripts/update-iotms
 
       - name: Scrape and update iotms.ts
-        run: bun packages/wishlist-shared/scripts/update-iotms/update.ts --report=iotm-report.md
+        run: |
+          bun packages/wishlist-shared/scripts/update-iotms/update.ts \
+            --report=iotm-report.md --title-out=iotm-title.txt
 
       - name: Format
         run: bunx prettier --write packages/wishlist-shared/data/iotms.ts
+
+      # Generate themed PNGs for any newly-added IOTM images (incremental — only
+      # fetches/processes images not already on disk) so a new entry ships with
+      # its artwork in the same PR instead of rendering broken until a manual
+      # run. No-ops when the scrape added nothing new.
+      # — claude 06de4a57, 2026-06-02
+      - name: Process new item images
+        run: bun packages/wishlist-web/scripts/process-images.ts
 
       # Commit to a stable branch and open one rolling PR (or update the open
       # one), using only git + the runner's pre-installed gh CLI — no
@@ -57,21 +67,32 @@ jobs:
         run: |
           set -euo pipefail
           BRANCH=bot/iotm-update
-          DATA=packages/wishlist-shared/data/iotms.ts
-          # The scraper only ever edits the data file; if it's unchanged there's
-          # nothing to open a PR for.
-          if git diff --quiet -- "$DATA"; then
-            echo "iotms.ts unchanged — nothing to do."
-            exit 0
-          fi
+          # Surfaces the update can touch: the data file, the themed PNGs the
+          # image step (re)generates, and the animated-image manifest.
+          PATHS=(
+            packages/wishlist-shared/data/iotms.ts
+            packages/wishlist-web/public/itemimages
+            packages/wishlist-web/src/data/animatedImages.json
+          )
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -- "${PATHS[@]}"
+          # If none of those staged, the scrape found nothing new — no PR.
+          if git diff --cached --quiet; then
+            echo "No data/image changes — nothing to do."
+            exit 0
+          fi
+          TITLE=$(cat iotm-title.txt)
           git checkout -B "$BRANCH"
-          git add "$DATA"
           git commit -m "data: update IOTMs (new entries + tier backfill)"
           git push --force origin "$BRANCH"
-          # Reuse the open PR if one exists; otherwise open it.
-          if [ -z "$(gh pr list --head "$BRANCH" --state open --json number --jq '.[].number')" ]; then
+          # Reuse the open PR if one exists; otherwise open it. Either way,
+          # refresh the title + body so the rolling PR reflects the latest run
+          # (a branch push alone updates neither).
+          NUM=$(gh pr list --head "$BRANCH" --state open --json number --jq '.[].number')
+          if [ -z "$NUM" ]; then
             gh pr create --base main --head "$BRANCH" \
-              --title "Update IOTMs" --body-file iotm-report.md
+              --title "$TITLE" --body-file iotm-report.md
+          else
+            gh pr edit "$NUM" --title "$TITLE" --body-file iotm-report.md
           fi

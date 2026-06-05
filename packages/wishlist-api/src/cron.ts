@@ -1,6 +1,30 @@
-import { refreshPrices } from "./jobs/refreshPrices.ts";
+import { backfillMissingPrices, refreshPrices } from "./jobs/refreshPrices.ts";
 
 const DEFAULT_HOUR_UTC = 8;
+
+// On boot, price any IOTMs that have no row yet — the state a fresh deploy
+// lands in right after the daily update PR adds new entries and Coolify
+// redeploys. No-ops (no KoL login) when nothing's missing, so it's safe to run
+// on every start. Fire-and-forget: a ~minute of mall probing must not block
+// the server from serving. Shares the cred guard with the daily cron.
+// — claude 06de4a57, 2026-06-02
+export function startPriceBackfill(): void {
+  if (!process.env.KOL_USERNAME || !process.env.KOL_PASSWORD) {
+    console.warn(
+      "[backfill] KOL_USERNAME/KOL_PASSWORD unset — startup price backfill skipped"
+    );
+    return;
+  }
+  backfillMissingPrices()
+    .then((result) => {
+      if (result === null) {
+        console.log("[backfill] all IOTMs already priced — nothing to do.");
+      } else {
+        console.log("[backfill] priced new entries:", result);
+      }
+    })
+    .catch((e) => console.error("[backfill] failed:", e));
+}
 
 // Set REFRESH_HOUR_UTC to disable (any non-numeric value) or shift the run.
 // Daily refresh fires once per day at the configured UTC hour. In-process

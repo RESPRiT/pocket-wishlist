@@ -12,7 +12,8 @@
  * - Adds filename to animated manifest (processed at runtime via mix-blend-mode)
  */
 
-import { mkdir, writeFile } from "fs/promises";
+import { existsSync } from "fs";
+import { mkdir, readFile, writeFile } from "fs/promises";
 import { join } from "path";
 import sharp from "sharp";
 import { iotms } from "../../wishlist-shared/data/iotms";
@@ -45,6 +46,14 @@ const ACCENT_IMAGES = new Set(["mracc.gif"]);
 // Additional images not in iotms data
 const EXTRA_IMAGES = ["meat.gif", "mracc.gif"];
 
+// By default this is incremental: an image whose themed PNGs already exist (or
+// that's already recorded as animated) is left untouched, so the daily IOTM
+// update run only fetches + processes the handful of newly-added items rather
+// than re-downloading all ~260 each time. `--force` reprocesses everything,
+// for theme-color changes or a clean rebuild.
+// — claude 06de4a57, 2026-06-02
+const FORCE = process.argv.includes("--force");
+
 async function downloadImage(filename: string): Promise<Buffer | null> {
   const url = `${CDN_BASE}/${filename}`;
   try {
@@ -57,6 +66,16 @@ async function downloadImage(filename: string): Promise<Buffer | null> {
   } catch (error) {
     console.error(`Error downloading ${filename}:`, error);
     return null;
+  }
+}
+
+async function readManifest(): Promise<string[]> {
+  if (!existsSync(MANIFEST_PATH)) return [];
+  try {
+    const parsed = JSON.parse(await readFile(MANIFEST_PATH, "utf8"));
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
   }
 }
 
@@ -176,12 +195,32 @@ async function main() {
   const images = Array.from(imageSet).sort();
   console.log(`Found ${images.length} unique images to process\n`);
 
-  const animatedImages: string[] = [];
+  // Seed from the existing manifest so an incremental run preserves animated
+  // entries it skips (their filenames live only here — there are no PNGs to
+  // detect them by). New animated images union in; nothing is dropped.
+  // — claude 06de4a57, 2026-06-02
+  const animatedSet = new Set<string>(await readManifest());
+
   let processed = 0;
+  let cached = 0;
   let skipped = 0;
   let failed = 0;
 
   for (const filename of images) {
+    const pngFilename = filename.replace(/\.gif$/i, ".png");
+
+    // Already done: both themed PNGs on disk, or known-animated from a prior
+    // run. Skip the network + sharp work unless --force.
+    if (
+      !FORCE &&
+      (animatedSet.has(filename) ||
+        (existsSync(join(lightDir, pngFilename)) &&
+          existsSync(join(darkDir, pngFilename))))
+    ) {
+      cached++;
+      continue;
+    }
+
     process.stdout.write(`Processing ${filename}... `);
 
     const buffer = await downloadImage(filename);
@@ -194,7 +233,7 @@ async function main() {
     const isAnimated = await isAnimatedGif(buffer);
     if (isAnimated) {
       console.log("ANIMATED (skipped)");
-      animatedImages.push(filename);
+      animatedSet.add(filename);
       skipped++;
       continue;
     }
@@ -207,7 +246,6 @@ async function main() {
       ]);
 
       // Save as PNG (smaller and supports transparency)
-      const pngFilename = filename.replace(/\.gif$/i, ".png");
       await Promise.all([
         writeFile(join(lightDir, pngFilename), lightBuffer),
         writeFile(join(darkDir, pngFilename), darkBuffer),
@@ -221,11 +259,16 @@ async function main() {
     }
   }
 
-  // Write animated images manifest
-  await writeFile(MANIFEST_PATH, JSON.stringify(animatedImages, null, 2));
+  // Write animated images manifest (sorted for a stable, diff-friendly file)
+  const animatedImages = Array.from(animatedSet).sort();
+  await writeFile(
+    MANIFEST_PATH,
+    JSON.stringify(animatedImages, null, 2) + "\n",
+  );
 
   console.log("\n--- Summary ---");
   console.log(`Processed: ${processed}`);
+  console.log(`Cached (already done): ${cached}`);
   console.log(`Animated (skipped): ${skipped}`);
   console.log(`Failed: ${failed}`);
   console.log(`\nAnimated images manifest: ${MANIFEST_PATH}`);
