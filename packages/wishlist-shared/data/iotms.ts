@@ -3910,7 +3910,7 @@ export const iotms = [
     year: 2025,
     month: 12,
     speed_tier: 4,
-    aftercore_tier: 1,
+    aftercore_tier: 0,
     tradeable: false,
     type: "familiar",
     img: "skeletonocp.gif",
