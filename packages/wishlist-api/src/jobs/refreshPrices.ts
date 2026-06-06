@@ -1,6 +1,6 @@
 import { iotms, type MallPrice } from "wishlist-shared";
 import { store } from "../db.ts";
-import { searchLowestPrice } from "../kol/mall.ts";
+import { searchLowestPrice, type MallResult } from "../kol/mall.ts";
 import { fetchPricegun } from "../kol/pricegun.ts";
 import { KoLSession } from "../kol/session.ts";
 
@@ -10,6 +10,43 @@ const MR_A_ID = 194;
 const MR_A_NAME = "Mr. Accessory";
 
 const RATE_FLOOR_MS = 200;
+
+function numberEnv(name: string, dflt: number): number {
+  const raw = process.env[name];
+  if (raw === undefined) return dflt;
+  const n = Number(raw);
+  return Number.isFinite(n) ? n : dflt;
+}
+
+// Retry/backoff + recovery knobs. A single mall search occasionally returns an
+// "error"-classified page (a non-mall response). Retrying a couple times with
+// backoff rescues the transient ones. When errors come in a sustained run —
+// the symptom of a collapsed session — one re-login often recovers it; if that
+// doesn't help either, we declare a "storm", stop retrying, and let the run
+// finish quickly so the next cron can try again rather than spending many
+// minutes backing off into a wall.
+// — claude 06de4a57, 2026-06-04
+const MAX_ATTEMPTS = numberEnv("MALL_RETRY_ATTEMPTS", 2);
+const RETRY_BASE_MS = numberEnv("MALL_RETRY_BASE_MS", 750);
+const RELOGIN_AFTER = numberEnv("MALL_RELOGIN_AFTER", 5);
+const STORM_AFTER = numberEnv("MALL_STORM_AFTER", 8);
+const DIAG_FULL_DUMPS = numberEnv("MALL_DIAG_DUMPS", 3);
+
+async function searchWithRetry(
+  session: KoLSession,
+  name: string,
+  maxAttempts: number,
+): Promise<{ result: MallResult; tries: number }> {
+  let result: MallResult = { kind: "error", reason: "no attempt made" };
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    result = await searchLowestPrice(session, name);
+    if (result.kind !== "error") return { result, tries: attempt };
+    if (attempt < maxAttempts) {
+      await Bun.sleep(RETRY_BASE_MS * 2 ** (attempt - 1));
+    }
+  }
+  return { result, tries: maxAttempts };
+}
 
 // Sentinel written to prices.lowest_mall when KoL's mall search explicitly
 // returns "no results" for an item. Distinct from NULL (which means "we
@@ -30,6 +67,14 @@ export type RefreshSummary = {
   // failure, login wall, malformed response). Not persisted — leaves the
   // last-known-good value in the DB; eligible for retry on the next cron.
   lowestMallErrors: number;
+  // Items that errored on the first try but a retry rescued (counted in
+  // listed/empty, not errors).
+  retriedItems: number;
+  // How many times a sustained error run triggered an in-run re-login.
+  reloginCount: number;
+  // True if errors persisted past re-login and we stopped retrying for the
+  // rest of the run (a KoL-side bad window rather than a recoverable session).
+  stormMode: boolean;
   pricegunCount: number;
   durationMs: number;
 };
@@ -78,27 +123,88 @@ async function runRefresh(targets: Target[]): Promise<RefreshSummary> {
   let listed = 0;
   let empty = 0;
   let errors = 0;
+  let retriedItems = 0;
+  let reloginCount = 0;
+  let stormMode = false;
+  let reloggedIn = false;
+  let consecutiveErrors = 0;
+  let fullDumps = 0;
   let last = 0;
   for (const target of targets) {
     const wait = RATE_FLOOR_MS - (Date.now() - last);
     if (wait > 0) await Bun.sleep(wait);
     last = Date.now();
-    const result = await searchLowestPrice(session, target.name);
+
+    // In storm mode the whole window is failing, so retries only burn time —
+    // one attempt per item and let the next cron catch up.
+    const { result, tries } = await searchWithRetry(
+      session,
+      target.name,
+      stormMode ? 1 : MAX_ATTEMPTS,
+    );
+
     switch (result.kind) {
       case "listed":
         lowestMall[target.id] = result.price;
         listed += 1;
+        if (tries > 1) retriedItems += 1;
+        consecutiveErrors = 0;
         break;
       case "empty":
         lowestMall[target.id] = MALL_EMPTY_SENTINEL;
         empty += 1;
+        if (tries > 1) retriedItems += 1;
+        consecutiveErrors = 0;
         break;
-      case "error":
-        console.error(
-          `mall search error for ${target.id} "${target.name}": ${result.reason}`,
-        );
+      case "error": {
         errors += 1;
+        consecutiveErrors += 1;
+        const d = result.diag;
+        // Dump the actual page (visible text) for the first few errors of a
+        // run so a novel failure mode is diagnosable; thereafter log compactly.
+        if (d && fullDumps < DIAG_FULL_DUMPS) {
+          fullDumps += 1;
+          console.error(
+            `mall search error for ${target.id} "${target.name}": ${result.reason} | http ${d.status} len ${d.bodyLen} title=${JSON.stringify(d.title)} :: ${d.snippet}`,
+          );
+        } else if (d) {
+          console.error(
+            `mall search error for ${target.id} "${target.name}": ${result.reason} | http ${d.status} len ${d.bodyLen}`,
+          );
+        } else {
+          console.error(
+            `mall search error for ${target.id} "${target.name}": ${result.reason}`,
+          );
+        }
+
+        // Recovery ladder: a sustained error run usually means the session
+        // collapsed — try one re-login. If errors keep coming after that, it's
+        // a KoL-side bad window, not our session: enter storm mode and stop
+        // retrying for the rest of the run.
+        if (!reloggedIn && consecutiveErrors >= RELOGIN_AFTER) {
+          reloggedIn = true;
+          reloginCount += 1;
+          try {
+            await session.login(username, password);
+            console.warn(
+              `[refresh] re-logged in after ${consecutiveErrors} consecutive errors`,
+            );
+          } catch (e) {
+            console.error(`[refresh] re-login failed: ${e}`);
+          }
+          consecutiveErrors = 0;
+        } else if (
+          reloggedIn &&
+          !stormMode &&
+          consecutiveErrors >= STORM_AFTER
+        ) {
+          stormMode = true;
+          console.warn(
+            `[refresh] error storm persisted past re-login — disabling retries for the rest of this run`,
+          );
+        }
         break;
+      }
     }
   }
   store.setLowestMall(lowestMall);
@@ -112,6 +218,9 @@ async function runRefresh(targets: Target[]): Promise<RefreshSummary> {
     lowestMallListed: listed,
     lowestMallEmpty: empty,
     lowestMallErrors: errors,
+    retriedItems,
+    reloginCount,
+    stormMode,
     pricegunCount: pricegun.length,
     durationMs: Date.now() - started,
   };

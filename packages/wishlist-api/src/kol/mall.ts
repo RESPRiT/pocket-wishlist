@@ -16,7 +16,41 @@ import type { KoLSession } from "./session.ts";
 export type MallResult =
   | { kind: "listed"; price: number }
   | { kind: "empty" }
-  | { kind: "error"; reason: string };
+  | { kind: "error"; reason: string; diag?: MallErrorDiag };
+
+/**
+ * Diagnostic snapshot of an error response, so the refresh job can log *what*
+ * KoL actually returned instead of just "did not look like a mall page". The
+ * `snippet` is the page's visible text (scripts/markup stripped) — enough to
+ * recognize a throttle notice, a maintenance banner, or a session-collapse
+ * redirect without dumping a full ~18KB frame document into the logs.
+ * — claude 06de4a57, 2026-06-04
+ */
+export type MallErrorDiag = {
+  status: number;
+  bodyLen: number;
+  title: string | null;
+  snippet: string;
+};
+
+export function makeDiag(status: number, html: string): MallErrorDiag {
+  const titleMatch = html.match(/<title[^>]*>([\s\S]*?)<\/title>/i);
+  // Drop <head> (title/meta captured separately) and any inline script/style,
+  // then strip remaining tags down to the page's visible text.
+  const visible = html
+    .replace(/<head[\s\S]*?<\/head>/gi, " ")
+    .replace(/<script[\s\S]*?<\/script>/gi, " ")
+    .replace(/<style[\s\S]*?<\/style>/gi, " ")
+    .replace(/<[^>]+>/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+  return {
+    status,
+    bodyLen: html.length,
+    title: titleMatch ? titleMatch[1]!.trim() : null,
+    snippet: visible.slice(0, 240),
+  };
+}
 
 /**
  * KoL stores item display names with non-ASCII characters as HTML named
@@ -88,11 +122,22 @@ export async function searchLowestPrice(
   }
 
   if (res.status < 200 || res.status >= 400) {
-    return { kind: "error", reason: `http ${res.status}` };
+    const body = await res.text().catch(() => "");
+    return {
+      kind: "error",
+      reason: `http ${res.status}`,
+      diag: makeDiag(res.status, body),
+    };
   }
 
   const html = await res.text();
-  return classifyMallResponse(html);
+  const result = classifyMallResponse(html);
+  // Attach a diagnostic snapshot to errors so the caller can log the actual
+  // page; success outcomes stay lean.
+  if (result.kind === "error") {
+    return { ...result, diag: makeDiag(res.status, html) };
+  }
+  return result;
 }
 
 /**
