@@ -4009,4 +4009,16 @@ export const iotms = [
     type: "familiar",
     img: "swordswordbox.gif",
   },
+  {
+    packaged_id: 12258,
+    packaged_name: "shrink-wrapped Cup of 13s",
+    opened_ids: 12259,
+    opened_names: "Cup of 13s",
+    year: 2026,
+    month: 7,
+    tradeable: false,
+    type: "item",
+    equipment_slot: "offhand",
+    img: "13cup_box.gif",
+  },
 ];
