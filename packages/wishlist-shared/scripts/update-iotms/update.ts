@@ -25,6 +25,7 @@ import {
   type MafiaDataClient,
   type ScrapeResult,
   type TierListClient,
+  type TierUpdate,
   type WikiClient,
 } from "./scrape";
 
@@ -49,7 +50,7 @@ const SPEED_SHEET_HUMAN =
 const AFTERCORE_SHEET_HUMAN =
   "https://docs.google.com/spreadsheets/d/1VtAkiQrV3lioq0NHFD2VEJtc7CaQ589nqbOwhG14NiA";
 const MAFIA_BASE =
-  "https://raw.githubusercontent.com/kolmafia/kolmafia/main/src/data";
+  "https://raw.githubusercontent.com/kolmafia/kolmafia/main/src/main/resources/data";
 // MediaWiki blocks empty/curl UAs; pretend to be a browser. The wiki is
 // public, this is just for that filter.
 const UA =
@@ -66,7 +67,7 @@ class FetchWikiClient implements WikiClient {
     slug: string,
     prop: "wikitext" | "text",
   ): Promise<string> {
-    const url = `${WIKI_BASE}?action=parse&format=json&page=${slug}&prop=${prop}`;
+    const url = `${WIKI_BASE}?action=parse&format=json&redirects=1&page=${slug}&prop=${prop}`;
     const res = await fetch(url, { headers: { "User-Agent": UA } });
     if (!res.ok)
       throw new Error(`wiki HTTP ${res.status} for ${slug} (${prop})`);
@@ -207,9 +208,7 @@ async function main() {
       "\nUnmatched tier-list rows (review for typos or missing IOTMs):",
     );
     for (const row of result.unmatchedTierRows.slice(0, 20)) {
-      console.log(
-        `  ${row.source}: "${row.name}"${row.year ? ` (${row.year})` : ""}`,
-      );
+      console.log(`  ${unmatchedRowLine(row)}`);
     }
     if (result.unmatchedTierRows.length > 20) {
       console.log(`  ... (${result.unmatchedTierRows.length - 20} more)`);
@@ -259,15 +258,19 @@ function backfillCutoff(monthsBack: number): number {
   return y * 100 + m;
 }
 
+/** `speed: "mm" (2006) — unranked: Comma Chameleon egg` */
+function unmatchedRowLine(
+  row: ScrapeResult["unmatchedTierRows"][number],
+): string {
+  const year = row.year ? ` (${row.year})` : "";
+  const hint = row.unranked ? ` — unranked: ${row.unranked.join(", ")}` : "";
+  return `${row.source}: "${row.name}"${year}${hint}`;
+}
+
 /** Render the scrape result as a markdown PR body for the daily Action. */
 function renderReport(
   result: ScrapeResult,
-  applied: readonly {
-    packaged_name: string;
-    field: string;
-    from?: number;
-    to: number;
-  }[],
+  applied: readonly TierUpdate[],
   changed: boolean,
 ): string {
   const lines: string[] = ["## IOTM update", ""];
@@ -297,8 +300,11 @@ function renderReport(
   if (applied.length > 0) {
     lines.push(`### Tier backfills (${applied.length})`, "");
     for (const u of applied) {
+      const loose = u.looseRow
+        ? ` — loose match on sheet row "${u.looseRow}", verify`
+        : "";
       lines.push(
-        `- **${u.packaged_name}**: \`${u.field}\` ${u.from ?? "_unset_"} → **${u.to}**`,
+        `- **${u.packaged_name}**: \`${u.field}\` ${u.from ?? "_unset_"} → **${u.to}**${loose}`,
       );
     }
     lines.push("");
@@ -320,13 +326,12 @@ function renderReport(
       "",
     );
     lines.push(
-      "Tier-sheet rows that matched no known IOTM (likely a sheet typo or an IOTM we haven't picked up):",
+      "Tier-sheet rows that matched no known IOTM (likely a sheet typo, a nickname, or an IOTM we haven't picked up). " +
+        "Alias a nickname, or ignore a row iotms.ts deliberately doesn't track, in `parse/tier-overrides.ts`; the `unranked` hint lists same-year IOTMs the sheet has no row for:",
       "",
     );
     for (const row of result.unmatchedTierRows.slice(0, 30)) {
-      lines.push(
-        `- ${row.source}: "${row.name}"${row.year ? ` (${row.year})` : ""}`,
-      );
+      lines.push(`- ${unmatchedRowLine(row)}`);
     }
     if (result.unmatchedTierRows.length > 30)
       lines.push(`- …and ${result.unmatchedTierRows.length - 30} more`);

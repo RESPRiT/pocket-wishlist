@@ -1,0 +1,58 @@
+[[KoL Con 13 Merch Table]] is found in [[The Time-Twitching Tower]].
+----
+{| style="margin-left: auto; margin-right: auto;"
+|-
+|[[File:momnjanet.gif]]
+| style="text-align: left;" | '''Jick's Mom and Janet'''
+Jick's mom and her friend Janet smile as you approach the merchandise table.
+
+"Hello! What can we get you?"
+|}
+
+{| style="margin-left: auto; margin-right: auto;"
+!
+!Item:
+!Price:
+|-
+{{StoreItem|item=packaged Portable Laughing Stock|price='''1'''|currency=Mr. Accessory|currImage=y}}
+|-
+{{StoreItem|item=Allied Radio Backpack Pack|price='''2'''|currency=Mr. Accessory|currImage=y}}
+|-
+{{StoreItem|item=unevolved organism|price='''3'''|currency=Mr. Accessory|currImage=y}}
+|-
+{{StoreItem|item=crated wardrobe-o-matic|price='''4'''|currency=Mr. Accessory|currImage=y}}
+|-
+{{StoreItem|item=KoL Con 13 snowglobe|price='''5'''|currency=Mr. Accessory|currImage=y}}
+|-
+{{StoreItem|item=potted tea tree|price='''6'''|currency=Mr. Accessory|currImage=y}}
+|-
+{{StoreItem|item=Xi Receiver Unit|price='''7'''|currency=Mr. Accessory|currImage=y}}
+|-
+{{StoreItem|item=Gordon Beer's Beer Garden Catalog|price='''8'''|currency=Mr. Accessory|currImage=y}}
+|-
+{{StoreItem|item=Tome of Rad Libs|price='''9'''|currency=Mr. Accessory|currImage=y}}
+|-
+{{StoreItem|item=Gygaxian Libram|price='''10'''|currency=Mr. Accessory|currImage=y}}
+|-
+{{StoreItem|item=hippo tutu|price='''11'''|currency=Mr. Accessory|currImage=y}}
+|-
+{{StoreItem|item=Twitching Television Tattoo|price='''1111'''|currency=Chroner|currImage=y}}
+|}
+
+<center>
+'''You have:'''
+{| style="margin-left: auto; margin-right: auto;"
+|[[File:Mracc.gif]]
+|? Mr. Accessories
+|-
+|[[File:chroner.gif]]
+|? Chroner
+|}
+</center>
+
+==History==
+* [[Mr. Accessory]] prices on all items increased by 1 during each new [[The Time-Twitching Tower]] event prior to 2023. For example during its initial release in the September 30, 2016 event, the KoL Con 13 snowglobe cost 1 Mr. A. During the October 11, 2022 event, they began costing 2 As, and so on.
+** An exception to the standard increase occurred with the introduction of level 9 on November 27, 2023 when only the KoL Con 13 snowglobe increased in price for this event.
+** And again on July 25th, 2024 when level 10 was released and only the wardrobe increased in price by 1.
+
+[[Category:NPC Stores]]

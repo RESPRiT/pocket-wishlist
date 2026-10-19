@@ -1,4 +1,9 @@
 import type { IOTM } from "../../../schemas/data";
+import {
+  IGNORED_TIER_ROWS,
+  TIER_ROW_ALIASES,
+  type TierOverrides,
+} from "./tier-overrides";
 
 export type TierEntry = {
   /** Raw name as it appears in the sheet (may be messy/non-canonical). */
@@ -7,9 +12,23 @@ export type TierEntry = {
   tier: number;
 };
 
+/**
+ * How a row was tied to its IOTM, strongest first. Lower-ranked kinds never
+ * displace a stronger one for the same IOTM.
+ */
+export type TierMatchKind = "alias" | "exact" | "fuzzy" | "tokens";
+
 export type TierMatch = {
   tier: number;
   matchedRow: TierEntry;
+  kind: TierMatchKind;
+};
+
+export type TierAssignment = {
+  /** The row each IOTM took its tier from. IOTMs with no row are absent. */
+  byIotm: Map<IOTM, TierMatch>;
+  /** Rows that tied to no IOTM, in sheet order. */
+  unmatched: TierEntry[];
 };
 
 export function parseSpeedSheet(csv: string): TierEntry[] {
@@ -99,96 +118,244 @@ function splitCsv(csv: string): string[][] {
   return rows;
 }
 
-export function matchSpeedTier(
-  iotm: IOTM,
-  entries: readonly TierEntry[],
-): TierMatch | null {
-  return matchTier(iotm, entries);
-}
-
 /**
- * Inverse of {@link matchTier}: does any of `iotms` match this tier-list row?
- * Used to decide whether a row is genuinely orphaned (sheet typo / not-yet-
- * added IOTM) versus simply named differently than iotms.ts. It applies the
- * exact same normalize + entity-decode + fuzzy(≤2, year-agreement) logic as
- * tier assignment, so the "unmatched" report can't disagree with what the
- * matcher actually placed.
- */
-export function rowMatchesAnyIotm(
-  row: TierEntry,
-  iotms: readonly IOTM[],
-): boolean {
-  const rowNorms = rowNameVariants(row.name).map(normalize);
-
-  // Exact (normalized) match against any candidate name.
-  for (const iotm of iotms) {
-    for (const cand of candidateNames(iotm)) {
-      if (rowNorms.includes(normalize(cand))) return true;
-    }
-  }
-
-  // Fuzzy fallback, gated on year agreement to avoid cross-year false hits.
-  for (const iotm of iotms) {
-    if (row.year !== undefined && row.year !== iotm.year) continue;
-    for (const cand of candidateNames(iotm)) {
-      const cn = normalize(cand);
-      for (const rn of rowNorms) {
-        if (boundedLevenshtein(cn, rn, 2) <= 2) return true;
-      }
-    }
-  }
-  return false;
-}
-
-export function matchAftercoreTier(
-  iotm: IOTM,
-  entries: readonly TierEntry[],
-): TierMatch | null {
-  return matchTier(iotm, entries);
-}
-
-/**
- * Match an IOTM against a tier-list entry by trying each of its candidate
- * names (packaged, opened, familiar, skill) in priority order. Tier-list
- * authors are inconsistent — some entries use the packaged name, others use
- * the opened/familiar form, others use shorthand nicknames — so we cast a
- * wide net.
+ * Ties the rows of one tier sheet to IOTMs. Tier-list authors are
+ * inconsistent — some rows use the packaged name, others the opened/familiar
+ * form, others a shorthand — so matching runs progressively looser passes:
  *
- * Match priority: exact (case-insensitive, whitespace-normalized) > fuzzy
- * (Levenshtein distance ≤ 2 with year agreement). We never return a fuzzy
- * match without year agreement, since cross-year false positives are easy.
+ * 1. alias — a hand-curated override in tier-overrides.ts.
+ * 2. exact — case/whitespace/entity-normalized equality with any candidate
+ *    name (packaged, opened, familiar, skill).
+ * 3. fuzzy — Levenshtein ≤ 2 with year agreement (typos).
+ * 4. tokens — word-set containment with year agreement (shorthand like
+ *    "TakerSpace" or "coat of paint"); see {@link tokenScore}.
+ *
+ * Passes 1–3 are IOTM-centric, and one row may serve several IOTMs
+ * ("yellow puck/with a bow on it" ranks both pucks). The token pass is the
+ * loosest, so it only considers rows no stricter pass explains, pairs each
+ * with at most one same-year IOTM that has no row yet, and refuses ties
+ * rather than guess between two plausible IOTMs. Strongest overlaps claim
+ * first, so a weak row can't take an IOTM that a later row fits better.
+ * Tier assignment and the "unmatched rows" report both come out of this one
+ * function so they can't disagree. Rows on the ignore list in
+ * tier-overrides.ts take part in neither.
+ * — claude 3dc556f7, 2026-10-18
  */
-function matchTier(
-  iotm: IOTM,
-  entries: readonly TierEntry[],
+export function assignTierRows(
+  rows: readonly TierEntry[],
+  iotms: readonly IOTM[],
+  overrides: TierOverrides = {
+    aliases: TIER_ROW_ALIASES,
+    ignored: IGNORED_TIER_ROWS,
+  },
+): TierAssignment {
+  const aliases: NormalizedAlias[] = overrides.aliases.map((a) => ({
+    year: a.year,
+    row: normalize(a.row),
+    target: normalize(a.packaged_name),
+  }));
+  const ignored = overrides.ignored.map((i) => ({
+    year: i.year,
+    row: normalize(i.row),
+  }));
+
+  const named: NamedIotm[] = iotms.map((iotm) => {
+    const norms = candidateNames(iotm).map(normalize);
+    return { iotm, norms, tokens: norms.map(tokens) };
+  });
+  const prepared: PreparedRow[] = rows
+    .map((row, index) => ({
+      row,
+      index,
+      norms: rowNameVariants(row.name).map(normalize),
+    }))
+    .filter(
+      (p) =>
+        !ignored.some((i) => i.year === p.row.year && i.row === p.norms[0]),
+    );
+
+  const byIotm = new Map<IOTM, TierMatch>();
+  for (const n of named) {
+    const m = strictMatch(n, prepared, aliases);
+    if (m) byIotm.set(n.iotm, m);
+  }
+
+  const unmatched: PreparedRow[] = [];
+  const tokenHits: { p: PreparedRow; iotm: IOTM; score: number }[] = [];
+  for (const p of prepared) {
+    if (named.some((n) => strictlyExplains(n, p, aliases))) continue;
+    const hit =
+      p.row.year === undefined
+        ? null
+        : bestTokenMatch(
+            p,
+            named.filter(
+              (n) => n.iotm.year === p.row.year && !byIotm.has(n.iotm),
+            ),
+          );
+    if (hit) tokenHits.push({ p, ...hit });
+    else unmatched.push(p);
+  }
+  // Array.sort is stable, so equal scores keep sheet order.
+  tokenHits.sort((a, b) => b.score - a.score);
+  for (const { p, iotm } of tokenHits) {
+    if (byIotm.has(iotm)) unmatched.push(p);
+    else
+      byIotm.set(iotm, { tier: p.row.tier, matchedRow: p.row, kind: "tokens" });
+  }
+
+  return {
+    byIotm,
+    unmatched: unmatched.sort((a, b) => a.index - b.index).map((p) => p.row),
+  };
+}
+
+type NormalizedAlias = { year: number; row: string; target: string };
+type NamedIotm = { iotm: IOTM; norms: string[]; tokens: Set<string>[] };
+type PreparedRow = { row: TierEntry; index: number; norms: string[] };
+
+function isAliasFor(
+  n: NamedIotm,
+  p: PreparedRow,
+  aliases: readonly NormalizedAlias[],
+): boolean {
+  // norms[0] is always the normalized packaged name (see candidateNames).
+  return aliases.some(
+    (a) =>
+      a.year === p.row.year && a.row === p.norms[0] && a.target === n.norms[0],
+  );
+}
+
+function isExact(n: NamedIotm, p: PreparedRow): boolean {
+  return n.norms.some((c) => p.norms.includes(c));
+}
+
+/** Levenshtein distance ≤ 2 with year agreement, or undefined if none. */
+function fuzzyDistance(n: NamedIotm, p: PreparedRow): number | undefined {
+  if (p.row.year !== undefined && p.row.year !== n.iotm.year) return undefined;
+  let best: number | undefined;
+  for (const c of n.norms) {
+    for (const r of p.norms) {
+      const d = boundedLevenshtein(c, r, 2);
+      if (d <= 2 && (best === undefined || d < best)) best = d;
+    }
+  }
+  return best;
+}
+
+/** Best row for one IOTM via alias > exact > fuzzy (first row wins ties). */
+function strictMatch(
+  n: NamedIotm,
+  prepared: readonly PreparedRow[],
+  aliases: readonly NormalizedAlias[],
 ): TierMatch | null {
-  const candidates = candidateNames(iotm);
-  const normalized = candidates.map(normalize);
+  const hit = (p: PreparedRow, kind: TierMatchKind): TierMatch => ({
+    tier: p.row.tier,
+    matchedRow: p.row,
+    kind,
+  });
+  const alias = prepared.find((p) => isAliasFor(n, p, aliases));
+  if (alias) return hit(alias, "alias");
+  // Earlier candidate names win (a packaged-name row beats an opened-name one).
+  for (const c of n.norms) {
+    const exact = prepared.find((p) => p.norms.includes(c));
+    if (exact) return hit(exact, "exact");
+  }
+  let best: { p: PreparedRow; d: number } | null = null;
+  for (const p of prepared) {
+    const d = fuzzyDistance(n, p);
+    if (d !== undefined && (!best || d < best.d)) best = { p, d };
+  }
+  return best ? hit(best.p, "fuzzy") : null;
+}
 
-  for (const norm of normalized) {
-    for (const e of entries) {
-      for (const variant of rowNameVariants(e.name)) {
-        if (normalize(variant) === norm) return { tier: e.tier, matchedRow: e };
-      }
+function strictlyExplains(
+  n: NamedIotm,
+  p: PreparedRow,
+  aliases: readonly NormalizedAlias[],
+): boolean {
+  return (
+    isAliasFor(n, p, aliases) ||
+    isExact(n, p) ||
+    fuzzyDistance(n, p) !== undefined
+  );
+}
+
+/** Below this, a token overlap is treated as coincidence. */
+const TOKEN_SCORE_MIN = 0.75;
+/** Fewer shared letters than this and an overlap scores 0. */
+const TOKEN_SHARED_CHARS_MIN = 5;
+
+function bestTokenMatch(
+  p: PreparedRow,
+  pool: readonly NamedIotm[],
+): { iotm: IOTM; score: number } | null {
+  const rowTokens = p.norms.map(tokens);
+  let best: { iotm: IOTM; score: number } | null = null;
+  let tied = false;
+  for (const n of pool) {
+    let score = 0;
+    for (const ct of n.tokens) {
+      for (const rt of rowTokens) score = Math.max(score, tokenScore(rt, ct));
+    }
+    if (score < TOKEN_SCORE_MIN) continue;
+    if (!best || score > best.score) {
+      best = { iotm: n.iotm, score };
+      tied = false;
+    } else if (score === best.score) {
+      tied = true;
     }
   }
+  return best && !tied ? best : null;
+}
 
-  // Fuzzy fallback. Require year agreement to avoid false positives.
-  let best: { tier: number; matchedRow: TierEntry; distance: number } | null =
-    null;
-  for (const norm of normalized) {
-    for (const e of entries) {
-      if (e.year !== undefined && e.year !== iotm.year) continue;
-      for (const variant of rowNameVariants(e.name)) {
-        const dist = boundedLevenshtein(normalize(variant), norm, 2);
-        if (dist <= 2 && (!best || dist < best.distance)) {
-          best = { tier: e.tier, matchedRow: e, distance: dist };
-        }
-      }
+/**
+ * Overlap of two word sets relative to the smaller one: 1 when either name's
+ * words are a subset of the other's ("TakerSpace" ⊂ "TakerSpace letter of
+ * Marque"; "designer sweatpants" ⊂ "pair of high-end designer sweatpants"),
+ * lower as they diverge ("April Shower Thoughts Catalog" vs "… Calendar" is
+ * 3/4). Overlaps sharing under TOKEN_SHARED_CHARS_MIN letters score 0, so a
+ * lone short word like "set" can't carry a match.
+ * — claude 3dc556f7, 2026-10-18
+ */
+function tokenScore(a: ReadonlySet<string>, b: ReadonlySet<string>): number {
+  if (a.size === 0 || b.size === 0) return 0;
+  let shared = 0;
+  let sharedChars = 0;
+  for (const t of a) {
+    if (b.has(t)) {
+      shared++;
+      sharedChars += t.length;
     }
   }
-  if (best) return { tier: best.tier, matchedRow: best.matchedRow };
-  return null;
+  if (sharedChars < TOKEN_SHARED_CHARS_MIN) return 0;
+  return shared / Math.min(a.size, b.size);
+}
+
+/**
+ * Words that carry no identity: connectives, plus the packaging adjectives
+ * that sheets add or drop freely ("packaged train set" vs "model train set").
+ */
+const NOISE_WORDS = new Set([
+  "a",
+  "an",
+  "and",
+  "of",
+  "the",
+  "o'",
+  "packaged",
+  "boxed",
+  "wrapped",
+  "shrink-wrapped",
+  "sealed",
+  "crated",
+  "unopened",
+]);
+
+function tokens(normalized: string): Set<string> {
+  return new Set(
+    normalized.split(" ").filter((t) => t.length > 0 && !NOISE_WORDS.has(t)),
+  );
 }
 
 function candidateNames(iotm: IOTM): string[] {

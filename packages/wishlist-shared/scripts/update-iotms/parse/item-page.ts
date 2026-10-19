@@ -17,27 +17,38 @@ export type ParseItemContext = {
   packaged_slug: string;
   year: number;
   month?: number;
+  /** Sold at the KoL Con merch table rather than as a monthly/yearly IOTM. */
+  is_con?: boolean;
 };
 
-let cachedMafia: {
+type MafiaIndex = {
   itemsByName: Map<string, MafiaItem>;
   familiarsByName: Map<string, MafiaFamiliar>;
   skillsByName: Map<string, MafiaSkill>;
-} | null = null;
+};
 
-async function loadMafia(mafia: MafiaDataClient) {
-  if (cachedMafia) return cachedMafia;
+const mafiaCache = new WeakMap<MafiaDataClient, MafiaIndex>();
+
+/**
+ * Fetches and indexes the KoLmafia data files once per client. Exported so
+ * scrape() can load them before its per-entry loop: a failure here is a
+ * broken source, not a not-yet-ready wiki page, and must fail the run.
+ */
+export async function loadMafia(mafia: MafiaDataClient): Promise<MafiaIndex> {
+  const cached = mafiaCache.get(mafia);
+  if (cached) return cached;
   const [itemsRaw, famsRaw, skillsRaw] = await Promise.all([
     mafia.fetchItems(),
     mafia.fetchFamiliars(),
     mafia.fetchSkills(),
   ]);
-  cachedMafia = {
+  const index = {
     itemsByName: buildNameIndex(parseItemsFile(itemsRaw)),
     familiarsByName: buildNameIndex(parseFamiliarsFile(famsRaw)),
     skillsByName: buildNameIndex(parseSkillsFile(skillsRaw)),
   };
-  return cachedMafia;
+  mafiaCache.set(mafia, index);
+  return index;
 }
 
 export type ParseItemResult = {
@@ -161,7 +172,8 @@ export async function parseItemPageWithReview(
   const tradeable =
     ctx.year < TRADEABLE_CUTOFF_YEAR && TRADEABLE_PACKAGED_IDS.has(pkg.id);
 
-  const isIoty = ctx.month === undefined;
+  // Con items have no month either, but aren't IOTYs.
+  const isIoty = ctx.month === undefined && !ctx.is_con;
 
   const result: IOTM = {
     packaged_id: pkg.id,
@@ -200,6 +212,7 @@ export async function parseItemPageWithReview(
 
   if (equipment_slot !== undefined) result.equipment_slot = equipment_slot;
   if (isIoty) result.is_ioty = true;
+  if (ctx.is_con) result.is_con = true;
 
   const needsReview: (keyof IOTM)[] = [];
   if (!typeInf.confident) needsReview.push("type");
