@@ -3,15 +3,20 @@ import type { IOTM } from "../../schemas/data";
 import { IOTMSchema } from "../../schemas/data";
 import { FIXTURE_PICKS, SUPPORT_PICKS } from "./fixtures/MANIFEST";
 import { parseIndex } from "./parse/mr-store";
-import { parseItemPage } from "./parse/item-page";
+import { parseConMerch } from "./parse/con-merch";
 import {
-  matchSpeedTier,
-  matchAftercoreTier,
+  installsInVipLounge,
+  parseItemPage,
+  parseItemPageWithReview,
+} from "./parse/item-page";
+import { iotms as ALL_IOTMS } from "../../data/iotms";
+import {
+  assignTierRows,
   parseSpeedSheet,
   parseAftercoreSheet,
-  rowMatchesAnyIotm,
+  type TierEntry,
 } from "./parse/tier-match";
-import { scrape, type WikiClient } from "./scrape";
+import { scrape, type MafiaDataClient, type WikiClient } from "./scrape";
 import {
   findKnown,
   FixtureMafiaDataClient,
@@ -20,7 +25,10 @@ import {
   knownBefore,
 } from "./test-helpers";
 
-const ALL_FIXTURE_SLUGS = new Set<string>(["Mr._Store"]);
+const ALL_FIXTURE_SLUGS = new Set<string>([
+  "Mr._Store",
+  "KoL_Con_13_Merch_Table",
+]);
 for (const pick of [...FIXTURE_PICKS, ...SUPPORT_PICKS]) {
   ALL_FIXTURE_SLUGS.add(pick.packaged_slug);
   for (const s of pick.secondary_slugs ?? []) ALL_FIXTURE_SLUGS.add(s);
@@ -190,7 +198,7 @@ describe("tier matching", () => {
 
   // Tier sheets exclude certain IOTM categories (VIP/clan items aren't rated;
   // Con items get filtered; brand-new IOTYs haven't been rated yet). For
-  // these, matchTier correctly returns null. Anything outside this list that
+  // these, assignTierRows correctly leaves them without a row. Anything outside this list that
   // also returns null is a real matcher bug.
   const EXPECTED_NULL_SPEED = new Set([
     "Clan pool table",
@@ -209,11 +217,14 @@ describe("tier matching", () => {
   ]);
 
   test("speed tier matcher: each fixture matches its sheet row (or is in the expected-null set)", async () => {
-    const speedEntries = parseSpeedSheet(await tiers.fetchSpeed());
+    const speed = assignTierRows(
+      parseSpeedSheet(await tiers.fetchSpeed()),
+      ALL_IOTMS,
+    );
     for (const pick of FIXTURE_PICKS) {
       const known = findKnown(pick.packaged_name);
       if (known.speed_tier === undefined) continue;
-      const match = matchSpeedTier(known, speedEntries);
+      const match = speed.byIotm.get(known) ?? null;
       if (EXPECTED_NULL_SPEED.has(pick.packaged_name)) {
         expect(
           match,
@@ -235,11 +246,14 @@ describe("tier matching", () => {
   });
 
   test("aftercore tier matcher: each fixture matches its sheet row (or is in the expected-null set)", async () => {
-    const aftercoreEntries = parseAftercoreSheet(await tiers.fetchAftercore());
+    const aftercore = assignTierRows(
+      parseAftercoreSheet(await tiers.fetchAftercore()),
+      ALL_IOTMS,
+    );
     for (const pick of FIXTURE_PICKS) {
       const known = findKnown(pick.packaged_name);
       if (known.aftercore_tier === undefined) continue;
-      const match = matchAftercoreTier(known, aftercoreEntries);
+      const match = aftercore.byIotm.get(known) ?? null;
       if (EXPECTED_NULL_AFTERCORE.has(pick.packaged_name)) {
         expect(
           match,
@@ -258,68 +272,155 @@ describe("tier matching", () => {
     }
   });
 
-  // rowMatchesAnyIotm backs the "unmatched tier rows" report. It must use the
-  // same normalization as assignment so a placed row is never also flagged as
-  // orphaned — these lock the divergence classes that previously leaked noise.
-  describe("rowMatchesAnyIotm", () => {
+  // assignTierRows backs both tier assignment and the "unmatched tier rows"
+  // report, so a placed row is never also flagged as orphaned — these lock
+  // the divergence classes that previously leaked noise, plus the token pass.
+  describe("assignTierRows", () => {
+    let nextId = 1;
+    const iotm = (
+      packaged_name: string,
+      year: number,
+      extra: Partial<IOTM> = {},
+    ): IOTM => ({
+      packaged_id: nextId++,
+      packaged_name,
+      year,
+      tradeable: false,
+      type: "item",
+      img: "x.gif",
+      ...extra,
+    });
+    const row = (name: string, year?: number, tier = 1): TierEntry => ({
+      name,
+      ...(year !== undefined ? { year } : {}),
+      tier,
+    });
+    const matched = (r: TierEntry, pool: IOTM[]) =>
+      assignTierRows([r], pool).unmatched.length === 0;
+
     const sample: IOTM[] = [
-      {
-        packaged_id: 1,
-        packaged_name: "Black and White Apron Enrollment Form",
-        year: 2024,
-        tradeable: false,
-        type: "item",
-        img: "a.gif",
-      },
-      {
-        packaged_id: 2,
-        packaged_name: "X-32-F snowman crate",
-        year: 2016,
-        tradeable: false,
-        type: "item",
-        img: "b.gif",
-      },
-      {
-        packaged_id: 3,
-        packaged_name: "SongBoom™ BoomBox Box",
-        year: 2018,
-        tradeable: false,
-        type: "item",
-        img: "c.gif",
-      },
+      iotm("Black and White Apron Enrollment Form", 2024),
+      iotm("X-32-F snowman crate", 2016),
+      iotm("SongBoom™ BoomBox Box", 2018),
     ];
 
     test("matches across an ampersand vs. 'and' difference", () => {
       expect(
-        rowMatchesAnyIotm(
-          { name: "Black & White Apron Enrollment Form", year: 2024, tier: 1 },
-          sample,
-        ),
+        matched(row("Black & White Apron Enrollment Form", 2024), sample),
       ).toBe(true);
     });
 
     test("matches a slash-alias row against its canonical segment", () => {
-      expect(
-        rowMatchesAnyIotm(
-          { name: "X-32-F snowman crate/Snojo", year: 2016, tier: 1 },
-          sample,
-        ),
-      ).toBe(true);
+      expect(matched(row("X-32-F snowman crate/Snojo", 2016), sample)).toBe(
+        true,
+      );
     });
 
     test("matches a row carrying an HTML entity", () => {
-      expect(
-        rowMatchesAnyIotm(
-          { name: "SongBoom&trade; BoomBox Box", year: 2018, tier: 1 },
-          sample,
-        ),
-      ).toBe(true);
+      expect(matched(row("SongBoom&trade; BoomBox Box", 2018), sample)).toBe(
+        true,
+      );
     });
 
     test("flags a genuinely unknown row as unmatched", () => {
-      expect(
-        rowMatchesAnyIotm({ name: "emo roe", year: 2005, tier: 1 }, sample),
-      ).toBe(false);
+      expect(matched(row("emo roe", 2005), sample)).toBe(false);
+    });
+
+    test("one slash row can rank several IOTMs", () => {
+      const puck = iotm("yellow puck", 2015);
+      const bowed = iotm("yellow puck with a bow on it", 2015);
+      const r = row("yellow puck/with a bow on it", 2015, 4);
+      const { byIotm, unmatched } = assignTierRows([r], [puck, bowed]);
+      expect(unmatched).toEqual([]);
+      expect(byIotm.get(puck)?.matchedRow).toBe(r);
+      expect(byIotm.get(bowed)?.matchedRow).toBe(r);
+    });
+
+    test("an alias ties a nickname row, but only in its own year", () => {
+      const comma = iotm("Comma Chameleon egg", 2006);
+      const overrides = {
+        aliases: [
+          { row: "cc", year: 2006, packaged_name: "Comma Chameleon egg" },
+        ],
+        ignored: [],
+      };
+      const hit = assignTierRows([row("cc", 2006)], [comma], overrides);
+      expect(hit.byIotm.get(comma)).toMatchObject({ kind: "alias" });
+      const miss = assignTierRows([row("cc", 2007)], [comma], overrides);
+      expect(miss.unmatched).toHaveLength(1);
+    });
+
+    test("an ignored row is neither matched nor reported", () => {
+      const manuel = iotm("mm", 2006);
+      const overrides = {
+        aliases: [],
+        ignored: [{ row: "mm", year: 2006, why: "not tracked" }],
+      };
+      const { byIotm, unmatched } = assignTierRows(
+        [row("mm", 2006)],
+        [manuel],
+        overrides,
+      );
+      expect(unmatched).toEqual([]);
+      expect(byIotm.size).toBe(0);
+    });
+
+    describe("token pass", () => {
+      test("matches shorthand that is a word-subset of a candidate name", () => {
+        const taker = iotm("Sealed TakerSpace letter of Marque", 2024);
+        const paint = iotm("fresh can of paint", 2021, {
+          opened_names: "fresh coat of paint",
+        });
+        const { byIotm, unmatched } = assignTierRows(
+          [row("TakerSpace", 2024, 4), row("coat of paint", 2021, 6)],
+          [taker, paint],
+        );
+        expect(unmatched).toEqual([]);
+        expect(byIotm.get(taker)).toMatchObject({ tier: 4, kind: "tokens" });
+        expect(byIotm.get(paint)).toMatchObject({ tier: 6, kind: "tokens" });
+      });
+
+      test("matches a row that adds words to the canonical name", () => {
+        const pants = iotm("designer sweatpants (new old stock)", 2022, {
+          opened_names: "designer sweatpants",
+        });
+        expect(
+          matched(row("pair of high-end designer sweatpants", 2022), [pants]),
+        ).toBe(true);
+      });
+
+      test("tolerates one diverging word out of four", () => {
+        const cal = iotm("Packaged April Shower Thoughts Calendar", 2025);
+        expect(
+          matched(row("packaged April Shower Thoughts Catalog", 2025), [cal]),
+        ).toBe(true);
+      });
+
+      test("requires year agreement", () => {
+        const taker = iotm("Sealed TakerSpace letter of Marque", 2024);
+        expect(matched(row("TakerSpace", 2023), [taker])).toBe(false);
+        expect(matched(row("TakerSpace"), [taker])).toBe(false);
+      });
+
+      test("refuses to choose between equally-good IOTMs", () => {
+        const a = iotm("crimson widget box", 2030);
+        const b = iotm("crimson widget crate", 2030);
+        expect(matched(row("crimson widget", 2030), [a, b])).toBe(false);
+      });
+
+      test("never displaces a stricter match", () => {
+        const cal = iotm("Packaged April Shower Thoughts Calendar", 2025);
+        const exact = row("Packaged April Shower Thoughts Calendar", 2025, 3);
+        const loose = row("April Shower Thoughts", 2025, 5);
+        const { byIotm, unmatched } = assignTierRows([loose, exact], [cal]);
+        expect(byIotm.get(cal)).toMatchObject({ matchedRow: exact });
+        expect(unmatched).toEqual([loose]);
+      });
+
+      test("ignores overlaps on a short noise-length word", () => {
+        const ski = iotm("McHugeLarge deluxe ski set", 2025);
+        expect(matched(row("set", 2025), [ski])).toBe(false);
+      });
     });
   });
 });
@@ -510,5 +611,120 @@ describe("scrape (parse failure isolation)", () => {
     expect(
       result.skippedEntries.map((s) => s.packaged_name.toLowerCase()),
     ).toContain("stocking full of bones");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// A broken KoLmafia source fails the run instead of skipping every entry
+// ---------------------------------------------------------------------------
+
+describe("scrape (mafia data unavailable)", () => {
+  class BrokenMafiaDataClient implements MafiaDataClient {
+    fetchItems(): Promise<string> {
+      return Promise.reject(new Error("mafia items.txt HTTP 404"));
+    }
+    fetchFamiliars(): Promise<string> {
+      return Promise.reject(new Error("mafia familiars.txt HTTP 404"));
+    }
+    fetchSkills(): Promise<string> {
+      return Promise.reject(new Error("mafia classskills.txt HTTP 404"));
+    }
+  }
+
+  test("rejects rather than reporting new entries as skipped", async () => {
+    await expect(
+      scrape({
+        wiki,
+        tiers,
+        mafia: new BrokenMafiaDataClient(),
+        knownIotms: knownBefore(2025, 12),
+      }),
+    ).rejects.toThrow("HTTP 404");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Con merch table: convention exclusives have no Mr. Store month
+// ---------------------------------------------------------------------------
+
+describe("scrape (Con merch)", () => {
+  test("parses only the Mr. Accessory items off the merch table", async () => {
+    const names = parseConMerch(
+      await wiki.fetchWikitext("KoL_Con_13_Merch_Table"),
+    );
+    expect(names).toContain("hippo tutu");
+    expect(names).toContain("crated wardrobe-o-matic");
+    // Priced in Chroner, not an IOTM.
+    expect(names).not.toContain("Twitching Television Tattoo");
+  });
+
+  test("an unknown merch item comes back as a Con item stamped with conYear", async () => {
+    const known = ALL_IOTMS.filter((i) => i.packaged_name !== "hippo tutu");
+    const result = await scrape({
+      wiki,
+      tiers,
+      mafia,
+      knownIotms: known,
+      conYear: 2031,
+    });
+    const tutu = result.newIotms.find((i) => i.packaged_name === "hippo tutu");
+    expect(tutu).toMatchObject({ year: 2031, is_con: true });
+    expect(tutu!.month).toBeUndefined();
+    expect(tutu!.is_ioty).toBeUndefined();
+    // The year is a guess (first-seen), so the reviewer is asked to check it.
+    expect(result.reviewNotes["hippo tutu"]).toContain("year");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Clan VIP Lounge installs are not tracked (only the invitation is)
+// ---------------------------------------------------------------------------
+
+describe("Clan VIP Lounge detection", () => {
+  const VIP = new Set([
+    "Clan pool table",
+    "Clan hot dog stand",
+    "clan underground fireworks shop",
+  ]);
+
+  test("flags exactly the VIP installs among the fixture picks", async () => {
+    for (const pick of FIXTURE_PICKS) {
+      const { clanVip } = await parseItemPageWithReview(wiki, mafia, {
+        packaged_name: pick.packaged_name,
+        packaged_slug: pick.packaged_slug,
+        year: findKnown(pick.packaged_name).year,
+      });
+      expect(clanVip, pick.packaged_name).toBe(VIP.has(pick.packaged_name));
+    }
+  });
+
+  test("matches every wording the wiki uses for the install note", () => {
+    for (const wt of [
+      "*using this installs a [[Hot Dog Stand]] in the [[VIP Lounge|Clan VIP Lounge]].",
+      "*using this installs [[A Looking Glass]] in the [[Clan VIP Lounge]].",
+    ])
+      expect(installsInVipLounge(wt), wt).toBe(true);
+    expect(
+      installsInVipLounge(
+        "You get a key to the [[VIP Lounge|Clan VIP Lounge]]. It installs nothing.",
+      ),
+    ).toBe(false);
+  });
+
+  test("scrape leaves a new VIP install out of newIotms", async () => {
+    const known = ALL_IOTMS.filter(
+      (i) => i.packaged_name !== "clan underground fireworks shop",
+    );
+    // Anchor just before the fireworks shop (July 2021) so it reads as new.
+    const result = await scrape({
+      wiki,
+      tiers,
+      mafia,
+      knownIotms: known.filter((i) => i.year * 100 + (i.month ?? 0) < 202107),
+    });
+    expect(result.ignoredClanVip).toContain("clan underground fireworks shop");
+    expect(result.newIotms.map((i) => i.packaged_name)).not.toContain(
+      "clan underground fireworks shop",
+    );
   });
 });

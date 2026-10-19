@@ -49,7 +49,7 @@ const SPEED_SHEET_HUMAN =
 const AFTERCORE_SHEET_HUMAN =
   "https://docs.google.com/spreadsheets/d/1VtAkiQrV3lioq0NHFD2VEJtc7CaQ589nqbOwhG14NiA";
 const MAFIA_BASE =
-  "https://raw.githubusercontent.com/kolmafia/kolmafia/main/src/data";
+  "https://raw.githubusercontent.com/kolmafia/kolmafia/main/src/main/resources/data";
 // MediaWiki blocks empty/curl UAs; pretend to be a browser. The wiki is
 // public, this is just for that filter.
 const UA =
@@ -202,14 +202,18 @@ async function main() {
       console.log(`  ! ${s.packaged_name}: ${s.error}`);
   }
 
+  if (result.ignoredClanVip.length > 0) {
+    console.log(
+      `\nIgnored Clan VIP Lounge installs (not tracked): ${result.ignoredClanVip.join(", ")}`,
+    );
+  }
+
   if (result.unmatchedTierRows.length > 0) {
     console.log(
       "\nUnmatched tier-list rows (review for typos or missing IOTMs):",
     );
     for (const row of result.unmatchedTierRows.slice(0, 20)) {
-      console.log(
-        `  ${row.source}: "${row.name}"${row.year ? ` (${row.year})` : ""}`,
-      );
+      console.log(`  ${unmatchedRowLine(row)}`);
     }
     if (result.unmatchedTierRows.length > 20) {
       console.log(`  ... (${result.unmatchedTierRows.length - 20} more)`);
@@ -257,6 +261,17 @@ function backfillCutoff(monthsBack: number): number {
     y -= 1;
   }
   return y * 100 + m;
+}
+
+/** `speed: "mm" (2006) — unranked: Comma Chameleon egg` */
+function unmatchedRowLine(
+  row: ScrapeResult["unmatchedTierRows"][number],
+): string {
+  const year = row.year ? ` (${row.year})` : "";
+  const hint = row.suggestions
+    ? ` — unranked: ${row.suggestions.join(", ")}`
+    : "";
+  return `${row.source}: "${row.name}"${year}${hint}`;
 }
 
 /** Render the scrape result as a markdown PR body for the daily Action. */
@@ -320,13 +335,12 @@ function renderReport(
       "",
     );
     lines.push(
-      "Tier-sheet rows that matched no known IOTM (likely a sheet typo or an IOTM we haven't picked up):",
+      "Tier-sheet rows that matched no known IOTM (likely a sheet typo, a nickname, or an IOTM we haven't picked up). " +
+        "Alias a nickname, or ignore a row iotms.ts deliberately doesn't track, in `parse/tier-overrides.ts`; the `unranked` hint lists same-year IOTMs the sheet has no row for:",
       "",
     );
     for (const row of result.unmatchedTierRows.slice(0, 30)) {
-      lines.push(
-        `- ${row.source}: "${row.name}"${row.year ? ` (${row.year})` : ""}`,
-      );
+      lines.push(`- ${unmatchedRowLine(row)}`);
     }
     if (result.unmatchedTierRows.length > 30)
       lines.push(`- …and ${result.unmatchedTierRows.length - 30} more`);

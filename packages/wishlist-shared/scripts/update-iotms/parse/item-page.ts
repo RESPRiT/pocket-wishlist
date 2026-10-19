@@ -17,27 +17,38 @@ export type ParseItemContext = {
   packaged_slug: string;
   year: number;
   month?: number;
+  /** Sold at the KoL Con merch table rather than as a monthly/yearly IOTM. */
+  is_con?: boolean;
 };
 
-let cachedMafia: {
+type MafiaIndex = {
   itemsByName: Map<string, MafiaItem>;
   familiarsByName: Map<string, MafiaFamiliar>;
   skillsByName: Map<string, MafiaSkill>;
-} | null = null;
+};
 
-async function loadMafia(mafia: MafiaDataClient) {
-  if (cachedMafia) return cachedMafia;
+const mafiaCache = new WeakMap<MafiaDataClient, MafiaIndex>();
+
+/**
+ * Fetches and indexes the KoLmafia data files once per client. Exported so
+ * scrape() can load them before its per-entry loop: a failure here is a
+ * broken source, not a not-yet-ready wiki page, and must fail the run.
+ */
+export async function loadMafia(mafia: MafiaDataClient): Promise<MafiaIndex> {
+  const cached = mafiaCache.get(mafia);
+  if (cached) return cached;
   const [itemsRaw, famsRaw, skillsRaw] = await Promise.all([
     mafia.fetchItems(),
     mafia.fetchFamiliars(),
     mafia.fetchSkills(),
   ]);
-  cachedMafia = {
+  const index = {
     itemsByName: buildNameIndex(parseItemsFile(itemsRaw)),
     familiarsByName: buildNameIndex(parseFamiliarsFile(famsRaw)),
     skillsByName: buildNameIndex(parseSkillsFile(skillsRaw)),
   };
-  return cachedMafia;
+  mafiaCache.set(mafia, index);
+  return index;
 }
 
 export type ParseItemResult = {
@@ -45,6 +56,8 @@ export type ParseItemResult = {
   /** Field names whose values came from a heuristic fallback rather than a
    * confident detection. Codegen surfaces these as TODO comments. */
   needsReview: readonly (keyof IOTM)[];
+  /** The item installs into the Clan VIP Lounge (see {@link installsInVipLounge}). */
+  clanVip: boolean;
 };
 
 /**
@@ -161,7 +174,8 @@ export async function parseItemPageWithReview(
   const tradeable =
     ctx.year < TRADEABLE_CUTOFF_YEAR && TRADEABLE_PACKAGED_IDS.has(pkg.id);
 
-  const isIoty = ctx.month === undefined;
+  // Con items have no month either, but aren't IOTYs.
+  const isIoty = ctx.month === undefined && !ctx.is_con;
 
   const result: IOTM = {
     packaged_id: pkg.id,
@@ -200,11 +214,25 @@ export async function parseItemPageWithReview(
 
   if (equipment_slot !== undefined) result.equipment_slot = equipment_slot;
   if (isIoty) result.is_ioty = true;
+  if (ctx.is_con) result.is_con = true;
 
   const needsReview: (keyof IOTM)[] = [];
   if (!typeInf.confident) needsReview.push("type");
 
-  return { iotm: result, needsReview };
+  return { iotm: result, needsReview, clanVip: installsInVipLounge(wt) };
+}
+
+/**
+ * Whether an IOTM installs into the Clan VIP Lounge (pool table, hot dog
+ * stand, photo booth, …). Every such page has a note like "using this
+ * installs a [[Hot Dog Stand]] in the [[VIP Lounge|Clan VIP Lounge]]"; the
+ * Clan VIP Lounge invitation itself only grants the key and doesn't match.
+ * The Mr. Store grid's shading can't be used instead: it shades whole cells,
+ * and a cell can hold a VIP item alongside a regular IOTM (October 2024).
+ * — claude 3dc556f7, 2026-10-18
+ */
+export function installsInVipLounge(wikitext: string): boolean {
+  return /\binstalls\b[^.\n]*\[\[(?:Clan )?VIP Lounge\b/i.test(wikitext);
 }
 
 type Linked = {

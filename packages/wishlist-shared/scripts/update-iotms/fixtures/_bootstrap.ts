@@ -10,7 +10,7 @@ import { FIXTURE_PICKS, SUPPORT_PICKS } from "./MANIFEST";
 const WIKI_BASE = "https://wiki.kingdomofloathing.com/api.php";
 const SPEED_SHEET = "https://docs.google.com/spreadsheets/d/1pDTE8VhuSyH03xvkVW5JGvTQf7PYitaNGLMHLVXz_5A/export?format=csv&gid=903911646";
 const AFTERCORE_SHEET = "https://docs.google.com/spreadsheets/d/1VtAkiQrV3lioq0NHFD2VEJtc7CaQ589nqbOwhG14NiA/export?format=csv&gid=903911646";
-const MAFIA_BASE = "https://raw.githubusercontent.com/kolmafia/kolmafia/main/src/data";
+const MAFIA_BASE = "https://raw.githubusercontent.com/kolmafia/kolmafia/main/src/main/resources/data";
 const UA = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 KHTML/like Gecko Chrome/120.0.0.0 Safari/537.36";
 
 const FIXTURES_ROOT = new URL("./", import.meta.url).pathname;
@@ -71,8 +71,9 @@ async function main() {
   await mkdir(TIERS_DIR, { recursive: true });
   await mkdir(MAFIA_DIR, { recursive: true });
 
-  console.log(`Snapshotting Mr. Store index...`);
+  console.log(`Snapshotting Mr. Store index + Con merch table...`);
   await snapshotPage("Mr._Store");
+  await snapshotPage("KoL_Con_13_Merch_Table");
 
   const allSlugs = new Set<string>();
   for (const pick of [...FIXTURE_PICKS, ...SUPPORT_PICKS]) {
