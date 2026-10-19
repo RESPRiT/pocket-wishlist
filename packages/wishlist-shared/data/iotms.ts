@@ -3602,6 +3602,16 @@ export const iotms = [
     img: "emberbox.gif",
   },
   {
+    packaged_id: 11656,
+    packaged_name: "photo booth sized crate",
+    year: 2024,
+    month: 10,
+    aftercore_tier: 5,
+    tradeable: false,
+    type: "vip",
+    img: "crate.gif",
+  },
+  {
     packaged_id: 11657,
     packaged_name: "boxed bat wings",
     opened_ids: 11658,

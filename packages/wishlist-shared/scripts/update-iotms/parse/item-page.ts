@@ -56,8 +56,6 @@ export type ParseItemResult = {
   /** Field names whose values came from a heuristic fallback rather than a
    * confident detection. Codegen surfaces these as TODO comments. */
   needsReview: readonly (keyof IOTM)[];
-  /** The item installs into the Clan VIP Lounge (see {@link installsInVipLounge}). */
-  clanVip: boolean;
 };
 
 /**
@@ -219,20 +217,7 @@ export async function parseItemPageWithReview(
   const needsReview: (keyof IOTM)[] = [];
   if (!typeInf.confident) needsReview.push("type");
 
-  return { iotm: result, needsReview, clanVip: installsInVipLounge(wt) };
-}
-
-/**
- * Whether an IOTM installs into the Clan VIP Lounge (pool table, hot dog
- * stand, photo booth, …). Every such page has a note like "using this
- * installs a [[Hot Dog Stand]] in the [[VIP Lounge|Clan VIP Lounge]]"; the
- * Clan VIP Lounge invitation itself only grants the key and doesn't match.
- * The Mr. Store grid's shading can't be used instead: it shades whole cells,
- * and a cell can hold a VIP item alongside a regular IOTM (October 2024).
- * — claude 3dc556f7, 2026-10-18
- */
-export function installsInVipLounge(wikitext: string): boolean {
-  return /\binstalls\b[^.\n]*\[\[(?:Clan )?VIP Lounge\b/i.test(wikitext);
+  return { iotm: result, needsReview };
 }
 
 type Linked = {

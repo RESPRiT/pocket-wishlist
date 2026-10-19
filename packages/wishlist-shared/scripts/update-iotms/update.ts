@@ -25,6 +25,7 @@ import {
   type MafiaDataClient,
   type ScrapeResult,
   type TierListClient,
+  type TierUpdate,
   type WikiClient,
 } from "./scrape";
 
@@ -66,7 +67,7 @@ class FetchWikiClient implements WikiClient {
     slug: string,
     prop: "wikitext" | "text",
   ): Promise<string> {
-    const url = `${WIKI_BASE}?action=parse&format=json&page=${slug}&prop=${prop}`;
+    const url = `${WIKI_BASE}?action=parse&format=json&redirects=1&page=${slug}&prop=${prop}`;
     const res = await fetch(url, { headers: { "User-Agent": UA } });
     if (!res.ok)
       throw new Error(`wiki HTTP ${res.status} for ${slug} (${prop})`);
@@ -202,12 +203,6 @@ async function main() {
       console.log(`  ! ${s.packaged_name}: ${s.error}`);
   }
 
-  if (result.ignoredClanVip.length > 0) {
-    console.log(
-      `\nIgnored Clan VIP Lounge installs (not tracked): ${result.ignoredClanVip.join(", ")}`,
-    );
-  }
-
   if (result.unmatchedTierRows.length > 0) {
     console.log(
       "\nUnmatched tier-list rows (review for typos or missing IOTMs):",
@@ -268,21 +263,14 @@ function unmatchedRowLine(
   row: ScrapeResult["unmatchedTierRows"][number],
 ): string {
   const year = row.year ? ` (${row.year})` : "";
-  const hint = row.suggestions
-    ? ` — unranked: ${row.suggestions.join(", ")}`
-    : "";
+  const hint = row.unranked ? ` — unranked: ${row.unranked.join(", ")}` : "";
   return `${row.source}: "${row.name}"${year}${hint}`;
 }
 
 /** Render the scrape result as a markdown PR body for the daily Action. */
 function renderReport(
   result: ScrapeResult,
-  applied: readonly {
-    packaged_name: string;
-    field: string;
-    from?: number;
-    to: number;
-  }[],
+  applied: readonly TierUpdate[],
   changed: boolean,
 ): string {
   const lines: string[] = ["## IOTM update", ""];
@@ -312,8 +300,11 @@ function renderReport(
   if (applied.length > 0) {
     lines.push(`### Tier backfills (${applied.length})`, "");
     for (const u of applied) {
+      const loose = u.looseRow
+        ? ` — loose match on sheet row "${u.looseRow}", verify`
+        : "";
       lines.push(
-        `- **${u.packaged_name}**: \`${u.field}\` ${u.from ?? "_unset_"} → **${u.to}**`,
+        `- **${u.packaged_name}**: \`${u.field}\` ${u.from ?? "_unset_"} → **${u.to}**${loose}`,
       );
     }
     lines.push("");

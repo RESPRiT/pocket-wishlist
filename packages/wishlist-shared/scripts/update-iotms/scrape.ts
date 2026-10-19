@@ -6,6 +6,7 @@ import {
   assignTierRows,
   parseAftercoreSheet,
   parseSpeedSheet,
+  type TierMatch,
 } from "./parse/tier-match";
 
 /**
@@ -79,6 +80,8 @@ export type TierUpdate = {
   from?: number;
   /** Value from the tier sheet. */
   to: number;
+  /** The sheet row's name, when it matched only loosely (fuzzy / tokens). */
+  looseRow?: string;
 };
 
 export type ScrapeResult = {
@@ -100,7 +103,7 @@ export type ScrapeResult = {
      * Same-year IOTMs that this sheet gives no row to — the likely referent
      * of a nickname row. Omitted when there are none (or too many to help).
      */
-    suggestions?: string[];
+    unranked?: string[];
   }[];
   /**
    * Tier changes to existing iotms.ts entries within the backfill window.
@@ -114,11 +117,6 @@ export type ScrapeResult = {
    * fills in. Reported so a stuck entry doesn't go silently missing.
    */
   skippedEntries: { packaged_name: string; error: string }[];
-  /**
-   * New entries left out because they install into the Clan VIP Lounge,
-   * which iotms.ts doesn't track (only the VIP Lounge invitation itself).
-   */
-  ignoredClanVip: string[];
 };
 
 export async function scrape(opts: ScrapeOptions): Promise<ScrapeResult> {
@@ -143,8 +141,15 @@ export async function scrape(opts: ScrapeOptions): Promise<ScrapeResult> {
   // Con items carry no date to compare against the anchor, so any Mr.
   // Accessory item on the merch table that iotms.ts doesn't know is new.
   // — claude 3dc556f7, 2026-10-18
-  const newCon = parseConMerch(conWikitext)
-    .filter((name) => !knownNames.has(name.toLowerCase()))
+  const monthlyNames = new Set(
+    newMonthly.map((e) => e.packaged_name.toLowerCase()),
+  );
+  const newCon = [...new Set(parseConMerch(conWikitext))]
+    .filter(
+      (name) =>
+        !knownNames.has(name.toLowerCase()) &&
+        !monthlyNames.has(name.toLowerCase()),
+    )
     .map((packaged_name) => ({ packaged_name, year: conYear, is_con: true }));
   const newEntries: (IndexEntry & { is_con?: boolean })[] = [
     ...newMonthly,
@@ -162,7 +167,6 @@ export async function scrape(opts: ScrapeOptions): Promise<ScrapeResult> {
   const newIotms: IOTM[] = [];
   const reviewNotes: Record<string, readonly (keyof IOTM)[]> = {};
   const skippedEntries: ScrapeResult["skippedEntries"] = [];
-  const ignoredClanVip: string[] = [];
   for (const entry of newEntries) {
     const slug = wikiSlug(entry.packaged_name);
     // Isolate per-entry parse failures: a newly-listed IOTM whose wiki page
@@ -171,21 +175,13 @@ export async function scrape(opts: ScrapeOptions): Promise<ScrapeResult> {
     // fills in.
     // — claude 8043a506, 2026-05-30
     try {
-      const { iotm, needsReview, clanVip } = await parseItemPageWithReview(
-        wiki,
-        mafia,
-        {
-          packaged_name: entry.packaged_name,
-          packaged_slug: slug,
-          year: entry.year,
-          ...(entry.month !== undefined ? { month: entry.month } : {}),
-          ...(entry.is_con ? { is_con: true } : {}),
-        },
-      );
-      if (clanVip) {
-        ignoredClanVip.push(iotm.packaged_name);
-        continue;
-      }
+      const { iotm, needsReview } = await parseItemPageWithReview(wiki, mafia, {
+        packaged_name: entry.packaged_name,
+        packaged_slug: slug,
+        year: entry.year,
+        ...(entry.month !== undefined ? { month: entry.month } : {}),
+        ...(entry.is_con ? { is_con: true } : {}),
+      });
       newIotms.push(iotm);
       // A Con item's year is only the year this run first saw it.
       const notes = entry.is_con
@@ -208,11 +204,26 @@ export async function scrape(opts: ScrapeOptions): Promise<ScrapeResult> {
   const allKnown = [...knownIotms, ...newIotms];
   const speed = assignTierRows(parseSpeedSheet(speedCsv), allKnown);
   const aftercore = assignTierRows(parseAftercoreSheet(aftercoreCsv), allKnown);
+  // A tier taken from a loosely-matched row gets a review TODO like any
+  // other heuristic field: the row may belong to a different IOTM.
+  // — claude 3dc556f7, 2026-10-18
   for (const iotm of newIotms) {
+    const loose: (keyof IOTM)[] = [];
     const s = speed.byIotm.get(iotm);
-    if (s) iotm.speed_tier = s.tier;
+    if (s) {
+      iotm.speed_tier = s.tier;
+      if (isLoose(s)) loose.push("speed_tier");
+    }
     const a = aftercore.byIotm.get(iotm);
-    if (a) iotm.aftercore_tier = a.tier;
+    if (a) {
+      iotm.aftercore_tier = a.tier;
+      if (isLoose(a)) loose.push("aftercore_tier");
+    }
+    if (loose.length > 0)
+      reviewNotes[iotm.packaged_name] = [
+        ...(reviewNotes[iotm.packaged_name] ?? []),
+        ...loose,
+      ];
   }
 
   // Backfill pass: re-match the tier sheets against existing entries inside
@@ -233,6 +244,7 @@ export async function scrape(opts: ScrapeOptions): Promise<ScrapeResult> {
           field: "speed_tier",
           ...(iotm.speed_tier !== undefined ? { from: iotm.speed_tier } : {}),
           to: s.tier,
+          ...looseRow(s),
         });
       }
       const a = aftercore.byIotm.get(iotm);
@@ -245,6 +257,7 @@ export async function scrape(opts: ScrapeOptions): Promise<ScrapeResult> {
             ? { from: iotm.aftercore_tier }
             : {}),
           to: a.tier,
+          ...looseRow(a),
         });
       }
     }
@@ -273,7 +286,7 @@ export async function scrape(opts: ScrapeOptions): Promise<ScrapeResult> {
         name: row.name,
         ...(row.year !== undefined ? { year: row.year } : {}),
         ...(unranked.length > 0 && unranked.length <= MAX_SUGGESTIONS
-          ? { suggestions: unranked }
+          ? { unranked }
           : {}),
       });
     }
@@ -285,7 +298,6 @@ export async function scrape(opts: ScrapeOptions): Promise<ScrapeResult> {
     unmatchedTierRows,
     tierUpdates,
     skippedEntries,
-    ignoredClanVip,
   };
 }
 
@@ -295,7 +307,15 @@ const CON_MERCH_SLUG = "KoL_Con_13_Merch_Table";
 /** Past this many, "same-year unranked IOTMs" stops narrowing anything down. */
 const MAX_SUGGESTIONS = 3;
 
-/** Sort key for an IndexEntry. IOTYs (no month) sort to month 13. */
+function isLoose(m: TierMatch): boolean {
+  return m.kind === "fuzzy" || m.kind === "tokens";
+}
+
+function looseRow(m: TierMatch): { looseRow?: string } {
+  return isLoose(m) ? { looseRow: m.matchedRow.name } : {};
+}
+
+/** Sort key for an IndexEntry. Month-less entries (IOTYs, Con items) sort to month 0. */
 function entryKey(e: IndexEntry): number {
   return e.year * 100 + (e.month ?? 0);
 }

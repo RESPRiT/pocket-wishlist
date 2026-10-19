@@ -4,11 +4,7 @@ import { IOTMSchema } from "../../schemas/data";
 import { FIXTURE_PICKS, SUPPORT_PICKS } from "./fixtures/MANIFEST";
 import { parseIndex } from "./parse/mr-store";
 import { parseConMerch } from "./parse/con-merch";
-import {
-  installsInVipLounge,
-  parseItemPage,
-  parseItemPageWithReview,
-} from "./parse/item-page";
+import { parseItemPage } from "./parse/item-page";
 import { iotms as ALL_IOTMS } from "../../data/iotms";
 import {
   assignTierRows,
@@ -16,7 +12,12 @@ import {
   parseAftercoreSheet,
   type TierEntry,
 } from "./parse/tier-match";
-import { scrape, type MafiaDataClient, type WikiClient } from "./scrape";
+import {
+  scrape,
+  type MafiaDataClient,
+  type TierListClient,
+  type WikiClient,
+} from "./scrape";
 import {
   findKnown,
   FixtureMafiaDataClient,
@@ -198,8 +199,8 @@ describe("tier matching", () => {
 
   // Tier sheets exclude certain IOTM categories (VIP/clan items aren't rated;
   // Con items get filtered; brand-new IOTYs haven't been rated yet). For
-  // these, assignTierRows correctly leaves them without a row. Anything outside this list that
-  // also returns null is a real matcher bug.
+  // these, assignTierRows correctly leaves them without a row. Anything
+  // outside this list that gets no row is a real matcher bug.
   const EXPECTED_NULL_SPEED = new Set([
     "Clan pool table",
     "Clan hot dog stand",
@@ -274,7 +275,7 @@ describe("tier matching", () => {
 
   // assignTierRows backs both tier assignment and the "unmatched tier rows"
   // report, so a placed row is never also flagged as orphaned — these lock
-  // the divergence classes that previously leaked noise, plus the token pass.
+  // the normalization cases the report depends on, plus the token pass.
   describe("assignTierRows", () => {
     let nextId = 1;
     const iotm = (
@@ -323,7 +324,7 @@ describe("tier matching", () => {
     });
 
     test("flags a genuinely unknown row as unmatched", () => {
-      expect(matched(row("emo roe", 2005), sample)).toBe(false);
+      expect(matched(row("zorblax", 2005), sample)).toBe(false);
     });
 
     test("one slash row can rank several IOTMs", () => {
@@ -400,6 +401,15 @@ describe("tier matching", () => {
         const taker = iotm("Sealed TakerSpace letter of Marque", 2024);
         expect(matched(row("TakerSpace", 2023), [taker])).toBe(false);
         expect(matched(row("TakerSpace"), [taker])).toBe(false);
+      });
+
+      test("the strongest overlap claims an IOTM, whatever the sheet order", () => {
+        const cal = iotm("Packaged April Shower Thoughts Calendar", 2025);
+        const weak = row("April Shower Thoughts Catalog", 2025, 1); // 3/4
+        const strong = row("Shower Thoughts Calendar", 2025, 3); // subset
+        const { byIotm, unmatched } = assignTierRows([weak, strong], [cal]);
+        expect(byIotm.get(cal)).toMatchObject({ matchedRow: strong });
+        expect(unmatched).toEqual([weak]);
       });
 
       test("refuses to choose between equally-good IOTMs", () => {
@@ -677,54 +687,57 @@ describe("scrape (Con merch)", () => {
 });
 
 // ---------------------------------------------------------------------------
-// Clan VIP Lounge installs are not tracked (only the invitation is)
+// Tier report details: loose-match flags and unranked hints
 // ---------------------------------------------------------------------------
 
-describe("Clan VIP Lounge detection", () => {
-  const VIP = new Set([
-    "Clan pool table",
-    "Clan hot dog stand",
-    "clan underground fireworks shop",
-  ]);
-
-  test("flags exactly the VIP installs among the fixture picks", async () => {
-    for (const pick of FIXTURE_PICKS) {
-      const { clanVip } = await parseItemPageWithReview(wiki, mafia, {
-        packaged_name: pick.packaged_name,
-        packaged_slug: pick.packaged_slug,
-        year: findKnown(pick.packaged_name).year,
-      });
-      expect(clanVip, pick.packaged_name).toBe(VIP.has(pick.packaged_name));
+describe("scrape (tier report details)", () => {
+  /** Serves the same synthetic rows as both tier sheets. */
+  class SyntheticTierListClient implements TierListClient {
+    private readonly csv: string;
+    constructor(rows: readonly [name: string, year: number, tier: number][]) {
+      this.csv = [
+        "Mr. Store Item,Year,Tier",
+        ...rows.map(([n, y, t]) => `"${n}",${y},${t}`),
+      ].join("\n");
     }
-  });
+    fetchSpeed(): Promise<string> {
+      return Promise.resolve(this.csv);
+    }
+    fetchAftercore(): Promise<string> {
+      return Promise.resolve(this.csv);
+    }
+  }
 
-  test("matches every wording the wiki uses for the install note", () => {
-    for (const wt of [
-      "*using this installs a [[Hot Dog Stand]] in the [[VIP Lounge|Clan VIP Lounge]].",
-      "*using this installs [[A Looking Glass]] in the [[Clan VIP Lounge]].",
-    ])
-      expect(installsInVipLounge(wt), wt).toBe(true);
-    expect(
-      installsInVipLounge(
-        "You get a key to the [[VIP Lounge|Clan VIP Lounge]]. It installs nothing.",
-      ),
-    ).toBe(false);
-  });
-
-  test("scrape leaves a new VIP install out of newIotms", async () => {
-    const known = ALL_IOTMS.filter(
-      (i) => i.packaged_name !== "clan underground fireworks shop",
-    );
-    // Anchor just before the fireworks shop (July 2021) so it reads as new.
+  test("a backfill from a loosely-matched row names that row", async () => {
     const result = await scrape({
       wiki,
-      tiers,
+      tiers: new SyntheticTierListClient([["TakerSpace", 2024, 9]]),
       mafia,
-      knownIotms: known.filter((i) => i.year * 100 + (i.month ?? 0) < 202107),
+      knownIotms: ALL_IOTMS,
+      backfillSince: 202401,
     });
-    expect(result.ignoredClanVip).toContain("clan underground fireworks shop");
-    expect(result.newIotms.map((i) => i.packaged_name)).not.toContain(
-      "clan underground fireworks shop",
+    const u = result.tierUpdates.find(
+      (u) => u.packaged_name === "Sealed TakerSpace letter of Marque",
     );
+    expect(u).toMatchObject({ to: 9, looseRow: "TakerSpace" });
+  });
+
+  test("an unmatched row lists the one same-year IOTM the sheet left unranked", async () => {
+    const [target, ...rest] = ALL_IOTMS.filter((i) => i.year === 2010);
+    const result = await scrape({
+      wiki,
+      tiers: new SyntheticTierListClient([
+        ...rest.map((i): [string, number, number] => [
+          i.packaged_name,
+          2010,
+          3,
+        ]),
+        ["zorblax", 2010, 3],
+      ]),
+      mafia,
+      knownIotms: ALL_IOTMS,
+    });
+    const row = result.unmatchedTierRows.find((r) => r.name === "zorblax");
+    expect(row?.unranked).toEqual([target!.packaged_name]);
   });
 });
