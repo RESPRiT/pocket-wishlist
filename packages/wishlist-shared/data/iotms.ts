@@ -4092,12 +4092,21 @@ export const iotms = [
     opened_ids: 12270,
     opened_names: "Portable Laughing Stock",
     year: 2026, // TODO(scraper): year was a heuristic fallback, please verify
-    speed_tier: 4,
+    speed_tier: 5,
     aftercore_tier: 5,
     is_con: true,
     tradeable: false,
     type: "item",
     equipment_slot: "accessory",
     img: "stocks_box.gif",
+  },
+  {
+    packaged_id: 12391,
+    packaged_name: "unopened legendary acorndion",
+    year: 2026,
+    month: 11,
+    tradeable: false,
+    type: "item",
+    img: "acorndionbox.gif",
   },
 ];
