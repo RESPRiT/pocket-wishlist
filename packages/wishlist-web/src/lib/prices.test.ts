@@ -50,7 +50,10 @@ describe("getMallPrice", () => {
 
 describe("getMrARatio", () => {
   test("no sales history yields a finite ratio", () => {
-    expect(getMrARatio({ lowestMall: 76_697_000 }, MR_A)).toBeCloseTo(1.0006, 3);
+    expect(getMrARatio({ lowestMall: 76_697_000 }, MR_A)).toBeCloseTo(
+      1.0006,
+      3,
+    );
   });
 
   test("unknown prices are infinitely expensive", () => {

@@ -9,6 +9,7 @@ import {
 import { ListEntryProps } from "./ListEntry";
 import { Theme, useTheme } from "@/contexts/ThemeContext";
 import { useEntryBackgroundColor } from "@/hooks/useEntryBackgroundColor";
+import { getMrARatio } from "@/lib/prices";
 import { cn } from "@/lib/utils";
 
 // Constants
@@ -47,15 +48,8 @@ function MiniMapEntry({
     return currentYear - entry.year;
   }, [entry.year, entry.packagedName]);
 
-  const mall =
-    entry.price?.value || entry.price?.lowestMall
-      ? Math.max(
-          entry.price?.value ?? Infinity,
-          entry.price?.lowestMall ?? Infinity,
-        )
-      : null;
-
-  const priceRatio = mall && entry.mrAs ? mall / entry.mrAs : null;
+  const priceRatio =
+    entry.price && entry.mrAs ? getMrARatio(entry.price, entry.mrAs) : null;
   const isStandard = standardYear < 3;
 
   const { bgStyle } = useEntryBackgroundColor({
