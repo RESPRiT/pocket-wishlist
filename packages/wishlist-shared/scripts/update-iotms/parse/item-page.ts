@@ -107,23 +107,20 @@ export async function parseItemPageWithReview(
   // Some wikitext acquire calls reference a state-suffixed name (e.g.
   // "unbreakable umbrella (broken)") while items.txt only has the canonical
   // "unbreakable umbrella" — strip parenthetical suffixes as a fallback.
-  const opened = linked.openedItems
-    .map((n) => {
+  const opened = uniqueSortedById(
+    linked.openedItems.map((n) => {
       const direct = itemsByName.get(n.toLowerCase());
       if (direct) return direct;
       const stripped = n.replace(/\s*\([^)]*\)\s*$/, "").toLowerCase();
       return stripped !== n.toLowerCase() ? itemsByName.get(stripped) : undefined;
-    })
-    .filter((x): x is MafiaItem => x !== undefined)
-    .sort((a, b) => a.id - b.id);
-  const familiars = linked.familiars
-    .map((n) => familiarsByName.get(n.toLowerCase()))
-    .filter((x): x is MafiaFamiliar => x !== undefined)
-    .sort((a, b) => a.id - b.id);
-  const skills = linked.skills
-    .map((n) => skillsByName.get(n.toLowerCase()))
-    .filter((x): x is MafiaSkill => x !== undefined)
-    .sort((a, b) => a.id - b.id);
+    }),
+  );
+  const familiars = uniqueSortedById(
+    linked.familiars.map((n) => familiarsByName.get(n.toLowerCase())),
+  );
+  const skills = uniqueSortedById(
+    linked.skills.map((n) => skillsByName.get(n.toLowerCase())),
+  );
 
   // Equipment slot resolution:
   //   - if package itself is equipment, that's the slot (Tam, Bjorn, ...);
@@ -218,6 +215,19 @@ export async function parseItemPageWithReview(
   if (!typeInf.confident) needsReview.push("type");
 
   return { iotm: result, needsReview };
+}
+
+/**
+ * Drops unresolved names and repeats, then sorts by id. A page can acquire
+ * the same item more than once (the Interesting Coin letter grants one coin,
+ * then three more), which must not become a duplicated array entry.
+ */
+function uniqueSortedById<T extends { id: number }>(
+  records: readonly (T | undefined)[],
+): T[] {
+  const byId = new Map<number, T>();
+  for (const r of records) if (r && !byId.has(r.id)) byId.set(r.id, r);
+  return [...byId.values()].sort((a, b) => a.id - b.id);
 }
 
 type Linked = {
