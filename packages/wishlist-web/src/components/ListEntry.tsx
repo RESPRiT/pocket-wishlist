@@ -5,6 +5,7 @@ import { EntryRibbon } from "./entry/EntryRibbon";
 import { EntryInfoSection } from "./entry/EntryInfoSection";
 import { EntryTiersSection } from "./entry/EntryTiersSection";
 import { EntryPriceSection } from "./entry/EntryPriceSection";
+import { getMrARatio } from "@/lib/prices";
 import { cn } from "@/lib/utils";
 import { Price } from "wishlist-shared";
 import { useWishlist } from "@/contexts/WishlistContext";
@@ -70,12 +71,7 @@ function ListEntry({
     return currentYear - year;
   }, [year, packagedName]);
 
-  const mall =
-    price?.value || price?.lowestMall
-      ? Math.max(price?.value ?? Infinity, price?.lowestMall ?? Infinity)
-      : null;
-
-  const priceRatio = mall && mrAs ? mall / mrAs : null;
+  const priceRatio = price && mrAs ? getMrARatio(price, mrAs) : null;
   const isStandard = standardYear < 3;
 
   return (

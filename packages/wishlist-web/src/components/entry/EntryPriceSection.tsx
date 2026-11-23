@@ -1,5 +1,6 @@
 import EntryItem from "@/components/EntryItem";
 import ThemedImg from "@/components/ThemedImg";
+import { getMallPrice } from "@/lib/prices";
 import { cn } from "@/lib/utils";
 import { Price } from "wishlist-shared";
 
@@ -22,21 +23,7 @@ export function EntryPriceSection({
   price,
   packagedName,
 }: EntryPriceSectionProps) {
-  const mallStatus =
-    price?.value === undefined && price?.lowestMall === -1
-      ? "extinct"
-      : price?.value === undefined || price?.volume === 0
-        ? "lowestMall"
-        : price.value > price.lowestMall
-          ? "recentSales"
-          : "lowestMall";
-
-  const lowestPrice =
-    (mallStatus === "lowestMall"
-      ? price?.lowestMall
-      : mallStatus === "recentSales"
-        ? price?.value
-        : -1) ?? -1;
+  const { status: mallStatus, price: lowestPrice } = getMallPrice(price);
 
   const statusText = {
     extinct: "Mall extinct, no recent sales data",
