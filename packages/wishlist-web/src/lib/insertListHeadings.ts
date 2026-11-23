@@ -2,6 +2,7 @@ import { HeadingItem } from "@/components/List";
 import { VirtualListItem } from "@/components/ListItem";
 import { ListEntryProps } from "@/components/ListEntry";
 import { HeadingType } from "@/components/ListHeading";
+import { getMrARatio } from "@/lib/prices";
 
 const PRICE_RANGES = [
   { max: 1, label: "<1 Mr. A" },
@@ -26,24 +27,7 @@ function getTierGroup(entry: ListEntryProps): string {
 }
 
 function getPriceGroup(entry: ListEntryProps): string {
-  const price = entry.price;
-  const mallStatus =
-    price?.value === undefined && price?.lowestMall === -1
-      ? "extinct"
-      : price?.value === undefined || price?.volume === 0
-        ? "lowestMall"
-        : price.value > price.lowestMall
-          ? "recentSales"
-          : "lowestMall";
-
-  const lowestPrice =
-    (mallStatus === "lowestMall"
-      ? price?.lowestMall
-      : mallStatus === "recentSales"
-        ? price?.value
-        : -1) ?? -1;
-
-  const costInMrAs = lowestPrice === -1 ? Infinity : lowestPrice / entry.mrAs;
+  const costInMrAs = getMrARatio(entry.price, entry.mrAs);
 
   for (const range of PRICE_RANGES) {
     if (costInMrAs < range.max) {

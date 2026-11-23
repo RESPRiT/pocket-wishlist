@@ -1,21 +1,14 @@
 import type { ListEntryProps } from "@/components/ListEntry";
+import { getMrARatio } from "@/lib/prices";
 
 function priceSort(
   a: ListEntryProps,
   b: ListEntryProps,
   skipTie = false,
 ): number {
-  const aPrice = (a.price?.volume ?? 0 > 0) ? a.price?.value : null;
-  const bPrice = (b.price?.volume ?? 0 > 0) ? b.price?.value : null;
-
-  const aLowest = Math.max(
-    aPrice || Infinity,
-    a.price?.lowestMall === -1 ? Infinity : a.price?.lowestMall || Infinity,
-  );
-  const bLowest = Math.max(
-    bPrice || Infinity,
-    b.price?.lowestMall === -1 ? Infinity : b.price?.lowestMall || Infinity,
-  );
+  // Same price the entry displays and is grouped by; unknown sorts last.
+  const aLowest = getMrARatio(a.price, 1);
+  const bLowest = getMrARatio(b.price, 1);
 
   // tie-breaker
   if (aLowest === bLowest) {
