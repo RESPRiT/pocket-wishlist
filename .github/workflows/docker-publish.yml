@@ -103,9 +103,12 @@ jobs:
       # in the COOLIFY_DEPLOY_URL repo variable so it can be retargeted without
       # a code change. Expected shape:
       #   https://coolify.<host>/api/v1/deploy?uuid=<service-uuid>&force=true
+      # Coolify's deploy endpoint only accepts POST; GET returns 405 with
+      # `Allow: POST`. The query params are still read from the URL.
+      # — claude 3989dcf1, 2026-11-23
       - name: Trigger Coolify redeploy
         run: |
-          curl -fsS --retry 3 --retry-delay 5 \
+          curl -fsS -X POST --retry 3 --retry-delay 5 \
             -H "Authorization: Bearer ${COOLIFY_API_TOKEN}" \
             "${COOLIFY_DEPLOY_URL}"
         env:
