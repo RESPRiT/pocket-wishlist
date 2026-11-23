@@ -4050,8 +4050,8 @@ export const iotms = [
   {
     packaged_id: 12276,
     packaged_name: "Interesting Coin Inheritance Letter",
-    opened_ids: [12275, 12275],
-    opened_names: ["Interesting Coin", "Interesting Coin"],
+    opened_ids: 12275,
+    opened_names: "Interesting Coin",
     year: 2026,
     month: 8,
     speed_tier: 1,
@@ -4081,7 +4081,7 @@ export const iotms = [
     year: 2026,
     month: 10,
     speed_tier: 2,
-    aftercore_tier: 4, // TODO(scraper): aftercore_tier was a heuristic fallback, please verify
+    aftercore_tier: 4,
     tradeable: false,
     type: "campground",
     img: "rosebud.gif",
@@ -4091,7 +4091,7 @@ export const iotms = [
     packaged_name: "packaged Portable Laughing Stock",
     opened_ids: 12270,
     opened_names: "Portable Laughing Stock",
-    year: 2026, // TODO(scraper): year was a heuristic fallback, please verify
+    year: 2026,
     speed_tier: 5,
     aftercore_tier: 5,
     is_con: true,

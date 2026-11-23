@@ -236,7 +236,7 @@ function prTitle(newCount: number, backfillCount: number): string {
   const plural = (n: number, word: string) =>
     `${n} ${word}${n === 1 ? "" : "s"}`;
   const parts: string[] = [];
-  if (newCount > 0) parts.push(plural(newCount, "new"));
+  if (newCount > 0) parts.push(`${newCount} new`);
   if (backfillCount > 0) parts.push(plural(backfillCount, "backfill"));
   const summary = parts.length > 0 ? ` — ${parts.join(", ")}` : "";
   const date = new Date().toISOString().slice(0, 10);

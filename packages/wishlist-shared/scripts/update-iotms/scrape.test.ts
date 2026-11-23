@@ -741,3 +741,30 @@ describe("scrape (tier report details)", () => {
     expect(row?.unranked).toEqual([target!.packaged_name]);
   });
 });
+
+// ---------------------------------------------------------------------------
+// A page that acquires the same item twice yields it once
+// ---------------------------------------------------------------------------
+
+describe("parseItemPage (repeated acquire)", () => {
+  test("an item acquired twice appears once in opened_ids", async () => {
+    // Like the Interesting Coin letter, which grants one coin and then three.
+    const twice: WikiClient = {
+      fetchWikitext: async (slug) =>
+        (await wiki.fetchWikitext(slug)).replace(
+          "{{acquire|item=legendary pasta wand|legendary=1}}",
+          "{{acquire|item=legendary pasta wand|legendary=1}}" +
+            "{{acquire|item=legendary pasta wand|num=3}}",
+        ),
+      fetchHtml: (slug) => wiki.fetchHtml(slug),
+    };
+    const iotm = await parseItemPage(twice, mafia, {
+      packaged_name: "pasta wand loot box",
+      packaged_slug: "Pasta_wand_loot_box",
+      year: 2026,
+      month: 5,
+    });
+    expect(iotm.opened_names).toBe("legendary pasta wand");
+    expect(typeof iotm.opened_ids).toBe("number");
+  });
+});
